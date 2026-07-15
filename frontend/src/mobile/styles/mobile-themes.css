@@ -1,0 +1,328 @@
+/* ══════════════════════════════════════════════════════════════
+   MOBILE THEMES — Fully Isolated from Web App
+   These selectors ONLY apply inside .mobile-app[data-mobile-theme]
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── 1. DARK THEME (OLED Optimized) ─────────────────────────── */
+.mobile-app[data-mobile-theme="dark"] {
+  --color-bg: #000000;
+  --color-surface: #0a0a0a;
+  --color-surface-h: #141414;
+  --color-text: #ffffff;
+  --color-text-2: #a3a3a3;
+  --color-text-3: #737373;
+  --color-text-inv: #000000;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-h: rgba(255, 255, 255, 0.12);
+  --bg-input: #0f0f0f;
+  --border-input: rgba(255, 255, 255, 0.12);
+  --bg-glass: rgba(10, 10, 10, 0.85);
+  --border-glass: rgba(255, 255, 255, 0.06);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.8);
+
+  --text-primary: #ffffff;
+  --text-secondary: #a3a3a3;
+  --mobile-card-bg: rgba(18, 18, 18, 0.7);
+  --mobile-card-border: rgba(255, 255, 255, 0.06);
+
+  --aura-accent: #00f2fe;
+  --aura-accent-rgb: 0, 242, 254;
+  --aura-purple: #8b5cf6;
+  --aura-pink: #ec4899;
+  --aura-green: #10b981;
+  --aura-orange: #f97316;
+  --aura-cyan: #00f2fe;
+  --color-on-accent: #000000;
+
+  background: #000000;
+  color: #ffffff;
+}
+
+.mobile-app[data-mobile-theme="dark"] .mobile-card {
+  background: rgba(18, 18, 18, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+
+.mobile-app[data-mobile-theme="dark"] .mobile-page {
+  background: #000000;
+}
+
+.mobile-app[data-mobile-theme="dark"] .floating-bottom-nav-container {
+  background: rgba(10, 10, 10, 0.92) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.mobile-app[data-mobile-theme="dark"] .floating-nav-item.active {
+  background: #00f2fe !important;
+  color: #000000 !important;
+}
+
+.mobile-app[data-mobile-theme="dark"] .mobile-grid-item {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.mobile-app[data-mobile-theme="dark"] .mobile-list-item {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.mobile-app[data-mobile-theme="dark"] .mobile-bottom-sheet {
+  background: rgba(10, 10, 10, 0.96) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+
+/* ── 2. LIGHT THEME (Crisp & Premium) ───────────────────────── */
+.mobile-app[data-mobile-theme="light"],
+.mobile-app[data-mobile-theme="sun"] {
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-h: #f1f5f9;
+  --color-text: #0f172a;
+  --color-text-2: #475569;
+  --color-text-3: #94a3b8;
+  --color-text-inv: #ffffff;
+  --color-border: #e2e8f0;
+  --color-border-h: #cbd5e1;
+  --bg-input: #f1f5f9;
+  --border-input: #cbd5e1;
+  --bg-glass: rgba(255, 255, 255, 0.85);
+  --border-glass: rgba(0, 0, 0, 0.06);
+  --shadow-card: 0 4px 20px rgba(15, 23, 42, 0.06);
+
+  --text-primary: #0f172a;
+  --text-secondary: #64748b;
+  --mobile-card-bg: rgba(255, 255, 255, 0.9);
+  --mobile-card-border: #e2e8f0;
+
+  --aura-accent: #2563eb;
+  --aura-accent-rgb: 37, 99, 235;
+  --aura-purple: #7c3aed;
+  --aura-pink: #db2777;
+  --aura-green: #059669;
+  --aura-orange: #ea580c;
+  --aura-cyan: #0ea5e9;
+  --color-on-accent: #ffffff;
+
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.mobile-app[data-mobile-theme="light"] .mobile-card,
+.mobile-app[data-mobile-theme="sun"] .mobile-card {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+.mobile-app[data-mobile-theme="light"] .mobile-page,
+.mobile-app[data-mobile-theme="sun"] .mobile-page {
+  background: #f8fafc;
+}
+
+.mobile-app[data-mobile-theme="light"] .floating-bottom-nav-container,
+.mobile-app[data-mobile-theme="sun"] .floating-bottom-nav-container {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06) !important;
+}
+
+.mobile-app[data-mobile-theme="light"] .floating-nav-item,
+.mobile-app[data-mobile-theme="sun"] .floating-nav-item {
+  color: #64748b;
+}
+
+.mobile-app[data-mobile-theme="light"] .floating-nav-item.active,
+.mobile-app[data-mobile-theme="sun"] .floating-nav-item.active {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3) !important;
+}
+
+.mobile-app[data-mobile-theme="light"] .mobile-grid-item,
+.mobile-app[data-mobile-theme="sun"] .mobile-grid-item {
+  background: rgba(241, 245, 249, 0.8);
+  border-color: #e2e8f0;
+}
+
+.mobile-app[data-mobile-theme="light"] .mobile-grid-label,
+.mobile-app[data-mobile-theme="sun"] .mobile-grid-label {
+  color: #64748b;
+}
+
+.mobile-app[data-mobile-theme="light"] .mobile-grid-val,
+.mobile-app[data-mobile-theme="sun"] .mobile-grid-val {
+  color: #0f172a;
+}
+
+.mobile-app[data-mobile-theme="light"] .mobile-list-item,
+.mobile-app[data-mobile-theme="sun"] .mobile-list-item {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: #e2e8f0;
+}
+
+.mobile-app[data-mobile-theme="light"] .mobile-list-title,
+.mobile-app[data-mobile-theme="sun"] .mobile-list-title {
+  color: #0f172a;
+}
+
+.mobile-app[data-mobile-theme="light"] .mobile-list-subtitle,
+.mobile-app[data-mobile-theme="sun"] .mobile-list-subtitle {
+  color: #64748b;
+}
+
+.mobile-app[data-mobile-theme="light"] .mobile-list-value,
+.mobile-app[data-mobile-theme="sun"] .mobile-list-value {
+  color: #0f172a;
+}
+
+.mobile-app[data-mobile-theme="light"] .mobile-section-title,
+.mobile-app[data-mobile-theme="sun"] .mobile-section-title {
+  color: #0f172a;
+}
+
+.mobile-app[data-mobile-theme="light"] .mobile-section-link,
+.mobile-app[data-mobile-theme="sun"] .mobile-section-link {
+  color: #2563eb;
+}
+
+.mobile-app[data-mobile-theme="light"] .mobile-bottom-sheet,
+.mobile-app[data-mobile-theme="sun"] .mobile-bottom-sheet {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-color: #e2e8f0 !important;
+}
+
+.mobile-app[data-mobile-theme="light"] .mobile-bottom-sheet-drag-handle,
+.mobile-app[data-mobile-theme="sun"] .mobile-bottom-sheet-drag-handle {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+
+/* ── 3. QUEEN THEME (Luxurious Royal) ───────────────────────── */
+.mobile-app[data-mobile-theme="queen"] {
+  --color-bg: #1a0a1e;
+  --color-surface: #231228;
+  --color-surface-h: #2d1833;
+  --color-text: #fce7f3;
+  --color-text-2: #d4a0c0;
+  --color-text-3: #9a6b88;
+  --color-text-inv: #1a0a1e;
+  --color-border: rgba(236, 72, 153, 0.2);
+  --color-border-h: rgba(236, 72, 153, 0.35);
+  --bg-input: #2d1833;
+  --border-input: rgba(236, 72, 153, 0.3);
+  --bg-glass: rgba(26, 10, 30, 0.85);
+  --border-glass: rgba(236, 72, 153, 0.12);
+  --shadow-card: 0 8px 32px rgba(168, 20, 100, 0.15);
+
+  --text-primary: #fce7f3;
+  --text-secondary: #d4a0c0;
+  --mobile-card-bg: rgba(45, 24, 51, 0.7);
+  --mobile-card-border: rgba(236, 72, 153, 0.15);
+
+  --aura-accent: #ec4899;
+  --aura-accent-rgb: 236, 72, 153;
+  --aura-purple: #a855f7;
+  --aura-pink: #f472b6;
+  --aura-green: #2dd4bf;
+  --aura-orange: #fb923c;
+  --aura-cyan: #f0abfc;
+  --color-on-accent: #ffffff;
+
+  background: #1a0a1e;
+  color: #fce7f3;
+}
+
+.mobile-app[data-mobile-theme="queen"] .mobile-card {
+  background: linear-gradient(135deg, rgba(45, 24, 51, 0.8) 0%, rgba(35, 18, 40, 0.6) 100%) !important;
+  border: 1px solid rgba(236, 72, 153, 0.15) !important;
+  box-shadow: 0 8px 32px rgba(168, 20, 100, 0.12), inset 0 1px 0 rgba(236, 72, 153, 0.1) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+
+.mobile-app[data-mobile-theme="queen"] .mobile-page {
+  background: #1a0a1e;
+}
+
+.mobile-app[data-mobile-theme="queen"] .floating-bottom-nav-container {
+  background: rgba(26, 10, 30, 0.92) !important;
+  border-color: rgba(236, 72, 153, 0.15) !important;
+}
+
+.mobile-app[data-mobile-theme="queen"] .floating-nav-item {
+  color: #9a6b88;
+}
+
+.mobile-app[data-mobile-theme="queen"] .floating-nav-item.active {
+  background: linear-gradient(135deg, #ec4899, #a855f7) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4) !important;
+}
+
+.mobile-app[data-mobile-theme="queen"] .mobile-grid-item {
+  background: rgba(236, 72, 153, 0.06);
+  border-color: rgba(236, 72, 153, 0.1);
+}
+
+.mobile-app[data-mobile-theme="queen"] .mobile-grid-label {
+  color: #d4a0c0;
+}
+
+.mobile-app[data-mobile-theme="queen"] .mobile-grid-val {
+  color: #fce7f3;
+}
+
+.mobile-app[data-mobile-theme="queen"] .mobile-list-item {
+  background: rgba(236, 72, 153, 0.05);
+  border-color: rgba(236, 72, 153, 0.1);
+}
+
+.mobile-app[data-mobile-theme="queen"] .mobile-list-title {
+  color: #fce7f3;
+}
+
+.mobile-app[data-mobile-theme="queen"] .mobile-list-subtitle {
+  color: #d4a0c0;
+}
+
+.mobile-app[data-mobile-theme="queen"] .mobile-list-value {
+  color: #fce7f3;
+}
+
+.mobile-app[data-mobile-theme="queen"] .mobile-section-title {
+  color: #fce7f3;
+}
+
+.mobile-app[data-mobile-theme="queen"] .mobile-section-link {
+  color: #ec4899;
+}
+
+.mobile-app[data-mobile-theme="queen"] .mobile-bottom-sheet {
+  background: rgba(26, 10, 30, 0.96) !important;
+  border-color: rgba(236, 72, 153, 0.15) !important;
+}
+
+.mobile-app[data-mobile-theme="queen"] .mobile-bottom-sheet-drag-handle {
+  background: rgba(236, 72, 153, 0.3);
+}
+
+
+/* ── Global Mobile Theme Transition ─────────────────────────── */
+.mobile-app[data-mobile-theme] {
+  transition: background 0.35s ease, color 0.35s ease;
+}
+
+.mobile-app[data-mobile-theme] .mobile-page,
+.mobile-app[data-mobile-theme] .mobile-card,
+.mobile-app[data-mobile-theme] .mobile-grid-item,
+.mobile-app[data-mobile-theme] .mobile-list-item,
+.mobile-app[data-mobile-theme] .floating-bottom-nav-container {
+  transition: background 0.35s ease, border-color 0.35s ease, color 0.35s ease, box-shadow 0.35s ease;
+}

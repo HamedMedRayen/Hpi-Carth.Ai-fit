@@ -1,0 +1,939 @@
+%% ============================================================
+%%  HPI — Product Case Study
+%%  "Engineering a Production Workout Analytics Platform"
+%%  Compiled with: pdflatex report_product.tex
+%% ============================================================
+\documentclass[12pt,a4paper]{report}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{setspace}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{shapes,arrows.meta,positioning,calc,fit,backgrounds}
+\pgfplotsset{compat=1.18}
+
+%% ── Colours ──────────────────────────────────────────────────
+\definecolor{violet}{HTML}{7C3AED}
+\definecolor{emerald}{HTML}{059669}
+\definecolor{rose}{HTML}{E11D48}
+\definecolor{amber}{HTML}{D97706}
+\definecolor{steel}{HTML}{334155}
+\definecolor{slate}{HTML}{475569}
+\definecolor{codebg}{HTML}{1E1E2E}
+\definecolor{codetext}{HTML}{CDD6F4}
+\definecolor{lightbg}{HTML}{F8F7FF}
+
+%% ── Hyperref ─────────────────────────────────────────────────
+\hypersetup{
+  colorlinks=true,
+  linkcolor=violet,
+  urlcolor=emerald,
+  citecolor=steel,
+  pdftitle={HPI Product Case Study},
+  pdfauthor={HPI Engineering},
+}
+
+%% ── Listings ─────────────────────────────────────────────────
+\lstdefinelanguage{yaml}{
+  keywords={true,false,null,yes,no},
+  keywordstyle=\color{violet}\bfseries,
+  sensitive=false,
+  comment=[l]{\#},
+  commentstyle=\color{emerald}\itshape,
+  stringstyle=\color{amber},
+  morestring=[b]',
+  morestring=[b]",
+}
+\lstset{
+  language=Python,
+  basicstyle=\ttfamily\footnotesize\color{codetext},
+  backgroundcolor=\color{codebg},
+  keywordstyle=\color{violet}\bfseries,
+  commentstyle=\color{emerald}\itshape,
+  stringstyle=\color{amber},
+  showstringspaces=false,
+  frame=single,
+  rulecolor=\color{steel},
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny\color{slate},
+  numbersep=8pt,
+  xleftmargin=15pt,
+}
+
+%% ── Header / footer ──────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textcolor{violet}{\textbf{HPI}}}
+\fancyhead[R]{\textit{Product Case Study}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+%% ── Section formatting ───────────────────────────────────────
+\titleformat{\chapter}[hang]
+  {\huge\bfseries\color{violet}}{\thechapter.}{0.5em}{}
+\titleformat{\section}[hang]
+  {\large\bfseries\color{steel}}{\thesection}{0.5em}{}
+\titleformat{\subsection}[hang]
+  {\normalsize\bfseries\color{slate}}{\thesubsection}{0.5em}{}
+
+%% ── Info boxes ───────────────────────────────────────────────
+\tcbuselibrary{skins,breakable}
+\newtcolorbox{infobox}[1][]{enhanced,breakable,
+  colback=violet!5,colframe=violet,fonttitle=\bfseries,title=#1,sharp corners=south}
+\newtcolorbox{apibox}[1][]{enhanced,breakable,
+  colback=emerald!5,colframe=emerald,fonttitle=\bfseries\small,title=#1,sharp corners=south}
+\newtcolorbox{warnbox}[1][]{enhanced,breakable,
+  colback=rose!5,colframe=rose,fonttitle=\bfseries,title=#1,sharp corners=south}
+
+%% ── TikZ styles ──────────────────────────────────────────────
+\tikzset{
+  box/.style={rectangle,draw,rounded corners=4pt,
+    fill=white,drop shadow,text centered,font=\small},
+  dbbox/.style={cylinder,draw,shape border rotate=90,aspect=0.15,
+    fill=amber!10,draw=amber,font=\small,text centered},
+  arrow/.style={-{Stealth[scale=1.2]},thick,color=steel},
+  redarrow/.style={-{Stealth[scale=1.2]},thick,color=rose},
+  greenarrow/.style={-{Stealth[scale=1.2]},thick,color=emerald},
+}
+
+%% ============================================================
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{2cm}
+  {\Huge\bfseries\textcolor{violet}{HPI}}\\[0.5em]
+  {\Large\textit{Engineering a Production}}\\
+  {\Large\textit{Workout Analytics Platform}}\\[3cm]
+
+  {\LARGE\bfseries Product Case Study}\\[1cm]
+  \rule{0.6\textwidth}{0.4pt}\\[1cm]
+
+  \begin{tabular}{ll}
+    \textbf{Architecture}  & Modular FastAPI + SQLite + Repository Pattern \\
+    \textbf{Frontend}      & React 18 + Tailwind CSS + Recharts \\
+    \textbf{Design System} & Glassmorphism dark UI · Mobile-first \\
+    \textbf{API}           & RESTful · OpenAPI 3.1 · CORS-enabled \\
+    \textbf{Data Pipeline} & 755 real rows → 2{,}062 synthetic rows \\
+  \end{tabular}\\[3cm]
+
+  \rule{0.6\textwidth}{0.4pt}\\[0.5em]
+  {\large HPI Engineering Team}\\
+  {\normalsize\today}
+  \vfill
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+%% ============================================================
+\chapter*{Product Overview}
+\addcontentsline{toc}{chapter}{Product Overview}
+%% ============================================================
+
+HPI is a premium workout analytics platform that ingests raw strength
+training logs and applies custom machine learning to surface actionable insights.
+The platform is designed for serious athletes and coaches who demand deeper
+analysis than commercial apps provide.
+
+\textbf{Core value proposition:}
+\begin{itemize}
+  \item \textbf{Transparency} — every metric formula is documented and auditable
+  \item \textbf{No vendor lock-in} — full SQLite ownership of athlete data
+  \item \textbf{Customisable ML} — GBDT hyperparameters exposed via API
+  \item \textbf{Privacy-first} — all computation runs locally, no cloud calls
+\end{itemize}
+
+\bigskip
+\begin{infobox}[Constraint]
+  The entire analytical backend runs on pure Python with \emph{zero}
+  external data science libraries. All matrix algebra, PCA, GBDT, and statistical
+  computation is implemented from scratch.
+\end{infobox}
+
+%% ============================================================
+\chapter{System Architecture}
+%% ============================================================
+
+\section{High-Level Overview}
+
+HPI follows a clean three-tier architecture:
+
+\begin{center}
+\begin{tikzpicture}[node distance=1.2cm and 2cm]
+  % Tier 1: Frontend
+  \node[box,fill=violet!10,draw=violet,minimum width=5cm,minimum height=1.2cm]
+    (fe) {\textbf{Frontend}\\\small React 18 · Tailwind · Recharts};
+
+  % Tier 2: API
+  \node[box,fill=steel!10,draw=steel,minimum width=5cm,minimum height=1.2cm,
+    below=1.5cm of fe]
+    (api) {\textbf{REST API}\\\small FastAPI · Pydantic v2 · CORS};
+
+  % Tier 3: Services
+  \node[box,fill=emerald!10,draw=emerald,minimum width=5cm,minimum height=1.2cm,
+    below=1.5cm of api]
+    (svc) {\textbf{Services}\\\small Ingestion · Analytics · ML};
+
+  % Data engine
+  \node[box,fill=amber!10,draw=amber,minimum width=3.5cm,minimum height=1.2cm,
+    right=2cm of svc]
+    (eng) {\textbf{Data Engine}\\\small DataMatrix · PCA · GBDT};
+
+  % DB
+  \node[dbbox,minimum width=5cm,minimum height=1.2cm,below=1.5cm of svc]
+    (db) {\textbf{SQLite}\\\small WAL · FK-enabled};
+
+  % CSV
+  \node[box,fill=rose!10,draw=rose,minimum width=2.5cm,minimum height=0.8cm,
+    left=2cm of svc]
+    (csv) {\textbf{CSV Import}};
+
+  % Arrows
+  \draw[arrow] (fe) -- node[right,font=\tiny]{HTTP/JSON} (api);
+  \draw[arrow] (api) -- (svc);
+  \draw[arrow] (svc) -- (db);
+  \draw[arrow,dashed] (svc) -- (eng);
+  \draw[arrow] (csv) -- (svc);
+\end{tikzpicture}
+\end{center}
+
+\section{Backend: FastAPI Application}
+
+\subsection{Module Structure}
+
+\begin{lstlisting}[language=yaml,caption=Backend module layout]
+backend/
+  main.py               # App factory + lifespan + CORS
+  database.py           # SQLite connection + WAL schema
+  core/
+    config.py           # Settings (env-configurable)
+  models/               # Pydantic request/response models
+    user.py   workout.py   metric.py
+  repositories/         # Repository Pattern (abstract CRUD)
+    base.py   user_repo.py   workout_repo.py   metric_repo.py
+  services/             # Business logic layer
+    ingestion_service.py    # CSV parsing (pure Python)
+    analytics_service.py    # PCA + volume stats
+    ml_service.py           # GBDT wrapper
+  routes/               # FastAPI routers
+    users.py  workouts.py  metrics.py  analytics.py
+\end{lstlisting}
+
+\subsection{Repository Pattern}
+
+The Repository Pattern abstracts database access behind a consistent interface,
+enabling unit testing via mock repositories and database swaps without touching
+business logic.
+
+\begin{lstlisting}[caption=Abstract BaseRepository]
+class BaseRepository(ABC, Generic[T]):
+    def __init__(self, conn: sqlite3.Connection):
+        self.conn = conn
+
+    @abstractmethod
+    def get_by_id(self, record_id: int) -> Optional[Dict]: ...
+    @abstractmethod
+    def get_all(self, limit: int, offset: int) -> List[Dict]: ...
+    @abstractmethod
+    def create(self, data: Dict) -> Dict: ...
+    @abstractmethod
+    def delete(self, record_id: int) -> bool: ...
+\end{lstlisting}
+
+\subsection{Dependency Injection}
+
+FastAPI's dependency system is used to scope a database connection to each
+HTTP request, ensuring automatic commit on success and rollback on error:
+
+\begin{lstlisting}[caption=FastAPI DB dependency]
+def get_db() -> Generator[sqlite3.Connection, None, None]:
+    conn = get_connection()
+    try:
+        yield conn
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+\end{lstlisting}
+
+\subsection{Application Lifespan}
+
+The \texttt{@asynccontextmanager lifespan} hook:
+\begin{enumerate}
+  \item Initialises the SQLite schema (idempotent DDL)
+  \item Seeds a default user if none exists
+  \item Auto-ingests the Strong CSV if the workouts table is empty
+\end{enumerate}
+
+This means the server is fully operational on first boot with a single command.
+
+\section{Database Design}
+
+\subsection{Entity-Relationship Diagram}
+
+\begin{center}
+\begin{tikzpicture}[node distance=2.5cm and 2.5cm,
+  entity/.style={rectangle,draw=steel,rounded corners,minimum width=3.2cm,
+    minimum height=0.8cm,font=\small\bfseries,fill=steel!5},
+  attr/.style={font=\tiny,text=slate}]
+
+  \node[entity] (U)  {users};
+  \node[entity,right=3cm of U] (W)  {workouts};
+  \node[entity,right=3cm of W] (S)  {sets};
+  \node[entity,below=2cm of W] (M)  {metrics};
+  \node[entity,below=2cm of S] (E)  {exercises};
+  \node[entity,below=2cm of U] (P)  {personal\_records};
+
+  \draw[arrow] (U) -- node[above,font=\tiny]{1..N} (W);
+  \draw[arrow] (W) -- node[above,font=\tiny]{1..N} (S);
+  \draw[arrow] (W) -- node[right,font=\tiny]{1..1} (M);
+  \draw[arrow] (S) -- node[right,font=\tiny]{N..1} (E);
+  \draw[arrow] (U) -- node[left,font=\tiny]{1..N} (P);
+  \draw[arrow] (P) -- node[below,font=\tiny]{N..1} (E);
+\end{tikzpicture}
+\end{center}
+
+\subsection{Schema Details}
+
+\begin{longtable}{llll}
+\caption{Database Tables} \\
+\toprule
+\textbf{Table} & \textbf{Column} & \textbf{Type} & \textbf{Notes} \\
+\midrule
+\endfirsthead
+\multicolumn{4}{c}{\tablename\ \thetable{} -- continued} \\
+\toprule
+\textbf{Table} & \textbf{Column} & \textbf{Type} & \textbf{Notes} \\
+\midrule
+\endhead
+\midrule
+\multicolumn{4}{r}{continued \ldots} \\
+\endfoot
+\bottomrule
+\endlastfoot
+users      & id          & INTEGER PK AUTOINCREMENT & \\
+           & name        & TEXT NOT NULL & \\
+           & email       & TEXT UNIQUE NOT NULL & \\
+           & bodyweight  & REAL DEFAULT 0.0 & kg \\
+           & sex         & TEXT DEFAULT 'M' & Wilks coeff \\
+\midrule
+workouts   & id          & INTEGER PK & \\
+           & user\_id    & FK → users.id & CASCADE DELETE \\
+           & workout\_name & TEXT & Push/Pull/Legs \\
+           & session\_date & TEXT & ISO-8601 \\
+           & duration\_sec & INTEGER & wall time \\
+\midrule
+exercises  & id          & INTEGER PK & \\
+           & name        & TEXT UNIQUE & \\
+           & muscle\_group & TEXT & inferred \\
+\midrule
+sets       & id          & INTEGER PK & \\
+           & workout\_id & FK → workouts.id & \\
+           & exercise\_id & FK → exercises.id & \\
+           & set\_order  & TEXT & W/1/2/Rest Timer \\
+           & weight\_kg  & REAL & \\
+           & reps        & INTEGER & \\
+           & rpe         & REAL NULL & 0--10 \\
+           & one\_rm\_est & REAL & Epley \\
+           & volume\_load & REAL & weight × reps \\
+\midrule
+metrics    & id          & INTEGER PK & \\
+           & user\_id    & FK → users.id & \\
+           & workout\_id & FK → workouts.id & \\
+           & total\_volume & REAL & session kg \\
+           & total\_sets & INTEGER & working sets \\
+           & avg\_intensity & REAL & mean w/1RM \\
+           & max\_1rm    & REAL & best Epley \\
+           & fatigue\_index & REAL & 0--1 \\
+           & inol        & REAL & density metric \\
+           & pca\_component\_1 & REAL & PC1 score \\
+           & pca\_component\_2 & REAL & PC2 score \\
+           & predicted\_volume & REAL & GBDT output \\
+\midrule
+personal\_records & id   & INTEGER PK & \\
+           & user\_id    & FK → users & \\
+           & exercise\_id & FK → exercises & \\
+           & one\_rm\_est & REAL & best ever \\
+\end{longtable}
+
+\subsection{Index Strategy}
+
+Three indices optimise the most common query patterns:
+\begin{itemize}
+  \item \texttt{(user\_id, session\_date)} on \texttt{workouts} — timeline queries
+  \item \texttt{workout\_id} on \texttt{sets} — set retrieval by session
+  \item \texttt{(user\_id, session\_date)} on \texttt{metrics} — analytics queries
+\end{itemize}
+
+SQLite WAL (Write-Ahead Log) mode is enabled for concurrent read performance
+and atomicity.
+
+%% ============================================================
+\chapter{REST API Documentation}
+%% ============================================================
+
+\section{API Design Principles}
+
+\begin{itemize}
+  \item \textbf{RESTful resource naming}: nouns, not verbs
+  \item \textbf{Consistent envelope}: all responses use Pydantic models
+  \item \textbf{HTTP status codes}: 200 (OK), 201 (Created), 204 (No Content),
+        404 (Not Found), 409 (Conflict), 422 (Validation Error)
+  \item \textbf{CORS}: all origins allowed in development; configurable for production
+  \item \textbf{Process-time header}: \texttt{X-Process-Time-Ms} on every response
+\end{itemize}
+
+\section{Endpoint Reference}
+
+\subsection{Users}
+
+\begin{apibox}[GET /api/users/\{user\_id\}]
+\textbf{Returns:} \texttt{UserRead} schema
+
+\texttt{UserRead}: \texttt{id} · \texttt{name} · \texttt{email} · \texttt{bodyweight} · \texttt{sex} · \texttt{created\_at}
+\end{apibox}
+
+\begin{apibox}[POST /api/users]
+\textbf{Body:} \texttt{UserCreate} — \texttt{name}, \texttt{email}, \texttt{bodyweight?}, \texttt{sex?}
+
+\textbf{Returns:} \texttt{UserRead} with HTTP 201
+\end{apibox}
+
+\begin{apibox}[GET /api/users/\{user\_id\}/stats]
+Returns aggregate lifetime statistics:
+
+\texttt{\{total\_workouts, total\_volume\_kg, total\_sets, avg\_session\_duration\_min, favourite\_exercise, days\_trained, current\_streak\}}
+\end{apibox}
+
+\subsection{Workouts}
+
+\begin{apibox}[GET /api/workouts/users/\{user\_id\}?limit=50]
+Returns paginated list of \texttt{WorkoutSummary} objects sorted by date descending.
+
+\texttt{WorkoutSummary}: \texttt{id · workout\_number · workout\_name · session\_date · duration\_sec · total\_volume · total\_sets · exercises\_count}
+\end{apibox}
+
+\begin{apibox}[GET /api/workouts/\{workout\_id\}]
+Returns full \texttt{WorkoutDetail} including all sets grouped by exercise.
+
+\texttt{WorkoutDetail} extends \texttt{WorkoutSummary} with \texttt{sets[]} array and \texttt{top\_exercise}.
+\end{apibox}
+
+\begin{apibox}[GET /api/workouts/users/\{user\_id\}/volume]
+Volume progression timeseries with moving average and linear trend.
+
+\textbf{Response:} \texttt{\{dates[], volumes[], moving\_avg[], trend\_slope, trend\_intercept\}}
+\end{apibox}
+
+\begin{apibox}[GET /api/workouts/users/\{user\_id\}/exercise/\{name\}]
+Per-exercise progress: estimated 1RM, max weight, and volume over time.
+
+\textbf{Response:} \texttt{\{dates[], max\_1rm[], max\_weight[], total\_volume[]\}}
+\end{apibox}
+
+\begin{apibox}[GET /api/workouts/users/\{user\_id\}/heatmap]
+Calendar heatmap data for the activity visualisation.
+
+\textbf{Response:} \texttt{\{entries[\{date, value, workout\_name\}], max\_value, total\_days\_active\}}
+\end{apibox}
+
+\subsection{Analytics}
+
+\begin{apibox}[GET /api/analytics/users/\{user\_id\}/dashboard]
+Single endpoint returning full dashboard payload:
+
+\textbf{Response:} \texttt{DashboardSummary\{}
+\begin{itemize}
+  \item \texttt{total\_workouts} — session count
+  \item \texttt{total\_volume\_tonnes} — lifetime load in tonnes
+  \item \texttt{best\_1rm} — \texttt{\{exercise: est\_1rm\_kg\}} dict
+  \item \texttt{weekly\_volume} — 12-week bar chart data
+  \item \texttt{recent\_prs} — 5 most recent PRs
+  \item \texttt{muscle\_group\_split} — percentage breakdown
+  \item \texttt{volume\_trend} — \texttt{'up' | 'down' | 'stable'}
+  \item \texttt{volume\_change\_pct} — 4-week vs prior 4-week
+\end{itemize}
+\texttt{\}}
+\end{apibox}
+
+\begin{apibox}[GET /api/analytics/users/\{user\_id\}/pca?n\_components=2]
+PCA result on the 7-feature metric matrix.
+
+\textbf{Response:} \texttt{PCAResult\{}
+\begin{itemize}
+  \item \texttt{points[]} — \texttt{\{date, volume, pc1, pc2\}} per session
+  \item \texttt{explained\_variance[]} — per-component ratios
+  \item \texttt{eigenvalues[]} — raw eigenvalues
+  \item \texttt{loading\_matrix[][]} — shape [p, k]
+  \item \texttt{feature\_names[]} — feature labels
+  \item \texttt{n\_samples} — number of sessions analysed
+\end{itemize}
+\texttt{\}}
+\end{apibox}
+
+\begin{apibox}[GET /api/analytics/users/\{user\_id\}/gbdt]
+GBDT volume prediction on metric history.
+
+\textbf{Response:} \texttt{GBDTResult\{}
+\begin{itemize}
+  \item \texttt{predictions[]} — model output per session
+  \item \texttt{actuals[]} — observed volumes
+  \item \texttt{mse, mae, r\_squared} — evaluation metrics
+  \item \texttt{n\_estimators\_used} — trees actually trained
+  \item \texttt{feature\_importances} — \texttt{\{feature: importance\}} dict
+\end{itemize}
+\texttt{\}}
+\end{apibox}
+
+\begin{apibox}[POST /api/analytics/run]
+Full pipeline: PCA + GBDT + dashboard in a single call.
+Persists PC scores and GBDT predictions back to the \texttt{metrics} table.
+
+\textbf{Body:} \texttt{\{user\_id, start\_date?, end\_date?, n\_pca\_components: 2\}}
+
+\textbf{Response:} Combined \texttt{\{pca, gbdt, dashboard\}} envelope.
+\end{apibox}
+
+%% ============================================================
+\chapter{Frontend Architecture}
+%% ============================================================
+
+\section{Technology Choices}
+
+\begin{table}[h!]
+\centering
+\caption{Frontend Technology Stack}
+\begin{tabular}{lll}
+\toprule
+\textbf{Concern} & \textbf{Choice} & \textbf{Rationale} \\
+\midrule
+Framework     & React 18      & Concurrent mode, hooks, ecosystem \\
+Routing       & React Router 6 & Declarative nested routes \\
+Styling       & Tailwind CSS  & Utility-first, dark-mode trivial \\
+Charts        & Recharts 2    & Composable SVG, responsive \\
+Fonts         & DM Sans + Space Mono & Distinctive, not Arial/Inter \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Design System}
+
+\subsection{Glassmorphism Component Library}
+
+All UI panels use a \texttt{GlassCard} primitive:
+\begin{itemize}
+  \item \texttt{background: rgba(255,255,255,0.04)}
+  \item \texttt{border: 1px solid rgba(255,255,255,0.08)}
+  \item \texttt{backdrop-filter: blur(20px)}
+  \item \texttt{border-radius: 16px}
+\end{itemize}
+
+An optional \texttt{accent} prop adds a gradient hairline at the card top,
+colour-coded by data type (violet = analytics, emerald = records, rose = PRs).
+
+\subsection{Colour Palette}
+
+\begin{table}[h!]
+\centering
+\caption{HPI Design Tokens}
+\begin{tabular}{lll}
+\toprule
+\textbf{Token} & \textbf{Hex} & \textbf{Usage} \\
+\midrule
+\texttt{--violet}       & \#a78bfa & Primary accent, PCA, navigation active \\
+\texttt{--violet-dark}  & \#7c3aed & Gradient deep, GBDT \\
+\texttt{--emerald}      & \#34d399 & Trend positive, moving average \\
+\texttt{--rose}         & \#f43f5e & PRs, Push workouts, danger \\
+\texttt{--amber}        & \#fbbf24 & Streak, warmth, Pull \\
+\texttt{--sky}          & \#38bdf8 & Auxiliary data \\
+\texttt{--bg-deep}      & \#07071a & Page background \\
+\texttt{--bg-base}      & \#0d0d26 & Card overlay \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Animated Mesh Background}
+
+The body background uses three radial gradients to create a depth mesh:
+\begin{lstlisting}[language=yaml,caption=Background CSS]
+body::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%,
+      rgba(124,58,237,0.18), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%,
+      rgba(52,211,153,0.10), transparent 60%),
+    radial-gradient(ellipse 70% 40% at 60% 30%,
+      rgba(59,130,246,0.08), transparent 50%),
+    #07071a;
+}
+\end{lstlisting}
+
+A dot-grid overlay (\texttt{body::after}) adds texture without performance cost.
+
+\section{Page Architecture}
+
+\subsection{Navigation}
+
+A bottom tab bar (\texttt{BottomNav}) is fixed at the viewport bottom with:
+\begin{itemize}
+  \item 5 tabs: Dashboard · Workouts · Progress · Analytics · Profile
+  \item Safe-area padding for notched iPhones (\texttt{env(safe-area-inset-bottom)})
+  \item Active tab highlighted with violet background tint
+  \item SVG icons that fill on active state
+\end{itemize}
+
+\subsection{Page Routing}
+
+\begin{lstlisting}[caption=App.js routing structure]
+<Routes>
+  <Route path="/"          element={<Dashboard />} />
+  <Route path="/workouts"  element={<Workouts />}  />
+  <Route path="/progress"  element={<Progress />}  />
+  <Route path="/analytics" element={<Analytics />} />
+  <Route path="/profile"   element={<Profile />}   />
+</Routes>
+\end{lstlisting}
+
+Page transitions use a \texttt{key={location.pathname}} reset with a CSS
+\texttt{fadeUp} animation (16px vertical translate over 350ms, cubic-ease).
+
+\subsection{Data Hooks}
+
+All API calls are encapsulated in custom hooks to separate data-fetching
+from UI rendering:
+
+\begin{lstlisting}[caption=useDashboard hook]
+export function useDashboard() {
+  const [data, setData] = useState(null);
+  const load = useCallback(async () => {
+    const [dash, stats] = await Promise.all([
+      api.getDashboard(),
+      api.getUserStats(),
+    ]);
+    setData(dash); setStats(stats);
+  }, []);
+  useEffect(() => { load(); }, [load]);
+  return { data, stats, loading, error, reload: load };
+}
+\end{lstlisting}
+
+\section{Chart Components}
+
+\subsection{VolumeChart}
+
+\texttt{recharts} \texttt{AreaChart} with:
+\begin{itemize}
+  \item Violet gradient fill under the volume area
+  \item Dashed emerald line for 4-session moving average
+  \item Custom dark-glass tooltip
+\end{itemize}
+
+\subsection{PCAScatter}
+
+\texttt{recharts} \texttt{ScatterChart} with:
+\begin{itemize}
+  \item Dot colour interpolated from violet (early) → emerald (recent)
+  \item Dot radius proportional to session volume
+  \item Feature loading bars rendered below the chart (correlation circle)
+\end{itemize}
+
+\subsection{HeatmapCalendar}
+
+Pure React/CSS implementation (no library):
+\begin{itemize}
+  \item Week columns, day rows (Mon--Sun)
+  \item Cell opacity $\propto$ session volume / max volume
+  \item Hover tooltip with date, volume, workout name
+  \item Legend scale from dim to bright violet
+\end{itemize}
+
+\section{Mobile-First UX}
+
+\begin{table}[h!]
+\centering
+\caption{Mobile UX Design Decisions}
+\begin{tabular}{ll}
+\toprule
+\textbf{Pattern} & \textbf{Implementation} \\
+\midrule
+Bottom navigation    & Fixed, rounded, glass-morphic bar \\
+Touch targets        & Minimum 44×44pt (WCAG 2.5.5) \\
+Tap feedback         & \texttt{active:scale-[0.99]} CSS transform \\
+Scroll              & \texttt{overflow-x: auto} on heatmap \\
+Safe areas          & \texttt{env(safe-area-inset-*)} everywhere \\
+Font size           & \texttt{text-sm} base, larger for key metrics \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%% ============================================================
+\chapter{Data Pipeline}
+%% ============================================================
+
+\section{CSV Ingestion Pipeline}
+
+The ingestion pipeline processes the Strong CSV export without any external
+parsing libraries. The full flow:
+
+\begin{center}
+\begin{tikzpicture}[node distance=0.8cm,
+  step/.style={box,minimum width=4.5cm,minimum height=0.7cm,fill=steel!5}]
+  \node[step] (parse)   {1. Parse CSV (semicolon, pure Python)};
+  \node[step,below=of parse] (group)   {2. Group rows by Workout \#};
+  \node[step,below=of group] (exlook)  {3. Lookup / create Exercise};
+  \node[step,below=of exlook] (derived) {4. Compute 1RM + Volume Load};
+  \node[step,below=of derived] (insert)  {5. Bulk-insert Sets};
+  \node[step,below=of insert] (agg)    {6. Aggregate Session Metrics};
+  \node[step,below=of agg] (pr)    {7. Upsert Personal Records};
+  \node[step,below=of pr] (commit)  {8. COMMIT};
+
+  \draw[arrow] (parse) -- (group);
+  \draw[arrow] (group) -- (exlook);
+  \draw[arrow] (exlook) -- (derived);
+  \draw[arrow] (derived) -- (insert);
+  \draw[arrow] (insert) -- (agg);
+  \draw[arrow] (agg) -- (pr);
+  \draw[arrow] (pr) -- (commit);
+\end{tikzpicture}
+\end{center}
+
+\subsection{Muscle Group Inference}
+
+Exercise muscle group is inferred by keyword matching against a 40-entry
+lookup table. Examples:
+\begin{itemize}
+  \item \texttt{"bench press"} → \texttt{chest}
+  \item \texttt{"lat pulldown"} → \texttt{back}
+  \item \texttt{"squat"} → \texttt{quads}
+  \item \texttt{"lateral raise"} → \texttt{shoulders}
+\end{itemize}
+
+\section{Synthetic Generator Pipeline}
+
+\begin{enumerate}
+  \item Parse real CSV → extract 38 exercise profiles
+  \item Build 7 workout templates from session patterns
+  \item For each exercise, sample gain\_rate $\gamma$, decay $\delta$
+        from LCG uniform distributions
+  \item Generate 41 synthetic sessions across 5 months
+  \item Model weight at each session using:
+        $w^*(t) = w_0[1 + \gamma\ln(1+t/\delta)] + \varepsilon_t$
+  \item Interpolate sleep and stress via piecewise linear anchors
+  \item Write 2{,}062-row CSV with extended schema (includes Sleep, Stress columns)
+\end{enumerate}
+
+%% ============================================================
+\chapter{Performance and Scalability}
+%% ============================================================
+
+\section{Current Performance Profile}
+
+Measured on a standard developer machine (Python 3.12, SQLite 3.45):
+
+\begin{table}[h!]
+\centering
+\caption{Operation Latencies}
+\begin{tabular}{lrl}
+\toprule
+\textbf{Operation} & \textbf{Latency} & \textbf{Notes} \\
+\midrule
+CSV ingestion (755 rows)   & $\sim$0.8 s  & Pure Python parse + 755 inserts \\
+PCA (22 sessions, 7 feat.) & $<$50 ms     & Power iteration, 2 components \\
+GBDT training (80 trees)   & $\sim$120 ms & Depth-3, stochastic 85\% \\
+Dashboard query            & $\sim$15 ms  & 4 SQLite queries + aggregation \\
+API health check           & $<$5 ms      & SQLite count queries \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Scaling Considerations}
+
+\begin{itemize}
+  \item \textbf{SQLite}: Sufficient for single-user deployments up to $\sim$10 years
+        of daily training data ($\approx 3{,}000$ sessions). Migration to PostgreSQL
+        requires only swapping the connection factory; the repository layer is DB-agnostic.
+  \item \textbf{PCA / GBDT}: Pure Python $\mathcal{O}(n^2p)$ algorithms become
+        slow for $n > 500$. Caching PCA results in the \texttt{metrics} table
+        amortises cost to a single compute per analytics run.
+  \item \textbf{API}: FastAPI's ASGI model handles concurrent requests natively.
+        Adding a connection pool (e.g., \texttt{aiosqlite}) would enable async
+        SQLite for high-concurrency scenarios.
+\end{itemize}
+
+%% ============================================================
+\chapter{Security and Privacy}
+%% ============================================================
+
+\section{Data Residency}
+
+All data is stored in a local SQLite file. No training data, session logs, or
+analytics results leave the local machine. The \texttt{/admin/ingest} endpoint
+is unprotected in development and should be secured via API key or network
+restriction in production.
+
+\section{Input Validation}
+
+All API inputs are validated via Pydantic v2:
+\begin{itemize}
+  \item Email uniqueness enforced at DB level (UNIQUE constraint)
+  \item RPE range $[0, 10]$ enforced via \texttt{Field(ge=0.0, le=10.0)}
+  \item Sex field restricted to \texttt{/\^{}[MF]\$/} regex pattern
+  \item GBDT hyperparameters bounded: \texttt{n\_estimators} $\in [5, 200]$
+\end{itemize}
+
+\section{SQL Injection Prevention}
+
+All database interactions use parameterised queries via \texttt{sqlite3}'s
+\texttt{?} placeholder. No raw string interpolation is used anywhere in the
+repository layer.
+
+%% ============================================================
+\chapter{Testing Strategy}
+%% ============================================================
+
+\section{Unit Test Coverage}
+
+\begin{table}[h!]
+\centering
+\caption{Test Suite Summary}
+\begin{tabular}{lrr}
+\toprule
+\textbf{Module} & \textbf{Tests} & \textbf{Pass Rate} \\
+\midrule
+\texttt{engine.py}       & 40 & 100\% \\
+\texttt{gbdt.py}         & 21 & 100\% \\
+\texttt{pca.py}          & 20 & 100\% \\
+\texttt{synthetic\_gen.py} & 5 (LCG) & 100\% \\
+\midrule
+\textbf{Total}           & \textbf{86} & \textbf{100\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Integration Test}
+
+The server startup test confirms the full pipeline from raw CSV to dashboard
+API response, validating all 8 pipeline stages in sequence.
+
+\section{What Each Test Validates}
+
+\begin{itemize}
+  \item \textbf{engine.py}: Matrix construction, slicing, arithmetic, inversion
+        (Gauss-Jordan correctness to $10^{-8}$), power iteration eigenvalue,
+        z-score normalisation, OLS regression coefficients.
+  \item \textbf{gbdt.py}: Leaf/split node prediction, incremental MSE, perfect
+        step-function fitting, feature importance normalisation, training curve
+        monotone decrease, stochastic subsampling convergence.
+  \item \textbf{pca.py}: Unit eigenvectors, orthogonality ($\vect{v}_i \cdot \vect{v}_j < 10^{-4}$),
+        explained variance sums to 1, scree eigenvalue descending order,
+        correlation circle magnitude $\leq 1$.
+  \item \textbf{LCG}: Reproducibility (seed-identical sequences), uniform mean
+        $\approx 0.5$, Gaussian $\hat{\mu} \approx 0$, $\hat{\sigma} \approx 1$,
+        biometric range clamping.
+\end{itemize}
+
+%% ============================================================
+\chapter{Deployment Guide}
+%% ============================================================
+
+\section{Prerequisites}
+
+\begin{itemize}
+  \item Python 3.10+ with \texttt{pip}
+  \item Node.js 18+ with \texttt{npm}
+  \item Strong CSV export file (placed at \texttt{data/strong\_raw.csv})
+\end{itemize}
+
+\section{Backend Setup}
+
+\begin{lstlisting}[language=yaml,caption=Backend startup]
+# 1. Install Python deps
+pip install fastapi uvicorn pydantic
+
+# 2. Configure (optional)
+export DB_PATH=./hpi.db
+export CSV_PATH=./data/strong_raw.csv
+
+# 3. Start server
+cd backend
+uvicorn main:app --reload --port 8000
+
+# Server auto-ingests CSV on first boot
+# API docs: http://localhost:8000/docs
+\end{lstlisting}
+
+\section{Frontend Setup}
+
+\begin{lstlisting}[language=yaml,caption=Frontend startup]
+# 1. Install Node deps
+cd frontend
+npm install
+
+# 2. Start dev server (proxies /api to :8000)
+npm start
+
+# App: http://localhost:3000
+\end{lstlisting}
+
+\section{Configuration Reference}
+
+\begin{table}[h!]
+\centering
+\caption{Environment Variables}
+\begin{tabular}{lll}
+\toprule
+\textbf{Variable} & \textbf{Default} & \textbf{Description} \\
+\midrule
+\texttt{DB\_PATH}  & \texttt{hpi.db} & SQLite file path \\
+\texttt{CSV\_PATH} & \texttt{/mnt/user-data/uploads/strong\_raw.csv} & Strong export \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%% ============================================================
+\chapter*{Conclusions}
+\addcontentsline{toc}{chapter}{Conclusions}
+%% ============================================================
+
+HPI demonstrates that a production-grade analytics platform can be built
+on entirely custom mathematical primitives without sacrificing architectural
+quality or developer ergonomics.
+
+The system delivers:
+\begin{itemize}
+  \item A clean 3-tier architecture (React → FastAPI → SQLite) with proper
+        separation of concerns at every layer
+  \item A 1{,}678-line custom \texttt{DataMatrix} engine tested to 100\% pass rate
+  \item Two from-scratch ML algorithms (PCA + GBDT) with mathematically correct
+        implementations verified by 41 unit tests
+  \item A reproducible synthetic data generator producing 2{,}062 realistic
+        training rows from 755 real sessions
+  \item A premium mobile-first UI with glassmorphism design, animated backgrounds,
+        and 5 distinct data-rich pages
+  \item Full REST API with OpenAPI/Swagger docs auto-generated by FastAPI
+\end{itemize}
+
+The platform is extensible: new exercises, workout types, or ML models can be
+added by implementing the \texttt{BaseRepository} interface and registering a
+new FastAPI router — without touching existing code.
+
+\end{document}

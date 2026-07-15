@@ -1,0 +1,367 @@
+/* ── Hpi Chatbot ──────────────────────────────────────────── */
+
+/* Floating bubble */
+.hpi-bubble {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9999;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--aura-accent-rgb), 0.35) 0%,
+    rgba(var(--aura-accent-rgb), 0.12) 100%
+  );
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: hpi-pulse 2.4s infinite;
+}
+
+.hpi-bubble:hover {
+  transform: scale(1.1);
+}
+
+.hpi-bubble-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--aura-accent);
+  filter: drop-shadow(0 0 6px rgba(var(--aura-accent-rgb), 0.45));
+}
+
+.hpi-bubble-icon .hpi-brain {
+  width: 28px;
+  height: 28px;
+}
+
+@keyframes hpi-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--aura-accent-rgb), 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(var(--aura-accent-rgb), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--aura-accent-rgb), 0);
+  }
+}
+
+/* ── Chat panel ──────────────────────────────────────────── */
+.hpi-panel {
+  position: fixed;
+  bottom: 104px;
+  right: 28px;
+  z-index: 9998;
+  width: 370px;
+  height: 520px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--color-surface);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: var(--shadow-raise), 0 0 40px rgba(var(--aura-accent-rgb), 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  /* Animate in/out */
+  opacity: 0;
+  transform: translateY(18px) scale(0.96);
+  pointer-events: none;
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+
+.hpi-panel.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+.hpi-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.hpi-header-icons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--aura-accent);
+  filter: drop-shadow(0 0 4px rgba(var(--aura-accent-rgb), 0.3));
+}
+
+.hpi-header-icons svg {
+  width: 18px;
+  height: 18px;
+}
+
+.hpi-header-title {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text);
+  flex: 1;
+}
+
+.hpi-header-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-3);
+  transition: background 0.15s, color 0.15s;
+}
+
+.hpi-header-close:hover {
+  background: var(--color-surface-h);
+  color: var(--color-text);
+}
+
+/* ── Messages area ───────────────────────────────────────── */
+.hpi-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hpi-msg {
+  max-width: 82%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  word-wrap: break-word;
+  animation: hpi-msg-in 0.25s ease;
+}
+
+@keyframes hpi-msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* User bubble — right aligned, accent tint */
+.hpi-msg.user {
+  align-self: flex-end;
+  background: linear-gradient(
+    135deg,
+    rgba(var(--aura-accent-rgb), 0.28) 0%,
+    rgba(var(--aura-accent-rgb), 0.14) 100%
+  );
+  border: 1px solid rgba(var(--aura-accent-rgb), 0.22);
+  color: var(--color-text);
+  border-bottom-right-radius: 4px;
+}
+
+/* Assistant bubble — left aligned, glass */
+.hpi-msg.assistant {
+  align-self: flex-start;
+  background: var(--color-surface-h);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-bottom-left-radius: 4px;
+}
+
+/* ── Typing indicator ────────────────────────────────────── */
+.hpi-typing {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 12px 16px;
+  align-self: flex-start;
+  background: var(--color-surface-h);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  border-bottom-left-radius: 4px;
+}
+
+.hpi-typing-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--aura-accent);
+  opacity: 0.5;
+  animation: hpi-dot-bounce 1.2s infinite ease-in-out;
+}
+
+.hpi-typing-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.hpi-typing-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes hpi-dot-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  30% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}
+
+/* ── Input row ───────────────────────────────────────────── */
+.hpi-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-top: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.hpi-input {
+  flex: 1;
+  background: var(--bg-input, var(--color-surface));
+  border: 1px solid var(--border-input, var(--color-border));
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: 13.5px;
+  color: var(--color-text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.hpi-input::placeholder {
+  color: var(--color-text-3);
+}
+
+.hpi-input:focus {
+  border-color: var(--aura-accent);
+}
+
+.hpi-send-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: none;
+  background: var(--aura-accent);
+  color: var(--color-on-accent, #fff);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: opacity 0.15s, transform 0.1s;
+}
+
+.hpi-send-btn:hover {
+  opacity: 0.88;
+}
+
+.hpi-send-btn:active {
+  transform: scale(0.94);
+}
+
+.hpi-send-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.hpi-send-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── Mic button ──────────────────────────────────────────── */
+.hpi-mic-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1px solid var(--border-input, var(--color-border));
+  background: var(--bg-input, var(--color-surface));
+  color: var(--text-muted, var(--color-text-3));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.hpi-mic-btn:hover {
+  border-color: var(--aura-accent);
+  color: var(--aura-accent);
+}
+
+.hpi-mic-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.hpi-mic-btn.hpi-mic-active {
+  background: rgba(239, 68, 68, 0.15);
+  color: #EF4444;
+  border-color: rgba(239, 68, 68, 0.3);
+  animation: hpiMicPulse 1s ease-in-out infinite;
+}
+
+@keyframes hpiMicPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50%      { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+}
+
+/* ── Error toast ─────────────────────────────────────────── */
+.hpi-error-toast {
+  margin: 0 14px;
+  padding: 8px 12px;
+  background: rgba(var(--aura-accent-rgb), 0.08);
+  border: 1px solid rgba(var(--aura-accent-rgb), 0.18);
+  border-radius: 10px;
+  font-size: 12px;
+  color: var(--aura-accent3, #f87171);
+  text-align: center;
+  animation: hpi-msg-in 0.25s ease;
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .hpi-panel {
+    right: 10px;
+    left: 10px;
+    width: auto;
+    bottom: 164px;
+    height: 65vh;
+  }
+
+  .hpi-bubble {
+    bottom: 96px;
+    right: 18px;
+    width: 56px;
+    height: 56px;
+  }
+}

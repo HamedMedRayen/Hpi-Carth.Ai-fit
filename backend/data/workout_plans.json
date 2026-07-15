@@ -1,0 +1,1488 @@
+[
+  {
+    "id": "full-body-beginner-muscle-1",
+    "name": "M&S Full Body Muscle & Strength Routine",
+    "split_type": "full_body",
+    "level": "beginner",
+    "goal": "muscle_gain",
+    "days_per_week": 3,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Full Body A",
+      "Wednesday": "Full Body B",
+      "Friday": "Full Body A"
+    },
+    "sessions": [
+      {
+        "label": "Full Body A",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Bench Press (Barbell)", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Bent Over Row (Barbell)", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Overhead Press", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Deadlift (Barbell)", "sets": 1, "reps": "8", "rest_sec": 120},
+          {"name": "Plank", "sets": 3, "reps": "30s", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Full Body B",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Overhead Press", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Pull-Up", "sets": 3, "reps": "6-8", "rest_sec": 90},
+          {"name": "Dumbbell Lunge", "sets": 3, "reps": "10", "rest_sec": 60},
+          {"name": "Deadlift (Barbell)", "sets": 1, "reps": "8", "rest_sec": 120},
+          {"name": "Hanging Leg Raise", "sets": 3, "reps": "12", "rest_sec": 60}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "pull-up bar"],
+    "description": "Classic 3-day full body routine for beginners hitting all major muscle groups with progressive resistance.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "full-body-beginner-strength-1",
+    "name": "5x5 Beginner Strength Program",
+    "split_type": "5x5_strength",
+    "level": "beginner",
+    "goal": "strength",
+    "days_per_week": 3,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Workout A",
+      "Wednesday": "Workout B",
+      "Friday": "Workout A"
+    },
+    "sessions": [
+      {
+        "label": "Workout A",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 5, "reps": "5", "rest_sec": 180},
+          {"name": "Bench Press (Barbell)", "sets": 5, "reps": "5", "rest_sec": 180},
+          {"name": "Bent Over Row (Barbell)", "sets": 5, "reps": "5", "rest_sec": 180}
+        ]
+      },
+      {
+        "label": "Workout B",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 5, "reps": "5", "rest_sec": 180},
+          {"name": "Overhead Press", "sets": 5, "reps": "5", "rest_sec": 180},
+          {"name": "Deadlift (Barbell)", "sets": 1, "reps": "5", "rest_sec": 240}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "power rack"],
+    "description": "Proven 5x5 compound-only strength program. Add weight every session. Best for raw beginners wanting to get strong fast.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "ppl-beginner-general-1",
+    "name": "3-Day Push/Pull/Legs for Beginners",
+    "split_type": "push_pull_legs",
+    "level": "beginner",
+    "goal": "general_fitness",
+    "days_per_week": 3,
+    "duration_weeks": 10,
+    "weekly_schedule": {
+      "Monday": "Push",
+      "Wednesday": "Pull",
+      "Friday": "Legs"
+    },
+    "sessions": [
+      {
+        "label": "Push",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Overhead Press", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Incline Bench Press (Barbell)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Dips", "sets": 3, "reps": "10", "rest_sec": 60},
+          {"name": "Cable Fly", "sets": 3, "reps": "12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Pull",
+        "exercises": [
+          {"name": "Bent Over Row (Barbell)", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Pull-Up", "sets": 3, "reps": "6-8", "rest_sec": 90},
+          {"name": "Lat Pulldown (Cable)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Seated Row (Cable)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Bicep Curl (Barbell)", "sets": 3, "reps": "10-12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Legs",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 4, "reps": "8-10", "rest_sec": 120},
+          {"name": "Romanian Deadlift", "sets": 3, "reps": "10-12", "rest_sec": 90},
+          {"name": "Leg Press", "sets": 3, "reps": "10-15", "rest_sec": 90},
+          {"name": "Leg Curl (Machine)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Calf Raises", "sets": 4, "reps": "15", "rest_sec": 60}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "cables", "machines"],
+    "description": "Simple PPL split 3 days/week. Great for building a solid foundation of strength and muscle.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "upper-lower-intermediate-muscle-1",
+    "name": "4-Day Upper/Lower Bodybuilding Split",
+    "split_type": "upper_lower",
+    "level": "intermediate",
+    "goal": "muscle_gain",
+    "days_per_week": 4,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Upper A",
+      "Tuesday": "Lower A",
+      "Thursday": "Upper B",
+      "Friday": "Lower B"
+    },
+    "sessions": [
+      {
+        "label": "Upper A",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Bent Over Row (Barbell)", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Overhead Press", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Lat Pulldown (Cable)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Bicep Curl (Barbell)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Tricep Pushdown", "sets": 3, "reps": "10-12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Lower A",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 4, "reps": "8-10", "rest_sec": 120},
+          {"name": "Romanian Deadlift", "sets": 3, "reps": "10-12", "rest_sec": 90},
+          {"name": "Leg Press", "sets": 3, "reps": "10-15", "rest_sec": 90},
+          {"name": "Leg Curl (Machine)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Calf Raises", "sets": 4, "reps": "15", "rest_sec": 60},
+          {"name": "Plank", "sets": 3, "reps": "45s", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Upper B",
+        "exercises": [
+          {"name": "Incline Bench Press (Barbell)", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Seated Row (Cable)", "sets": 4, "reps": "10-12", "rest_sec": 90},
+          {"name": "Dumbbell Lateral Raise", "sets": 3, "reps": "12-15", "rest_sec": 60},
+          {"name": "Pull-Up", "sets": 3, "reps": "6-8", "rest_sec": 90},
+          {"name": "Bicep Curl (Dumbbell)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Skull Crusher", "sets": 3, "reps": "10-12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Lower B",
+        "exercises": [
+          {"name": "Deadlift (Barbell)", "sets": 4, "reps": "6-8", "rest_sec": 180},
+          {"name": "Barbell Squat", "sets": 3, "reps": "10-12", "rest_sec": 90},
+          {"name": "Leg Press", "sets": 3, "reps": "12-15", "rest_sec": 90},
+          {"name": "Dumbbell Lunge", "sets": 3, "reps": "12", "rest_sec": 60},
+          {"name": "Calf Raises", "sets": 4, "reps": "15", "rest_sec": 60},
+          {"name": "Hanging Leg Raise", "sets": 3, "reps": "12", "rest_sec": 60}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines"],
+    "description": "4-day upper/lower split hitting each muscle group twice per week. Combines strength and hypertrophy rep ranges.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "phul-intermediate-strength-1",
+    "name": "PHUL — Power Hypertrophy Upper Lower",
+    "split_type": "upper_lower",
+    "level": "intermediate",
+    "goal": "strength",
+    "days_per_week": 4,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Upper Power",
+      "Tuesday": "Lower Power",
+      "Thursday": "Upper Hypertrophy",
+      "Friday": "Lower Hypertrophy"
+    },
+    "sessions": [
+      {
+        "label": "Upper Power",
+        "exercises": [
+          {"name": "Incline Bench Press (Barbell)", "sets": 4, "reps": "3-5", "rest_sec": 180},
+          {"name": "Bent Over Row (Barbell)", "sets": 4, "reps": "3-5", "rest_sec": 180},
+          {"name": "Overhead Press", "sets": 3, "reps": "5-8", "rest_sec": 120},
+          {"name": "Pull-Up", "sets": 4, "reps": "6-10", "rest_sec": 120},
+          {"name": "Bicep Curl (Barbell)", "sets": 3, "reps": "6-10", "rest_sec": 90},
+          {"name": "Skull Crusher", "sets": 3, "reps": "6-10", "rest_sec": 90}
+        ]
+      },
+      {
+        "label": "Lower Power",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 4, "reps": "3-5", "rest_sec": 180},
+          {"name": "Romanian Deadlift", "sets": 4, "reps": "3-5", "rest_sec": 180},
+          {"name": "Leg Press", "sets": 4, "reps": "10-15", "rest_sec": 90},
+          {"name": "Leg Curl (Machine)", "sets": 4, "reps": "6-10", "rest_sec": 90},
+          {"name": "Calf Raises", "sets": 4, "reps": "6-10", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Upper Hypertrophy",
+        "exercises": [
+          {"name": "Incline Bench Press (Barbell)", "sets": 4, "reps": "8-12", "rest_sec": 90},
+          {"name": "Chest Fly (Dumbbell)", "sets": 4, "reps": "8-12", "rest_sec": 60},
+          {"name": "Seated Row (Cable)", "sets": 4, "reps": "8-12", "rest_sec": 90},
+          {"name": "Lat Pulldown (Cable)", "sets": 4, "reps": "8-12", "rest_sec": 60},
+          {"name": "Dumbbell Lateral Raise", "sets": 4, "reps": "8-12", "rest_sec": 60},
+          {"name": "Cable Tricep Extension", "sets": 4, "reps": "8-12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Lower Hypertrophy",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 4, "reps": "8-12", "rest_sec": 90},
+          {"name": "Deadlift (Barbell)", "sets": 4, "reps": "8-12", "rest_sec": 90},
+          {"name": "Leg Press", "sets": 4, "reps": "10-15", "rest_sec": 90},
+          {"name": "Leg Curl (Machine)", "sets": 4, "reps": "8-12", "rest_sec": 60},
+          {"name": "Calf Raises", "sets": 4, "reps": "8-12", "rest_sec": 60},
+          {"name": "Hanging Leg Raise", "sets": 3, "reps": "15", "rest_sec": 60}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines"],
+    "description": "PHUL combines powerlifting and bodybuilding. Power days use heavy compounds (3-5 reps), hypertrophy days use moderate weights (8-12 reps).",
+    "source": "Inspired by Muscle & Strength — PHUL"
+  },
+  {
+    "id": "ppl-intermediate-muscle-1",
+    "name": "Intermediate Muscle Building 5-Day Split",
+    "split_type": "bro_split",
+    "level": "intermediate",
+    "goal": "muscle_gain",
+    "days_per_week": 5,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Chest & Triceps",
+      "Tuesday": "Back & Biceps",
+      "Wednesday": "Legs",
+      "Thursday": "Chest & Triceps",
+      "Friday": "Back & Biceps"
+    },
+    "sessions": [
+      {
+        "label": "Chest & Triceps",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Incline Bench Press (Barbell)", "sets": 3, "reps": "10-12", "rest_sec": 90},
+          {"name": "Cable Fly", "sets": 3, "reps": "12", "rest_sec": 60},
+          {"name": "Dips", "sets": 3, "reps": "10", "rest_sec": 60},
+          {"name": "Skull Crusher", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Cable Tricep Extension", "sets": 3, "reps": "12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Back & Biceps",
+        "exercises": [
+          {"name": "Deadlift (Barbell)", "sets": 3, "reps": "6-8", "rest_sec": 180},
+          {"name": "Bent Over Row (Barbell)", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Lat Pulldown (Cable)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Seated Row (Cable)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Bicep Curl (Barbell)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Bicep Curl (Dumbbell)", "sets": 3, "reps": "12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Legs",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 4, "reps": "8-10", "rest_sec": 120},
+          {"name": "Romanian Deadlift", "sets": 3, "reps": "10-12", "rest_sec": 90},
+          {"name": "Leg Press", "sets": 3, "reps": "10-15", "rest_sec": 90},
+          {"name": "Leg Curl (Machine)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Dumbbell Lunge", "sets": 3, "reps": "12", "rest_sec": 60},
+          {"name": "Calf Raises", "sets": 4, "reps": "15", "rest_sec": 60}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines"],
+    "description": "5-day split hitting chest/triceps and back/biceps twice per week. Ideal for intermediates wanting to break plateaus.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "ppl-advanced-muscle-1",
+    "name": "6-Day PPL Powerbuilding Split",
+    "split_type": "push_pull_legs",
+    "level": "advanced",
+    "goal": "muscle_gain",
+    "days_per_week": 6,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Push A", "Tuesday": "Pull A", "Wednesday": "Legs A",
+      "Thursday": "Push B", "Friday": "Pull B", "Saturday": "Legs B"
+    },
+    "sessions": [
+      {
+        "label": "Push A",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 5, "reps": "5", "rest_sec": 180},
+          {"name": "Overhead Press", "sets": 4, "reps": "6-8", "rest_sec": 120},
+          {"name": "Incline Bench Press (Barbell)", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Cable Fly", "sets": 3, "reps": "12-15", "rest_sec": 60},
+          {"name": "Dumbbell Lateral Raise", "sets": 4, "reps": "12-15", "rest_sec": 60},
+          {"name": "Cable Tricep Extension", "sets": 4, "reps": "10-12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Pull A",
+        "exercises": [
+          {"name": "Deadlift (Barbell)", "sets": 5, "reps": "5", "rest_sec": 240},
+          {"name": "Bent Over Row (Barbell)", "sets": 4, "reps": "6-8", "rest_sec": 120},
+          {"name": "Pull-Up", "sets": 4, "reps": "6-8", "rest_sec": 90},
+          {"name": "Seated Row (Cable)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Face Pull", "sets": 3, "reps": "15", "rest_sec": 60},
+          {"name": "Bicep Curl (Barbell)", "sets": 4, "reps": "10-12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Legs A",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 5, "reps": "5", "rest_sec": 180},
+          {"name": "Romanian Deadlift", "sets": 4, "reps": "8-10", "rest_sec": 120},
+          {"name": "Leg Press", "sets": 4, "reps": "10-15", "rest_sec": 90},
+          {"name": "Leg Curl (Machine)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Calf Raises", "sets": 5, "reps": "12-15", "rest_sec": 60},
+          {"name": "Hanging Leg Raise", "sets": 3, "reps": "15", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Push B",
+        "exercises": [
+          {"name": "Incline Bench Press (Barbell)", "sets": 5, "reps": "6-8", "rest_sec": 120},
+          {"name": "Chest Press (Machine)", "sets": 4, "reps": "10-12", "rest_sec": 90},
+          {"name": "Cable Fly", "sets": 4, "reps": "12-15", "rest_sec": 60},
+          {"name": "Dumbbell Lateral Raise", "sets": 4, "reps": "15", "rest_sec": 60},
+          {"name": "Dips", "sets": 4, "reps": "10-12", "rest_sec": 60},
+          {"name": "Skull Crusher", "sets": 4, "reps": "10-12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Pull B",
+        "exercises": [
+          {"name": "Pull-Up", "sets": 5, "reps": "6-8", "rest_sec": 120},
+          {"name": "T Bar Row", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Lat Pulldown (Cable)", "sets": 4, "reps": "10-12", "rest_sec": 60},
+          {"name": "Face Pull", "sets": 3, "reps": "15", "rest_sec": 60},
+          {"name": "Bicep Curl (Dumbbell)", "sets": 4, "reps": "10-12", "rest_sec": 60},
+          {"name": "Hammer Curl", "sets": 3, "reps": "12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Legs B",
+        "exercises": [
+          {"name": "Deadlift (Barbell)", "sets": 4, "reps": "5", "rest_sec": 240},
+          {"name": "Barbell Squat", "sets": 4, "reps": "8-10", "rest_sec": 120},
+          {"name": "Leg Press", "sets": 4, "reps": "12-15", "rest_sec": 90},
+          {"name": "Dumbbell Lunge", "sets": 3, "reps": "12", "rest_sec": 60},
+          {"name": "Leg Curl (Machine)", "sets": 4, "reps": "12", "rest_sec": 60},
+          {"name": "Calf Raises", "sets": 5, "reps": "15", "rest_sec": 60}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines"],
+    "description": "High-frequency 6-day PPL hitting each muscle group twice per week. For advanced lifters only.",
+    "source": "Inspired by Muscle & Strength — 6-Day PPL Powerbuilding"
+  },
+  {
+    "id": "upper-lower-advanced-strength-1",
+    "name": "4-Day Advanced Upper/Lower Mass Program",
+    "split_type": "upper_lower",
+    "level": "advanced",
+    "goal": "strength",
+    "days_per_week": 4,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Upper Power",
+      "Tuesday": "Lower Power",
+      "Thursday": "Upper Volume",
+      "Friday": "Lower Volume"
+    },
+    "sessions": [
+      {
+        "label": "Upper Power",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 4, "reps": "4-6", "rest_sec": 180},
+          {"name": "Bent Over Row (Barbell)", "sets": 4, "reps": "4-6", "rest_sec": 180},
+          {"name": "Overhead Press", "sets": 3, "reps": "5-8", "rest_sec": 120},
+          {"name": "Pull-Up", "sets": 3, "reps": "6-8", "rest_sec": 120},
+          {"name": "Skull Crusher", "sets": 2, "reps": "8-10", "rest_sec": 90},
+          {"name": "Bicep Curl (Barbell)", "sets": 2, "reps": "8-10", "rest_sec": 90}
+        ]
+      },
+      {
+        "label": "Lower Power",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 4, "reps": "4-6", "rest_sec": 240},
+          {"name": "Deadlift (Barbell)", "sets": 4, "reps": "4-6", "rest_sec": 240},
+          {"name": "Leg Press", "sets": 3, "reps": "8-10", "rest_sec": 120},
+          {"name": "Leg Curl (Machine)", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Calf Raises", "sets": 4, "reps": "8-10", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Upper Volume",
+        "exercises": [
+          {"name": "Incline Bench Press (Barbell)", "sets": 4, "reps": "8-12", "rest_sec": 90},
+          {"name": "Chest Fly (Dumbbell)", "sets": 4, "reps": "10-12", "rest_sec": 60},
+          {"name": "Seated Row (Cable)", "sets": 4, "reps": "10-12", "rest_sec": 90},
+          {"name": "Lat Pulldown (Cable)", "sets": 4, "reps": "10-12", "rest_sec": 60},
+          {"name": "Dumbbell Lateral Raise", "sets": 4, "reps": "12-15", "rest_sec": 60},
+          {"name": "Cable Tricep Extension", "sets": 3, "reps": "12", "rest_sec": 60},
+          {"name": "Hammer Curl", "sets": 3, "reps": "12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Lower Volume",
+        "exercises": [
+          {"name": "Romanian Deadlift", "sets": 4, "reps": "8-12", "rest_sec": 90},
+          {"name": "Barbell Squat", "sets": 4, "reps": "10-12", "rest_sec": 90},
+          {"name": "Leg Press", "sets": 4, "reps": "12-15", "rest_sec": 90},
+          {"name": "Dumbbell Lunge", "sets": 3, "reps": "12", "rest_sec": 60},
+          {"name": "Leg Curl (Machine)", "sets": 4, "reps": "12", "rest_sec": 60},
+          {"name": "Calf Raises", "sets": 5, "reps": "15", "rest_sec": 60}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines"],
+    "description": "Advanced 4-day upper/lower combining heavy power days (4-6 reps) with high-volume hypertrophy days (8-12 reps).",
+    "source": "Inspired by Muscle & Strength — Advanced Upper/Lower"
+  },
+  {
+    "id": "full-body-beginner-fatloss-1",
+    "name": "3-Day Full Body Fat Loss Circuit",
+    "split_type": "hiit_circuit",
+    "level": "beginner",
+    "goal": "fat_loss",
+    "days_per_week": 3,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Circuit A",
+      "Wednesday": "Circuit B",
+      "Friday": "Circuit A"
+    },
+    "sessions": [
+      {
+        "label": "Circuit A",
+        "exercises": [
+          {"name": "Goblet Squat", "sets": 3, "reps": "15", "rest_sec": 45},
+          {"name": "Push-Up", "sets": 3, "reps": "15", "rest_sec": 45},
+          {"name": "Dumbbell Row", "sets": 3, "reps": "15", "rest_sec": 45},
+          {"name": "Dumbbell Lunge", "sets": 3, "reps": "12", "rest_sec": 45},
+          {"name": "Plank", "sets": 3, "reps": "30s", "rest_sec": 45}
+        ]
+      },
+      {
+        "label": "Circuit B",
+        "exercises": [
+          {"name": "Romanian Deadlift", "sets": 3, "reps": "15", "rest_sec": 45},
+          {"name": "Overhead Press", "sets": 3, "reps": "12", "rest_sec": 45},
+          {"name": "Pull-Up", "sets": 3, "reps": "6-8", "rest_sec": 60},
+          {"name": "Goblet Squat", "sets": 3, "reps": "15", "rest_sec": 45},
+          {"name": "Hanging Leg Raise", "sets": 3, "reps": "12", "rest_sec": 45}
+        ]
+      }
+    ],
+    "equipment": ["dumbbells", "bodyweight"],
+    "description": "High-rep, short-rest circuit for maximum calorie burn. Pair with cardio on rest days.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "ppl-intermediate-fatloss-1",
+    "name": "6-Day PPL Fat Loss & Muscle Retention",
+    "split_type": "push_pull_legs",
+    "level": "intermediate",
+    "goal": "fat_loss",
+    "days_per_week": 6,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Push", "Tuesday": "Pull", "Wednesday": "Legs",
+      "Thursday": "Push", "Friday": "Pull", "Saturday": "Legs"
+    },
+    "sessions": [
+      {
+        "label": "Push",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 4, "reps": "12-15", "rest_sec": 60},
+          {"name": "Overhead Press", "sets": 3, "reps": "12-15", "rest_sec": 60},
+          {"name": "Cable Fly", "sets": 3, "reps": "15", "rest_sec": 45},
+          {"name": "Dumbbell Lateral Raise", "sets": 3, "reps": "15", "rest_sec": 45},
+          {"name": "Cable Tricep Extension", "sets": 3, "reps": "15", "rest_sec": 45}
+        ]
+      },
+      {
+        "label": "Pull",
+        "exercises": [
+          {"name": "Bent Over Row (Barbell)", "sets": 4, "reps": "12-15", "rest_sec": 60},
+          {"name": "Lat Pulldown (Cable)", "sets": 3, "reps": "12-15", "rest_sec": 60},
+          {"name": "Seated Row (Cable)", "sets": 3, "reps": "12-15", "rest_sec": 45},
+          {"name": "Face Pull", "sets": 3, "reps": "15", "rest_sec": 45},
+          {"name": "Bicep Curl (Dumbbell)", "sets": 3, "reps": "15", "rest_sec": 45}
+        ]
+      },
+      {
+        "label": "Legs",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 4, "reps": "12-15", "rest_sec": 60},
+          {"name": "Romanian Deadlift", "sets": 3, "reps": "12-15", "rest_sec": 60},
+          {"name": "Leg Press", "sets": 3, "reps": "15-20", "rest_sec": 60},
+          {"name": "Leg Curl (Machine)", "sets": 3, "reps": "15", "rest_sec": 45},
+          {"name": "Calf Raises", "sets": 4, "reps": "20", "rest_sec": 45}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines"],
+    "description": "High-frequency 6-day PPL with short rest periods to maximise calorie burn while preserving muscle.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "upper-lower-beginner-muscle-4",
+    "name": "4-Day Upper/Lower for Beginners",
+    "split_type": "upper_lower",
+    "level": "beginner",
+    "goal": "muscle_gain",
+    "days_per_week": 4,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Upper A",
+      "Tuesday": "Lower A",
+      "Thursday": "Upper B",
+      "Friday": "Lower B"
+    },
+    "sessions": [
+      {
+        "label": "Upper A",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Bent Over Row (Barbell)", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Overhead Press", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Pull-Up", "sets": 3, "reps": "6-8", "rest_sec": 90},
+          {"name": "Dumbbell Curl", "sets": 2, "reps": "10-12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Lower A",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 3, "reps": "8-10", "rest_sec": 120},
+          {"name": "Romanian Deadlift", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Leg Press", "sets": 3, "reps": "10-12", "rest_sec": 90},
+          {"name": "Leg Curl (Machine)", "sets": 3, "reps": "10-12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Upper B",
+        "exercises": [
+          {"name": "Incline Bench Press (Barbell)", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Lat Pulldown (Cable)", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Dumbbell Lateral Raise", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Bicep Curl (Barbell)", "sets": 2, "reps": "10-12", "rest_sec": 60},
+          {"name": "Tricep Pushdown", "sets": 2, "reps": "10-12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Lower B",
+        "exercises": [
+          {"name": "Deadlift (Barbell)", "sets": 2, "reps": "6-8", "rest_sec": 180},
+          {"name": "Leg Press", "sets": 3, "reps": "10-12", "rest_sec": 90},
+          {"name": "Leg Curl (Machine)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Dumbbell Lunge", "sets": 3, "reps": "10", "rest_sec": 60}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines", "pull-up bar"],
+    "description": "4-day upper/lower split perfect for beginners building muscle with balanced strength work.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "full-body-beginner-strength-4",
+    "name": "Full Body Strength 4 Days",
+    "split_type": "full_body",
+    "level": "beginner",
+    "goal": "strength",
+    "days_per_week": 4,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Workout A",
+      "Tuesday": "Workout B",
+      "Thursday": "Workout A",
+      "Friday": "Workout B"
+    },
+    "sessions": [
+      {
+        "label": "Workout A",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 5, "reps": "5", "rest_sec": 180},
+          {"name": "Bench Press (Barbell)", "sets": 5, "reps": "5", "rest_sec": 180},
+          {"name": "Bent Over Row (Barbell)", "sets": 5, "reps": "5", "rest_sec": 180},
+          {"name": "Overhead Press", "sets": 3, "reps": "5", "rest_sec": 120}
+        ]
+      },
+      {
+        "label": "Workout B",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 5, "reps": "5", "rest_sec": 180},
+          {"name": "Deadlift (Barbell)", "sets": 3, "reps": "5", "rest_sec": 180},
+          {"name": "Bench Press (Barbell)", "sets": 3, "reps": "8", "rest_sec": 120},
+          {"name": "Pull-Up", "sets": 3, "reps": "5-8", "rest_sec": 90}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "pull-up bar"],
+    "description": "4-day compound-focused strength program for beginners. Heavy on powerlifting movements.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "ppl-beginner-strength-5",
+    "name": "5-Day Push/Pull/Legs Strength",
+    "split_type": "push_pull_legs",
+    "level": "beginner",
+    "goal": "strength",
+    "days_per_week": 5,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Push",
+      "Tuesday": "Pull",
+      "Wednesday": "Legs",
+      "Thursday": "Push",
+      "Friday": "Pull"
+    },
+    "sessions": [
+      {
+        "label": "Push",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 4, "reps": "5-6", "rest_sec": 120},
+          {"name": "Overhead Press", "sets": 4, "reps": "5-6", "rest_sec": 120},
+          {"name": "Incline Bench Press (Barbell)", "sets": 3, "reps": "6-8", "rest_sec": 90},
+          {"name": "Dips", "sets": 3, "reps": "6-10", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Pull",
+        "exercises": [
+          {"name": "Deadlift (Barbell)", "sets": 3, "reps": "5-6", "rest_sec": 180},
+          {"name": "Bent Over Row (Barbell)", "sets": 4, "reps": "5-6", "rest_sec": 120},
+          {"name": "Pull-Up", "sets": 4, "reps": "5-8", "rest_sec": 90},
+          {"name": "Barbell Curl", "sets": 3, "reps": "6-8", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Legs",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 4, "reps": "5-6", "rest_sec": 180},
+          {"name": "Romanian Deadlift", "sets": 3, "reps": "6-8", "rest_sec": 120},
+          {"name": "Leg Press", "sets": 3, "reps": "6-10", "rest_sec": 90},
+          {"name": "Leg Curl (Machine)", "sets": 3, "reps": "6-10", "rest_sec": 60}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "machines", "pull-up bar"],
+    "description": "5-day PPL split emphasizing strength with heavier compound lifts for beginners.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "full-body-beginner-fat-loss-4",
+    "name": "Full Body Fat Loss 4 Days",
+    "split_type": "full_body",
+    "level": "beginner",
+    "goal": "fat_loss",
+    "days_per_week": 4,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Full Body A",
+      "Tuesday": "Full Body B",
+      "Thursday": "Full Body A",
+      "Friday": "Full Body B"
+    },
+    "sessions": [
+      {
+        "label": "Full Body A",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Bench Press (Barbell)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Bent Over Row (Barbell)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Overhead Press", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Burpees", "sets": 3, "reps": "10", "rest_sec": 45}
+        ]
+      },
+      {
+        "label": "Full Body B",
+        "exercises": [
+          {"name": "Deadlift (Barbell)", "sets": 2, "reps": "8-10", "rest_sec": 90},
+          {"name": "Pull-Up", "sets": 3, "reps": "8-12", "rest_sec": 60},
+          {"name": "Dumbbell Lunge", "sets": 3, "reps": "12", "rest_sec": 45},
+          {"name": "Mountain Climbers", "sets": 3, "reps": "20", "rest_sec": 45},
+          {"name": "Plank", "sets": 3, "reps": "45s", "rest_sec": 45}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "pull-up bar"],
+    "description": "4-day full body circuit with moderate weight and short rest periods for fat loss.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "full-body-beginner-fat-loss-5",
+    "name": "5-Day Full Body Fat Loss Circuit",
+    "split_type": "full_body",
+    "level": "beginner",
+    "goal": "fat_loss",
+    "days_per_week": 5,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Full Body",
+      "Tuesday": "Full Body",
+      "Wednesday": "Full Body",
+      "Thursday": "Full Body",
+      "Friday": "Full Body"
+    },
+    "sessions": [
+      {
+        "label": "Full Body",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 2, "reps": "12-15", "rest_sec": 45},
+          {"name": "Bench Press (Barbell)", "sets": 2, "reps": "12-15", "rest_sec": 45},
+          {"name": "Bent Over Row (Barbell)", "sets": 2, "reps": "12-15", "rest_sec": 45},
+          {"name": "Burpees", "sets": 2, "reps": "12", "rest_sec": 45},
+          {"name": "Jumping Jacks", "sets": 2, "reps": "20", "rest_sec": 30},
+          {"name": "Plank to Downward Dog", "sets": 2, "reps": "12", "rest_sec": 30}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "minimal equipment"],
+    "description": "5-day high-frequency fat loss circuit with compound movements and metabolic conditioning.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "ppl-beginner-general-4",
+    "name": "4-Day Push/Pull/Legs General Fitness",
+    "split_type": "push_pull_legs",
+    "level": "beginner",
+    "goal": "general_fitness",
+    "days_per_week": 4,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Push",
+      "Tuesday": "Pull",
+      "Thursday": "Legs",
+      "Friday": "Full Body"
+    },
+    "sessions": [
+      {
+        "label": "Push",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Overhead Press", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Incline Dumbbell Press", "sets": 2, "reps": "10-12", "rest_sec": 60},
+          {"name": "Dips", "sets": 2, "reps": "8-12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Pull",
+        "exercises": [
+          {"name": "Bent Over Row (Barbell)", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Pull-Up", "sets": 3, "reps": "6-10", "rest_sec": 90},
+          {"name": "Lat Pulldown (Cable)", "sets": 2, "reps": "10-12", "rest_sec": 60},
+          {"name": "Bicep Curl (Dumbbell)", "sets": 2, "reps": "10-12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Legs",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 3, "reps": "8-10", "rest_sec": 120},
+          {"name": "Romanian Deadlift", "sets": 2, "reps": "10-12", "rest_sec": 90},
+          {"name": "Leg Press", "sets": 2, "reps": "10-15", "rest_sec": 60},
+          {"name": "Leg Curl (Machine)", "sets": 2, "reps": "10-12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Full Body",
+        "exercises": [
+          {"name": "Deadlift (Barbell)", "sets": 2, "reps": "5-6", "rest_sec": 120},
+          {"name": "Overhead Press", "sets": 2, "reps": "8-10", "rest_sec": 90},
+          {"name": "Dumbbell Row", "sets": 2, "reps": "10", "rest_sec": 60},
+          {"name": "Goblet Squat", "sets": 2, "reps": "12", "rest_sec": 60}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines", "pull-up bar"],
+    "description": "4-day PPL variation with a light full body day for general fitness balance.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "ppl-beginner-general-5",
+    "name": "5-Day Push/Pull/Legs General Fitness",
+    "split_type": "push_pull_legs",
+    "level": "beginner",
+    "goal": "general_fitness",
+    "days_per_week": 5,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Push",
+      "Tuesday": "Pull",
+      "Wednesday": "Legs",
+      "Thursday": "Push",
+      "Friday": "Pull"
+    },
+    "sessions": [
+      {
+        "label": "Push",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Overhead Press", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Incline Bench Press (Barbell)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Dumbbell Lateral Raise", "sets": 2, "reps": "12-15", "rest_sec": 45},
+          {"name": "Tricep Pushdown", "sets": 2, "reps": "12", "rest_sec": 45}
+        ]
+      },
+      {
+        "label": "Pull",
+        "exercises": [
+          {"name": "Bent Over Row (Barbell)", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Pull-Up", "sets": 3, "reps": "6-10", "rest_sec": 90},
+          {"name": "Lat Pulldown (Cable)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Seated Row (Cable)", "sets": 2, "reps": "10-12", "rest_sec": 60},
+          {"name": "Bicep Curl (Dumbbell)", "sets": 2, "reps": "10-12", "rest_sec": 45}
+        ]
+      },
+      {
+        "label": "Legs",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 3, "reps": "8-10", "rest_sec": 120},
+          {"name": "Romanian Deadlift", "sets": 3, "reps": "10-12", "rest_sec": 90},
+          {"name": "Leg Press", "sets": 3, "reps": "10-15", "rest_sec": 90},
+          {"name": "Leg Curl (Machine)", "sets": 2, "reps": "10-12", "rest_sec": 60},
+          {"name": "Calf Raises", "sets": 2, "reps": "15", "rest_sec": 45}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines", "pull-up bar"],
+    "description": "5-day PPL for general fitness with balanced strength and hypertrophy work.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "ppl-intermediate-muscle-3",
+    "name": "3-Day PPL Muscle Building",
+    "split_type": "push_pull_legs",
+    "level": "intermediate",
+    "goal": "muscle_gain",
+    "days_per_week": 3,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Push",
+      "Wednesday": "Pull",
+      "Friday": "Legs"
+    },
+    "sessions": [
+      {
+        "label": "Push",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Overhead Press", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Incline Dumbbell Press", "sets": 3, "reps": "10-12", "rest_sec": 75},
+          {"name": "Cable Fly", "sets": 3, "reps": "12", "rest_sec": 60},
+          {"name": "Dumbbell Lateral Raise", "sets": 3, "reps": "12-15", "rest_sec": 60},
+          {"name": "Tricep Rope Extension", "sets": 3, "reps": "12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Pull",
+        "exercises": [
+          {"name": "Deadlift (Barbell)", "sets": 3, "reps": "6-8", "rest_sec": 120},
+          {"name": "Bent Over Row (Barbell)", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Pull-Up", "sets": 4, "reps": "6-10", "rest_sec": 90},
+          {"name": "Lat Pulldown (Cable)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Seated Row (Cable)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Barbell Curl", "sets": 3, "reps": "10-12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Legs",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 4, "reps": "8-10", "rest_sec": 120},
+          {"name": "Romanian Deadlift", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Leg Press", "sets": 3, "reps": "10-15", "rest_sec": 90},
+          {"name": "Leg Curl (Machine)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Calf Raises", "sets": 3, "reps": "15", "rest_sec": 60}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines", "pull-up bar"],
+    "description": "3-day PPL split for intermediate lifters focused on muscle building with high volume.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "upper-lower-intermediate-fat-loss-3",
+    "name": "3-Day Upper/Lower Fat Loss",
+    "split_type": "upper_lower",
+    "level": "intermediate",
+    "goal": "fat_loss",
+    "days_per_week": 3,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Upper",
+      "Wednesday": "Lower",
+      "Friday": "Upper"
+    },
+    "sessions": [
+      {
+        "label": "Upper",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Bent Over Row (Barbell)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Overhead Press", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Pull-Up", "sets": 3, "reps": "8-12", "rest_sec": 60},
+          {"name": "Dumbbell Lateral Raise", "sets": 2, "reps": "15", "rest_sec": 45},
+          {"name": "Barbell Curl", "sets": 2, "reps": "12", "rest_sec": 45}
+        ]
+      },
+      {
+        "label": "Lower",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 3, "reps": "10-12", "rest_sec": 75},
+          {"name": "Romanian Deadlift", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Leg Press", "sets": 3, "reps": "12-15", "rest_sec": 60},
+          {"name": "Leg Curl (Machine)", "sets": 2, "reps": "12", "rest_sec": 45},
+          {"name": "Calf Raises", "sets": 3, "reps": "20", "rest_sec": 45}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines", "pull-up bar"],
+    "description": "3-day upper/lower with moderate weights and short rest for fat loss while maintaining muscle.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "upper-lower-intermediate-fat-loss-4",
+    "name": "4-Day Upper/Lower Fat Loss",
+    "split_type": "upper_lower",
+    "level": "intermediate",
+    "goal": "fat_loss",
+    "days_per_week": 4,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Upper A",
+      "Tuesday": "Lower A",
+      "Thursday": "Upper B",
+      "Friday": "Lower B"
+    },
+    "sessions": [
+      {
+        "label": "Upper A",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Bent Over Row (Barbell)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Incline Bench Press (Barbell)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Lat Pulldown (Cable)", "sets": 2, "reps": "12", "rest_sec": 45},
+          {"name": "Dumbbell Lateral Raise", "sets": 2, "reps": "15", "rest_sec": 45}
+        ]
+      },
+      {
+        "label": "Lower A",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 3, "reps": "10-12", "rest_sec": 75},
+          {"name": "Romanian Deadlift", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Leg Press", "sets": 3, "reps": "12-15", "rest_sec": 60},
+          {"name": "Leg Curl (Machine)", "sets": 2, "reps": "15", "rest_sec": 45}
+        ]
+      },
+      {
+        "label": "Upper B",
+        "exercises": [
+          {"name": "Overhead Press", "sets": 3, "reps": "8-10", "rest_sec": 75},
+          {"name": "Seated Row (Cable)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Pull-Up", "sets": 3, "reps": "8-12", "rest_sec": 60},
+          {"name": "Cable Fly", "sets": 2, "reps": "15", "rest_sec": 45},
+          {"name": "Tricep Rope Extension", "sets": 2, "reps": "15", "rest_sec": 45}
+        ]
+      },
+      {
+        "label": "Lower B",
+        "exercises": [
+          {"name": "Deadlift (Barbell)", "sets": 2, "reps": "8-10", "rest_sec": 120},
+          {"name": "Leg Press", "sets": 3, "reps": "12-15", "rest_sec": 60},
+          {"name": "Walking Lunge", "sets": 3, "reps": "12", "rest_sec": 60},
+          {"name": "Calf Raises", "sets": 3, "reps": "20", "rest_sec": 45}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines", "pull-up bar"],
+    "description": "4-day upper/lower with higher frequency for intermediate lifters focused on fat loss.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "ppl-intermediate-strength-5",
+    "name": "5-Day PPL Strength Focus",
+    "split_type": "push_pull_legs",
+    "level": "intermediate",
+    "goal": "strength",
+    "days_per_week": 5,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Push",
+      "Tuesday": "Pull",
+      "Wednesday": "Legs",
+      "Thursday": "Push",
+      "Friday": "Pull"
+    },
+    "sessions": [
+      {
+        "label": "Push",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 4, "reps": "6-8", "rest_sec": 120},
+          {"name": "Overhead Press", "sets": 4, "reps": "6-8", "rest_sec": 120},
+          {"name": "Incline Bench Press (Barbell)", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Dips", "sets": 3, "reps": "6-10", "rest_sec": 90}
+        ]
+      },
+      {
+        "label": "Pull",
+        "exercises": [
+          {"name": "Deadlift (Barbell)", "sets": 3, "reps": "5-6", "rest_sec": 180},
+          {"name": "Bent Over Row (Barbell)", "sets": 4, "reps": "6-8", "rest_sec": 120},
+          {"name": "Pull-Up", "sets": 4, "reps": "6-10", "rest_sec": 90},
+          {"name": "Barbell Curl", "sets": 3, "reps": "8-10", "rest_sec": 75}
+        ]
+      },
+      {
+        "label": "Legs",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 4, "reps": "6-8", "rest_sec": 150},
+          {"name": "Romanian Deadlift", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Leg Press", "sets": 3, "reps": "8-10", "rest_sec": 75},
+          {"name": "Leg Curl (Machine)", "sets": 3, "reps": "8-10", "rest_sec": 60}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "machines", "pull-up bar"],
+    "description": "5-day PPL emphasizing strength with heavier compound movements and longer rest periods.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "ppl-intermediate-strength-6",
+    "name": "6-Day PPL Advanced Strength",
+    "split_type": "push_pull_legs",
+    "level": "intermediate",
+    "goal": "strength",
+    "days_per_week": 6,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Push A",
+      "Tuesday": "Pull A",
+      "Wednesday": "Legs A",
+      "Thursday": "Push B",
+      "Friday": "Pull B",
+      "Saturday": "Legs B"
+    },
+    "sessions": [
+      {
+        "label": "Push A",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 4, "reps": "5-6", "rest_sec": 150},
+          {"name": "Incline Bench Press (Barbell)", "sets": 4, "reps": "6-8", "rest_sec": 120},
+          {"name": "Dumbbell Shoulder Press", "sets": 3, "reps": "6-8", "rest_sec": 90},
+          {"name": "Dips", "sets": 3, "reps": "6-10", "rest_sec": 90}
+        ]
+      },
+      {
+        "label": "Pull A",
+        "exercises": [
+          {"name": "Deadlift (Barbell)", "sets": 3, "reps": "3-5", "rest_sec": 180},
+          {"name": "Bent Over Row (Barbell)", "sets": 4, "reps": "5-6", "rest_sec": 120},
+          {"name": "Weighted Pull-Up", "sets": 4, "reps": "5-8", "rest_sec": 120},
+          {"name": "Barbell Curl", "sets": 3, "reps": "6-8", "rest_sec": 75}
+        ]
+      },
+      {
+        "label": "Legs A",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 4, "reps": "5-6", "rest_sec": 150},
+          {"name": "Romanian Deadlift", "sets": 3, "reps": "6-8", "rest_sec": 100},
+          {"name": "Leg Press", "sets": 3, "reps": "6-8", "rest_sec": 90},
+          {"name": "Leg Curl (Machine)", "sets": 3, "reps": "8", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Push B",
+        "exercises": [
+          {"name": "Overhead Press", "sets": 4, "reps": "5-6", "rest_sec": 120},
+          {"name": "Dumbbell Bench Press", "sets": 4, "reps": "6-8", "rest_sec": 90},
+          {"name": "Cable Fly", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Tricep Close Grip Bench", "sets": 3, "reps": "6-8", "rest_sec": 75}
+        ]
+      },
+      {
+        "label": "Pull B",
+        "exercises": [
+          {"name": "Pendulum Row", "sets": 4, "reps": "6-8", "rest_sec": 100},
+          {"name": "Seal Row (Chest Supported)", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Lat Pulldown (Cable)", "sets": 3, "reps": "8-10", "rest_sec": 75},
+          {"name": "Face Pull", "sets": 3, "reps": "12-15", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Legs B",
+        "exercises": [
+          {"name": "Front Squat", "sets": 3, "reps": "6-8", "rest_sec": 120},
+          {"name": "Hack Squat", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Leg Extension", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Calf Raises", "sets": 3, "reps": "8-12", "rest_sec": 60}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines"],
+    "description": "6-day advanced PPL for intermediate lifters with multiple angles for strength development.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "upper-lower-advanced-muscle-3",
+    "name": "3-Day Upper/Lower Advanced Muscle",
+    "split_type": "upper_lower",
+    "level": "advanced",
+    "goal": "muscle_gain",
+    "days_per_week": 3,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Upper",
+      "Wednesday": "Lower",
+      "Friday": "Upper"
+    },
+    "sessions": [
+      {
+        "label": "Upper",
+        "exercises": [
+          {"name": "Incline Bench Press (Barbell)", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Bent Over Row (Barbell)", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Dumbbell Shoulder Press", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Pull-Up", "sets": 4, "reps": "6-10", "rest_sec": 75},
+          {"name": "Cable Fly", "sets": 3, "reps": "12", "rest_sec": 60},
+          {"name": "Barbell Curl", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Tricep Rope Extension", "sets": 3, "reps": "12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Lower",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 4, "reps": "8-10", "rest_sec": 120},
+          {"name": "Romanian Deadlift", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Leg Press", "sets": 4, "reps": "10-15", "rest_sec": 90},
+          {"name": "Leg Curl (Machine)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Leg Extension", "sets": 3, "reps": "12-15", "rest_sec": 60},
+          {"name": "Calf Raises", "sets": 3, "reps": "15", "rest_sec": 60}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines", "pull-up bar"],
+    "description": "3-day advanced upper/lower with high volume and multiple angles for advanced muscle builders.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "upper-lower-advanced-muscle-4",
+    "name": "4-Day Upper/Lower Advanced Hypertrophy",
+    "split_type": "upper_lower",
+    "level": "advanced",
+    "goal": "muscle_gain",
+    "days_per_week": 4,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Upper A",
+      "Tuesday": "Lower A",
+      "Thursday": "Upper B",
+      "Friday": "Lower B"
+    },
+    "sessions": [
+      {
+        "label": "Upper A",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 4, "reps": "6-8", "rest_sec": 90},
+          {"name": "Incline Dumbbell Press", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Bent Over Row (Barbell)", "sets": 4, "reps": "6-8", "rest_sec": 90},
+          {"name": "Lat Pulldown (Cable)", "sets": 3, "reps": "10-12", "rest_sec": 75},
+          {"name": "Dumbbell Lateral Raise", "sets": 3, "reps": "12-15", "rest_sec": 60},
+          {"name": "Barbell Curl", "sets": 3, "reps": "10-12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Lower A",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 4, "reps": "6-8", "rest_sec": 120},
+          {"name": "Deadlift (Barbell)", "sets": 3, "reps": "5-6", "rest_sec": 150},
+          {"name": "Leg Press", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Leg Curl (Machine)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Calf Raises", "sets": 3, "reps": "12-15", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Upper B",
+        "exercises": [
+          {"name": "Overhead Press", "sets": 4, "reps": "6-8", "rest_sec": 90},
+          {"name": "Chest Fly (Machine)", "sets": 4, "reps": "10-12", "rest_sec": 75},
+          {"name": "Seal Row (Chest Supported)", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Weighted Pull-Up", "sets": 3, "reps": "6-8", "rest_sec": 90},
+          {"name": "Cable Crossover", "sets": 3, "reps": "12", "rest_sec": 60},
+          {"name": "Tricep Dips", "sets": 3, "reps": "8-10", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Lower B",
+        "exercises": [
+          {"name": "Front Squat", "sets": 4, "reps": "6-8", "rest_sec": 100},
+          {"name": "Romanian Deadlift", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Hack Squat", "sets": 3, "reps": "10-12", "rest_sec": 75},
+          {"name": "Leg Extension", "sets": 3, "reps": "12-15", "rest_sec": 60},
+          {"name": "Seated Leg Curl", "sets": 3, "reps": "12", "rest_sec": 60}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines", "pull-up bar"],
+    "description": "4-day advanced upper/lower with high frequency and variety for serious muscle gains.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "ppl-advanced-fat-loss-4",
+    "name": "4-Day PPL Advanced Fat Loss",
+    "split_type": "push_pull_legs",
+    "level": "advanced",
+    "goal": "fat_loss",
+    "days_per_week": 4,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Push",
+      "Tuesday": "Pull",
+      "Thursday": "Legs",
+      "Friday": "Push/Pull Cardio"
+    },
+    "sessions": [
+      {
+        "label": "Push",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Incline Dumbbell Press", "sets": 3, "reps": "12", "rest_sec": 60},
+          {"name": "Overhead Press", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Cable Crossover", "sets": 3, "reps": "15", "rest_sec": 45},
+          {"name": "Dumbbell Lateral Raise", "sets": 2, "reps": "15", "rest_sec": 45},
+          {"name": "Rope Pushdown", "sets": 2, "reps": "15", "rest_sec": 45}
+        ]
+      },
+      {
+        "label": "Pull",
+        "exercises": [
+          {"name": "Deadlift (Barbell)", "sets": 2, "reps": "8-10", "rest_sec": 100},
+          {"name": "Bent Over Row (Barbell)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Pull-Up", "sets": 3, "reps": "10-15", "rest_sec": 60},
+          {"name": "Lat Pulldown (Cable)", "sets": 3, "reps": "12-15", "rest_sec": 45},
+          {"name": "Face Pull", "sets": 3, "reps": "15", "rest_sec": 45},
+          {"name": "Bicep Curl (Dumbbell)", "sets": 2, "reps": "12", "rest_sec": 45}
+        ]
+      },
+      {
+        "label": "Legs",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 3, "reps": "10-12", "rest_sec": 75},
+          {"name": "Leg Press", "sets": 3, "reps": "12-15", "rest_sec": 60},
+          {"name": "Leg Curl (Machine)", "sets": 3, "reps": "12-15", "rest_sec": 45},
+          {"name": "Leg Extension", "sets": 3, "reps": "15", "rest_sec": 45},
+          {"name": "Calf Raises", "sets": 3, "reps": "20", "rest_sec": 45}
+        ]
+      },
+      {
+        "label": "Push/Pull Cardio",
+        "exercises": [
+          {"name": "Machine Row", "sets": 2, "reps": "20", "rest_sec": 30},
+          {"name": "Chest Press Machine", "sets": 2, "reps": "20", "rest_sec": 30},
+          {"name": "Battle Ropes", "sets": 2, "reps": "30s", "rest_sec": 30},
+          {"name": "Rowing Machine", "sets": 2, "reps": "2min", "rest_sec": 30}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines", "pull-up bar"],
+    "description": "4-day advanced PPL with metabolic conditioning for fat loss and advanced lifters.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "ppl-advanced-fat-loss-5",
+    "name": "5-Day PPL Advanced Fat Loss",
+    "split_type": "push_pull_legs",
+    "level": "advanced",
+    "goal": "fat_loss",
+    "days_per_week": 5,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Push",
+      "Tuesday": "Pull",
+      "Wednesday": "Legs",
+      "Thursday": "Push",
+      "Friday": "Pull"
+    },
+    "sessions": [
+      {
+        "label": "Push",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Incline Dumbbell Press", "sets": 3, "reps": "12", "rest_sec": 60},
+          {"name": "Cable Fly", "sets": 3, "reps": "12-15", "rest_sec": 45},
+          {"name": "Dumbbell Shoulder Press", "sets": 2, "reps": "12", "rest_sec": 60},
+          {"name": "Dumbbell Lateral Raise", "sets": 2, "reps": "15", "rest_sec": 45},
+          {"name": "Rope Pushdown", "sets": 2, "reps": "12-15", "rest_sec": 45}
+        ]
+      },
+      {
+        "label": "Pull",
+        "exercises": [
+          {"name": "Deadlift (Barbell)", "sets": 2, "reps": "8-10", "rest_sec": 120},
+          {"name": "Bent Over Row (Barbell)", "sets": 3, "reps": "10-12", "rest_sec": 60},
+          {"name": "Pull-Up", "sets": 3, "reps": "10-15", "rest_sec": 60},
+          {"name": "Lat Pulldown (Cable)", "sets": 3, "reps": "12-15", "rest_sec": 45},
+          {"name": "Seated Row (Cable)", "sets": 2, "reps": "12-15", "rest_sec": 45},
+          {"name": "Face Pull", "sets": 2, "reps": "15", "rest_sec": 45}
+        ]
+      },
+      {
+        "label": "Legs",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 3, "reps": "10-12", "rest_sec": 75},
+          {"name": "Romanian Deadlift", "sets": 3, "reps": "12", "rest_sec": 60},
+          {"name": "Leg Press", "sets": 3, "reps": "12-15", "rest_sec": 60},
+          {"name": "Leg Curl (Machine)", "sets": 2, "reps": "15", "rest_sec": 45},
+          {"name": "Leg Extension", "sets": 2, "reps": "15", "rest_sec": 45},
+          {"name": "Calf Raises", "sets": 3, "reps": "20", "rest_sec": 45}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines", "pull-up bar"],
+    "description": "5-day advanced PPL with high frequency for maximum fat loss while maintaining strength.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "ppl-advanced-strength-5",
+    "name": "5-Day PPL Advanced Strength",
+    "split_type": "push_pull_legs",
+    "level": "advanced",
+    "goal": "strength",
+    "days_per_week": 5,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Push",
+      "Tuesday": "Pull",
+      "Wednesday": "Legs",
+      "Thursday": "Push",
+      "Friday": "Pull"
+    },
+    "sessions": [
+      {
+        "label": "Push",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 5, "reps": "3-5", "rest_sec": 150},
+          {"name": "Dumbbell Bench Press", "sets": 4, "reps": "6-8", "rest_sec": 120},
+          {"name": "Overhead Press", "sets": 4, "reps": "5-6", "rest_sec": 120},
+          {"name": "Incline Bench Press (Barbell)", "sets": 3, "reps": "6-8", "rest_sec": 100},
+          {"name": "Dips", "sets": 3, "reps": "5-8", "rest_sec": 90}
+        ]
+      },
+      {
+        "label": "Pull",
+        "exercises": [
+          {"name": "Deadlift (Barbell)", "sets": 4, "reps": "3-5", "rest_sec": 180},
+          {"name": "Bent Over Row (Barbell)", "sets": 5, "reps": "5-6", "rest_sec": 150},
+          {"name": "Weighted Pull-Up", "sets": 4, "reps": "5-8", "rest_sec": 120},
+          {"name": "Barbell Curl", "sets": 3, "reps": "6-8", "rest_sec": 90},
+          {"name": "Seal Row (Chest Supported)", "sets": 3, "reps": "8", "rest_sec": 90}
+        ]
+      },
+      {
+        "label": "Legs",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 5, "reps": "3-5", "rest_sec": 150},
+          {"name": "Romanian Deadlift", "sets": 4, "reps": "6-8", "rest_sec": 120},
+          {"name": "Leg Press", "sets": 4, "reps": "5-8", "rest_sec": 120},
+          {"name": "Leg Curl (Machine)", "sets": 3, "reps": "8", "rest_sec": 90},
+          {"name": "Calf Raises", "sets": 3, "reps": "8-10", "rest_sec": 60}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines", "pull-up bar"],
+    "description": "5-day advanced PPL heavily weighted toward compound lifts and strength development.",
+    "source": "Inspired by Muscle & Strength"
+  },
+  {
+    "id": "ppl-advanced-strength-6",
+    "name": "6-Day Advanced PPL Strength & Hypertrophy",
+    "split_type": "push_pull_legs",
+    "level": "advanced",
+    "goal": "strength",
+    "days_per_week": 6,
+    "duration_weeks": 8,
+    "weekly_schedule": {
+      "Monday": "Push A",
+      "Tuesday": "Pull A",
+      "Wednesday": "Legs A",
+      "Thursday": "Push B",
+      "Friday": "Pull B",
+      "Saturday": "Legs B"
+    },
+    "sessions": [
+      {
+        "label": "Push A",
+        "exercises": [
+          {"name": "Bench Press (Barbell)", "sets": 5, "reps": "3-5", "rest_sec": 180},
+          {"name": "Incline Bench Press (Barbell)", "sets": 4, "reps": "6-8", "rest_sec": 120},
+          {"name": "Dumbbell Shoulder Press", "sets": 4, "reps": "6-8", "rest_sec": 100},
+          {"name": "Close Grip Bench", "sets": 3, "reps": "6-8", "rest_sec": 90}
+        ]
+      },
+      {
+        "label": "Pull A",
+        "exercises": [
+          {"name": "Deadlift (Barbell)", "sets": 4, "reps": "3-5", "rest_sec": 200},
+          {"name": "Bent Over Row (Barbell)", "sets": 5, "reps": "5-6", "rest_sec": 150},
+          {"name": "Weighted Pull-Up", "sets": 4, "reps": "5-8", "rest_sec": 120},
+          {"name": "Barbell Curl", "sets": 3, "reps": "6-8", "rest_sec": 90}
+        ]
+      },
+      {
+        "label": "Legs A",
+        "exercises": [
+          {"name": "Barbell Squat", "sets": 5, "reps": "3-5", "rest_sec": 180},
+          {"name": "Deadlift (Barbell)", "sets": 3, "reps": "5", "rest_sec": 180},
+          {"name": "Leg Press", "sets": 4, "reps": "6-8", "rest_sec": 120},
+          {"name": "Leg Curl (Machine)", "sets": 3, "reps": "8", "rest_sec": 75}
+        ]
+      },
+      {
+        "label": "Push B",
+        "exercises": [
+          {"name": "Overhead Press", "sets": 4, "reps": "5-6", "rest_sec": 120},
+          {"name": "Dumbbell Bench Press", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Cable Fly", "sets": 3, "reps": "10-12", "rest_sec": 75},
+          {"name": "Lateral Raise Machine", "sets": 3, "reps": "12", "rest_sec": 60},
+          {"name": "Rope Pushdown", "sets": 3, "reps": "10-12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Pull B",
+        "exercises": [
+          {"name": "Pendulum Row", "sets": 4, "reps": "8-10", "rest_sec": 100},
+          {"name": "Lat Pulldown (Cable)", "sets": 4, "reps": "8-10", "rest_sec": 90},
+          {"name": "Seal Row (Chest Supported)", "sets": 3, "reps": "8-10", "rest_sec": 90},
+          {"name": "Face Pull", "sets": 3, "reps": "12-15", "rest_sec": 60},
+          {"name": "Hammer Strength Curl", "sets": 3, "reps": "10-12", "rest_sec": 60}
+        ]
+      },
+      {
+        "label": "Legs B",
+        "exercises": [
+          {"name": "Front Squat", "sets": 4, "reps": "6-8", "rest_sec": 120},
+          {"name": "Romanian Deadlift", "sets": 4, "reps": "8-10", "rest_sec": 100},
+          {"name": "Hack Squat", "sets": 3, "reps": "10-12", "rest_sec": 90},
+          {"name": "Leg Extension", "sets": 3, "reps": "12-15", "rest_sec": 60},
+          {"name": "Seated Leg Curl", "sets": 3, "reps": "12", "rest_sec": 60}
+        ]
+      }
+    ],
+    "equipment": ["barbell", "dumbbells", "cables", "machines", "pull-up bar"],
+    "description": "6-day advanced PPL with emphasis on heavy strength and volumized hypertrophy work.",
+    "source": "Inspired by Muscle & Strength"
+  }
+]

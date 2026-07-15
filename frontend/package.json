@@ -1,0 +1,46 @@
+{
+  "name": "hpi",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@capacitor-community/speech-recognition": "^7.0.1",
+    "@capacitor/camera": "^8.2.0",
+    "@capacitor/core": "^8.3.4",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/keyboard": "^8.0.3",
+    "@capacitor/preferences": "^8.0.1",
+    "@capacitor/splash-screen": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.2",
+    "@react-oauth/google": "^0.13.5",
+    "lucide-react": "^1.8.0",
+    "react": "^18.2.0",
+    "react-body-highlighter": "^2.0.5",
+    "react-dom": "^18.2.0",
+    "react-grid-layout": "^2.2.3",
+    "react-router-dom": "^6.21.0",
+    "react-scripts": "5.0.1",
+    "recharts": "^2.10.3"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "cap:build": "npm run build && npx cap sync",
+    "cap:sync": "npx cap sync",
+    "cap:android": "npx cap open android"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version"
+    ]
+  },
+  "proxy": "http://localhost:8000",
+  "devDependencies": {
+    "@capacitor/android": "^8.3.4",
+    "@capacitor/cli": "^8.3.4"
+  }
+}

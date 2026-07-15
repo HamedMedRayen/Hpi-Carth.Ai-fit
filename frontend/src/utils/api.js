@@ -1,0 +1,226 @@
+import { API_BASE_URL as BASE } from './config';
+import { getSyncItem, setItem, removeItem } from './storage';
+
+// ── Token storage ─────────────────────────────────────────────
+export const token = {
+  get: () => getSyncItem("aura_token"),
+  set: (t) => setItem("aura_token", t),
+  clear: () => {
+    removeItem("aura_token");
+    removeItem("aura_user");
+  },
+  userId: () => {
+    const raw = getSyncItem("aura_user");
+    return raw ? JSON.parse(raw).user_id : null;
+  },
+  user: () => {
+    const raw = getSyncItem("aura_user");
+    return raw ? JSON.parse(raw) : null;
+  },
+  setUser: (u) => setItem("aura_user", JSON.stringify(u)),
+};
+
+// ── Core fetch ────────────────────────────────────────────────
+async function req(path, opts = {}) {
+  const headers = { ...opts.headers };
+  if (!(opts.body instanceof FormData)) {
+    headers["Content-Type"] = headers["Content-Type"] || "application/json";
+  }
+  const t = token.get();
+  if (t) headers["Authorization"] = `Bearer ${t}`;
+
+  const res = await fetch(`${BASE}${path}`, { ...opts, headers });
+
+  // Handle unauthorized errors (except for auth routes themselves)
+  if (res.status === 401 && !path.startsWith("/auth/")) {
+    token.clear();
+    // Redirect to login if not already there
+    if (window.location.pathname !== "/auth") {
+      window.location.href = "/auth";
+    }
+    throw new Error("Unauthorized");
+  }
+
+  if (res.status === 204) return null;
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.detail || data.error || `HTTP ${res.status}`);
+  return data;
+}
+
+// ── Auth ──────────────────────────────────────────────────────
+export const auth = {
+  register: (nickname, password, email, role = 'athlete') =>
+    req("/auth/register", { method: "POST", body: JSON.stringify({ nickname, password, email, role }) }),
+  login: (nickname, password) =>
+    req("/auth/login", { method: "POST", body: JSON.stringify({ nickname, password }) }),
+  googleLogin: (token) =>
+    req("/auth/google", { method: "POST", body: JSON.stringify({ token }) }),
+  requestOtp: (email) =>
+    req("/auth/email-otp-request", { method: "POST", body: JSON.stringify({ email }) }),
+  verifyOtp: (email, otp) =>
+    req("/auth/email-otp-verify", { method: "POST", body: JSON.stringify({ email, otp }) }),
+  me: () => req("/auth/me"),
+};
+
+// ── User-aware api helper ─────────────────────────────────────
+function uid() {
+  const id = token.userId();
+  if (!id) throw new Error("Not logged in");
+  return id;
+}
+
+export const api = {
+  // User
+  getUser: () => req(`/users/${uid()}`),
+  getUserStats: () => req(`/users/${uid()}/stats`),
+  updateUser: (data) => req(`/users/me`, { method: "PATCH", body: JSON.stringify(data) }),
+  uploadAvatar: (file) => {
+    const fd = new FormData();
+    fd.append("file", file);
+    return req("/users/me/avatar", { method: "POST", body: fd });
+  },
+
+  // Workouts
+  getWorkouts: (limit = 50) => req(`/workouts/users/${uid()}?limit=${limit}`),
+  getWorkout: (id) => req(`/workouts/${id}`),
+  createWorkout: (payload) => req("/workouts/", { method: "POST", body: JSON.stringify({ ...payload, user_id: uid() }) }),
+  deleteWorkout: (id) => req(`/workouts/${id}`, { method: "DELETE" }),
+
+  // Exercises & body parts
+  getExercises: (filters = {}) => {
+    const params = new URLSearchParams();
+    if (typeof filters === "string") {
+      // Backward compat: getExercises("chest") => body_part=chest
+      if (filters) params.set("body_part", filters);
+    } else {
+      if (filters.body_part) params.set("body_part", filters.body_part);
+      if (filters.equipment) params.set("equipment", filters.equipment);
+      if (filters.search) params.set("search", filters.search);
+      if (filters.muscle) params.set("muscle", filters.muscle);
+      if (filters.limit) params.set("limit", String(filters.limit));
+      if (filters.offset) params.set("offset", String(filters.offset));
+    }
+    const qs = params.toString();
+    return req(`/exercises/${qs ? `?${qs}` : ""}`);
+  },
+  getBodyParts: () => req("/exercises/body-parts"),
+  getCategories: () => req("/exercises/categories"),
+  searchExercises: (q) => req(`/exercises/?search=${encodeURIComponent(q)}`),
+  getExercisesList: () => req("/workouts/exercises"),  // legacy for autocomplete
+  createCustomExercise: (payload) => req("/exercises/custom", { method: "POST", body: JSON.stringify(payload) }),
+
+  // PRs, volume, heatmap
+  getPRs: () => req(`/workouts/users/${uid()}/prs`),
+  getVolume: () => req(`/workouts/users/${uid()}/volume`),
+  getExerciseProgress: (name) => req(`/workouts/users/${uid()}/exercise/${encodeURIComponent(name)}`),
+  getHeatmap: () => req(`/workouts/users/${uid()}/heatmap`),
+
+  // Analytics
+  getDashboard: () => req(`/analytics/users/${uid()}/dashboard`),
+  getDashboardAnalytics: (id) => req(`/analytics/users/${id || uid()}/dashboard`),
+  getPCA: (n = 2) => req(`/analytics/users/${uid()}/pca?n_components=${n}`),
+  getGBDT: () => req(`/analytics/users/${uid()}/gbdt`),
+  getMetrics: (limit = 200) => req(`/metrics/users/${uid()}?limit=${limit}`),
+
+  // AI Recommendations
+  getRecommendation: (payload) =>
+    req("/ai-recommend/", { method: "POST", body: JSON.stringify(payload) }),
+
+  // Exercise history & PRs (new)
+  getLastSet: (name) => req(`/exercises/${encodeURIComponent(name)}/last-set`),
+  getExercisePR: (name) => req(`/exercises/${encodeURIComponent(name)}/pr`),
+  getExerciseHistory: (name) => req(`/exercises/history/${encodeURIComponent(name)}`),
+
+
+  // Templates (new)
+  getTemplates: () => req(`/workouts/templates`),
+  saveTemplate: (payload) => req("/workouts/templates", { method: "POST", body: JSON.stringify(payload) }),
+  deleteTemplate: (id) => req(`/workouts/templates/${id}`, { method: "DELETE" }),
+
+  // Body weight (new)
+  logBodyWeight: (weight_kg) => req("/bodyweight", { method: "POST", body: JSON.stringify({ weight_kg }) }),
+  getBodyWeightLog: (days = 30) => req(`/bodyweight?days=${days}`),
+
+  // Analytics - new endpoints (new)
+  getMuscleHeatmap: (days = 7) => req(`/analytics/muscle-heatmap?days=${days}`),
+  getMonthlyVolume: () => req(`/analytics/monthly-volume`),
+
+  // Workout Plans (new)
+  getPlans: () => req("/recommendations/plans"),
+  savePlan: (payload) => req("/recommendations/save", { method: "POST", body: JSON.stringify(payload) }),
+  getRecommendationHistory: (user_id) => req(`/recommendations/history/${user_id}`),
+
+  // Progress Dashboard
+  getProgressWeightHistory: () => req("/progress/weight-history"),
+  getProgressRepsHistory: (exercise_id) => req(`/progress/reps-history?exercise_id=${exercise_id}`),
+  getProgressSessionHistory: (exercise_id) => req(`/progress/session-history?exercise_id=${exercise_id}`),
+  getProgressWorkoutsPerWeek: () => req("/progress/workouts-per-week"),
+  getExerciseTrackerData: (exerciseId, endpoint) => req(`/progress/exercise/${exerciseId}/${endpoint}`),
+
+  // Dashboard Home
+  getDashboardStats: () => req("/progress/stats"),
+  getVolumeHistory: () => req("/progress/volume-history"),
+  getWeeklyVolume: () => req("/progress/weekly-volume"),
+  getTrainingSplit: () => req("/progress/training-split"),
+  getActivityMap: () => req("/progress/activity-map"),
+  getStreak: () => req("/progress/streak"),
+  logRestDay: () => req("/progress/rest-day", { method: "POST" }),
+
+  // Fatigue
+  logFatigue: (data) => req("/fatigue/log", { method: "POST", body: JSON.stringify(data) }),
+  getFatigueHistory: () => req("/fatigue/history"),
+
+  // Injuries
+  getInjuries: () => req("/injuries"),
+  logInjury: (data) => req("/injuries", { method: "POST", body: JSON.stringify(data) }),
+  markInjuryHealed: (id) => req(`/injuries/${id}`, { method: "PATCH" }),
+  deleteInjury: (id) => req(`/injuries/${id}`, { method: "DELETE" }),
+  // Challenges
+  getChallenges: () => req("/challenges"),
+  getActiveChallenge: () => req(`/challenges/active/${uid()}`),
+  joinChallenge: (challenge_id) => req("/challenges/join", { method: "POST", body: JSON.stringify({ user_id: uid(), challenge_id }) }),
+  cancelChallenge: () => req("/challenges/cancel", { method: "POST", body: JSON.stringify({ user_id: uid() }) }),
+  checkinChallenge: (day) => req("/challenges/checkin", { method: "POST", body: JSON.stringify({ user_id: uid(), day }) }),
+
+  // Coach
+  getCoachRole: () => req("/coach/role"),
+  inviteAthlete: (athlete_identifier) => req("/coach/invite", { method: "POST", body: JSON.stringify({ athlete_identifier }) }),
+  getMyAthletes: () => req("/coach/athletes"),
+  getAthleteStats: (athleteId) => req(`/coach/athletes/${athleteId}/stats`),
+  suggestWorkout: (athleteId, data) => req(`/coach/athletes/${athleteId}/suggest-workout`, { method: "POST", body: JSON.stringify(data) }),
+  getMyCoach: () => req("/coach/my-coach"),
+  respondInvite: (relationship_id, action) => req("/coach/respond", { method: "POST", body: JSON.stringify({ relationship_id, action }) }),
+  removeRelationship: (relationship_id) => req("/coach/remove", { method: "POST", body: JSON.stringify({ relationship_id }) }),
+
+  // Notifications
+  getNotifications: () => req("/notifications"),
+  getUnreadNotificationsCount: () => req("/notifications/unread-count"),
+  markNotificationRead: (id) => req(`/notifications/${id}/read`, { method: "PATCH" }),
+  deleteNotification: (id) => req(`/notifications/${id}`, { method: "DELETE" }),
+
+  // Coach Chat
+  sendMessage: (receiver_id, message) => req("/coach-chat/send", { method: "POST", body: JSON.stringify({ receiver_id, message }) }),
+  getMessages: (other_user_id) => req(`/coach-chat/messages/${other_user_id}`),
+  getConversations: () => req("/coach-chat/conversations"),
+
+  // Nutrition
+  searchFood: (q) => req(`/nutrition/food/search?q=${encodeURIComponent(q)}`),
+  getAllFood: () => req("/nutrition/food/all"),
+  createCustomFood: (payload) => req("/nutrition/food/custom", { method: "POST", body: JSON.stringify(payload) }),
+  createRecipe: (payload) => req("/nutrition/recipes", { method: "POST", body: JSON.stringify(payload) }),
+  getRecipes: () => req("/nutrition/recipes"),
+  getRecipeDetails: (id) => req(`/nutrition/recipes/${id}`),
+  logNutrition: (payload) => req("/nutrition/log", { method: "POST", body: JSON.stringify(payload) }),
+  quickAddNutrition: (payload) => req("/nutrition/log/quick", { method: "POST", body: JSON.stringify(payload) }),
+  getNutritionToday: () => req("/nutrition/today"),
+  getNutritionHistory: () => req("/nutrition/history"),
+  copyMeals: (from_date, to_date) => req("/nutrition/log/copy", { method: "POST", body: JSON.stringify({ from_date, to_date }) }),
+  scanMeal: (description) => req("/nutrition/scan", { method: "POST", body: JSON.stringify({ description }) }),
+  logWater: (amount_ml, action = "add") => req("/nutrition/water", { method: "POST", body: JSON.stringify({ amount_ml, action }) }),
+  getWaterToday: () => req("/nutrition/water/today"),
+  calculateNutritionTargets: (payload) => req("/nutrition/calculate-targets", { method: "POST", body: JSON.stringify(payload) }),
+  saveNutritionTargets: (payload) => req("/nutrition/save-targets", { method: "POST", body: JSON.stringify(payload) }),
+  getLatestNutritionTargets: () => req("/nutrition/targets/latest"),
+};
+
+

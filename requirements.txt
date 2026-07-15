@@ -1,0 +1,14 @@
+# Backend Python Dependencies
+# NOTE: Mobile app & Frontend technologies (React, Capacitor plugins, etc.) are defined in frontend/package.json
+fastapi
+uvicorn[standard]
+psycopg2-binary
+python-dotenv
+passlib[bcrypt]
+python-jose[cryptography]
+pandas
+scikit-learn
+numpy
+groq
+slowapi==0.1.9
+google-auth==2.37.0

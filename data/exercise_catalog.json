@@ -1,0 +1,4923 @@
+[
+  {
+    "uuid": "1b020b3a-3732-4c7e-92fd-a0cec90ed69b",
+    "external_id": 9,
+    "category": "Abs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Kettlebell"
+    ]
+  },
+  {
+    "uuid": "53906cd1-61f1-4d56-ac60-e4fcc5824861",
+    "external_id": 12,
+    "category": "Legs",
+    "primary_muscles": [
+      "Glutes"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "f24cb758-9c0d-42d4-ad9e-6025c527dd13",
+    "external_id": 20,
+    "category": "Shoulders",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "f2733700-aa5d-4df7-bc52-1876ab4fb479",
+    "external_id": 31,
+    "category": "Arms",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "a6bced3c-72f5-42a3-9438-5569d46f49fd",
+    "external_id": 41,
+    "category": "Abs",
+    "primary_muscles": [
+      "Obliques"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "dae6f6ed-9408-4e62-a59a-1a33f4e8ab36",
+    "external_id": 43,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "04e7d7e4-f8d2-406d-97df-3df3bceec22c",
+    "external_id": 46,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [
+      "Glutes"
+    ],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "67c26c9b-32f3-4b8b-b13a-4d8be4803975",
+    "external_id": 48,
+    "category": "Arms",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Barbell",
+      "Bench"
+    ]
+  },
+  {
+    "uuid": "13234b53-ea0c-41f1-9069-776865ea8eff",
+    "external_id": 50,
+    "category": "Arms",
+    "primary_muscles": [
+      "Triceps"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Chest"
+    ],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "cfb6a754-57be-431b-b8d0-d9963120bd5a",
+    "external_id": 51,
+    "category": "Arms",
+    "primary_muscles": [
+      "Shoulders",
+      "Hamstrings"
+    ],
+    "secondary_muscles": [
+      "Biceps",
+      "Obliques"
+    ],
+    "equipment": [
+      "Barbell",
+      "Bench"
+    ]
+  },
+  {
+    "uuid": "03db11cc-8079-463c-9399-6f346b100ce6",
+    "external_id": 56,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [
+      "Obliques"
+    ],
+    "equipment": [
+      "Gym mat"
+    ]
+  },
+  {
+    "uuid": "b7267f90-8706-442b-b918-507e16092b8e",
+    "external_id": 57,
+    "category": "Chest",
+    "primary_muscles": [
+      "Shoulders",
+      "Calves",
+      "Chest",
+      "Abs",
+      "Serratus anterior",
+      "Soleus",
+      "Triceps"
+    ],
+    "secondary_muscles": [
+      "Glutes",
+      "Lats",
+      "Obliques",
+      "Quads",
+      "Trapezius"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "046fce45-69f2-46f7-a5b6-79a25a485af1",
+    "external_id": 71,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "3717d144-7815-4a97-9a56-956fb889c996",
+    "external_id": 73,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Triceps"
+    ],
+    "equipment": [
+      "Barbell",
+      "Bench"
+    ]
+  },
+  {
+    "uuid": "28321cf3-70e6-48a4-ade1-d11382180cb3",
+    "external_id": 75,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Triceps"
+    ],
+    "equipment": [
+      "Bench",
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "3db63138-a047-4a4d-b616-1a0b7dfca105",
+    "external_id": 76,
+    "category": "Arms",
+    "primary_muscles": [
+      "Triceps"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Chest"
+    ],
+    "equipment": [
+      "Barbell",
+      "Bench"
+    ]
+  },
+  {
+    "uuid": "01271ea0-088c-4e2b-95ad-876af7127057",
+    "external_id": 79,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Trapezius"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "94a5c406-7bcd-47f3-9687-bdf92a763932",
+    "external_id": 81,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bench",
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "6f79b381-98a4-40d5-8a45-3bb0558be6fe",
+    "external_id": 82,
+    "category": "Shoulders",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bench",
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "4af6dbd9-8991-484b-9810-68f117c21edf",
+    "external_id": 83,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Biceps"
+    ],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "2f0ddf9a-f520-4c55-8883-f0d4a789f481",
+    "external_id": 84,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Biceps"
+    ],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "7b99a081-6b1a-4aa5-b86a-5a935d083a35",
+    "external_id": 91,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [
+      "Brachialis"
+    ],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "1ae6a28d-10e7-4ecf-af4f-905f8193e2c6",
+    "external_id": 92,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [
+      "Brachialis"
+    ],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "42227131-9b1e-4220-b082-c523f0651057",
+    "external_id": 94,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [
+      "Brachialis"
+    ],
+    "equipment": [
+      "SZ-Bar"
+    ]
+  },
+  {
+    "uuid": "bcb7020c-8678-496d-8f4d-aad0e233a5bd",
+    "external_id": 95,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "d551f24d-44fe-4761-9448-edf14d627827",
+    "external_id": 112,
+    "category": "Arms",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "8c6428f3-d41d-4ffc-8444-bb9b823bc42b",
+    "external_id": 124,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [
+      "Glutes"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "5c414175-fe72-455a-ba8f-a0575cf792bd",
+    "external_id": 129,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "48ee1385-47c5-4821-8b6a-57fac6130776",
+    "external_id": 132,
+    "category": "Chest",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "99449eae-0eae-44ab-a57f-fc094bbdda13",
+    "external_id": 135,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Shoulders"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "80ff0a3a-ae45-497d-8c27-2b12e3b6e1b8",
+    "external_id": 137,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "a6605e9c-887d-45e0-8282-617a8ec5fea2",
+    "external_id": 139,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "dc3a2072-abc3-4ef9-b8e6-f5ae6b11bc7f",
+    "external_id": 142,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "c867836d-2929-4977-b23c-014bc21ec08d",
+    "external_id": 145,
+    "category": "Abs",
+    "primary_muscles": [
+      "Obliques"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "0d79f259-3b28-4258-8a08-cffec062a710",
+    "external_id": 146,
+    "category": "Calves",
+    "primary_muscles": [
+      "Calves",
+      "Soleus"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "95a9cc46-270e-45f2-8a17-5665a23ff70b",
+    "external_id": 148,
+    "category": "Calves",
+    "primary_muscles": [
+      "Calves"
+    ],
+    "secondary_muscles": [
+      "Soleus"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "87e6abc5-a701-442a-b4fb-bb2a7598a754",
+    "external_id": 152,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Pull-up bar"
+    ]
+  },
+  {
+    "uuid": "424da49e-d155-4247-bbb2-161a5c797789",
+    "external_id": 154,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Pull-up bar"
+    ]
+  },
+  {
+    "uuid": "63fbb8e5-6ebc-4def-8844-3e65e097213b",
+    "external_id": 158,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "6e00afb6-272d-44a2-8ae3-e7fa41b50f06",
+    "external_id": 161,
+    "category": "Chest",
+    "primary_muscles": [
+      "Lats",
+      "Chest",
+      "Serratus anterior"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "36391719-d4ad-4e0f-991f-8eafd5947108",
+    "external_id": 165,
+    "category": "Abs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "b186f1f8-4957-44dc-bf30-d0b00064ce6f",
+    "external_id": 167,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [
+      "Serratus anterior"
+    ],
+    "equipment": [
+      "Gym mat"
+    ]
+  },
+  {
+    "uuid": "7de7b8a8-313d-465f-bb22-8527ae45110a",
+    "external_id": 171,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Incline bench"
+    ]
+  },
+  {
+    "uuid": "401989e0-64c3-459d-bc47-2c171ab4f41d",
+    "external_id": 172,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "29175281-afaf-4ffd-85e8-cfc38493e304",
+    "external_id": 173,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "b7ff64bc-7a7c-4dbc-af6f-fabc20425f5f",
+    "external_id": 174,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [
+      "Obliques"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "8dedde58-a5dc-4a23-ad20-fd7cf524f8b5",
+    "external_id": 177,
+    "category": "Cardio",
+    "primary_muscles": [
+      "Obliques",
+      "Trapezius"
+    ],
+    "secondary_muscles": [
+      "Hamstrings",
+      "Brachialis",
+      "Glutes",
+      "Lats",
+      "Quads"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "d4db2355-4c99-4d80-a179-6aeced7c7fed",
+    "external_id": 178,
+    "category": "Abs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "74d4697d-8a97-4ea2-9d05-fa4d2bd7221e",
+    "external_id": 182,
+    "category": "Arms",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "ee8e8db4-2d82-49e1-ab7f-891e9a354934",
+    "external_id": 184,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [
+      "Glutes"
+    ],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "bcd801f0-9a38-4615-a91c-900153c8c234",
+    "external_id": 185,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "dda69c96-62d4-4690-aa07-a4a0f6ceb63a",
+    "external_id": 186,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "b99c91be-8805-4e15-9cb6-486b55b81ae1",
+    "external_id": 188,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Shoulders"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "e7a964cd-e68e-4926-bc7c-577065137e18",
+    "external_id": 189,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [
+      "Hamstrings",
+      "Glutes",
+      "Lats",
+      "Abs",
+      "Soleus"
+    ],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "14d5cdbc-9b17-4296-a282-0a81cd3c4c4e",
+    "external_id": 193,
+    "category": "Shoulders",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bench"
+    ]
+  },
+  {
+    "uuid": "09dd3e3c-e53a-4e2c-a2e3-645d334f53e2",
+    "external_id": 194,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest",
+      "Triceps"
+    ],
+    "secondary_muscles": [
+      "Triceps"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "7c8eb1ac-2d7e-4ca7-919a-1848ba38e0f4",
+    "external_id": 197,
+    "category": "Arms",
+    "primary_muscles": [
+      "Triceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bench"
+    ]
+  },
+  {
+    "uuid": "46e0f60c-fdc0-489a-82e4-a5b7476a5c21",
+    "external_id": 202,
+    "category": "Arms",
+    "primary_muscles": [
+      "Brachialis"
+    ],
+    "secondary_muscles": [
+      "Biceps"
+    ],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "b7c6a444-90ea-4f5b-9fea-748311606eaa",
+    "external_id": 203,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "43e85cb8-51d0-4892-b1bf-80a3cb111ff6",
+    "external_id": 204,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [
+      "Brachialis"
+    ],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "2f1a2707-e7ff-46ac-9112-3e31e6e961ee",
+    "external_id": 205,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [
+      "Glutes"
+    ],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "dcc6e237-a8bb-4eca-bbc5-7fb852636f6a",
+    "external_id": 206,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [
+      "Glutes"
+    ],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "fe328b2b-cc6d-4f12-a2c6-85ce374217c7",
+    "external_id": 208,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "d8bddb58-91b0-4d7b-8ec1-cd742584b607",
+    "external_id": 211,
+    "category": "Arms",
+    "primary_muscles": [
+      "Triceps"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Chest"
+    ],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "d7a418d4-d0cb-4f85-8a7c-1e9d97152cbd",
+    "external_id": 222,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Trapezius"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "fdc550b6-ec58-4023-ba62-b54045e9a10d",
+    "external_id": 235,
+    "category": "Abs",
+    "primary_muscles": [
+      "Obliques",
+      "Abs"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "07c5b9f4-2be5-4a3d-b6d2-16235da1ae3a",
+    "external_id": 237,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "95d226ad-3bf7-4cd6-aa64-2f26b526d8b6",
+    "external_id": 238,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "55d0a5ec-b147-40c3-aa77-314e61c93689",
+    "external_id": 239,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "893c07ea-2e24-49b6-92e4-d0033eedec62",
+    "external_id": 245,
+    "category": "Arms",
+    "primary_muscles": [
+      "Triceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bench",
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "95a7e546-e8f8-4521-a76b-983d94161b25",
+    "external_id": 246,
+    "category": "Arms",
+    "primary_muscles": [
+      "Triceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bench",
+      "SZ-Bar"
+    ]
+  },
+  {
+    "uuid": "68e0dbba-2d1e-4a56-8378-8824c1de3342",
+    "external_id": 254,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders",
+      "Trapezius"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "9c35594c-bbcc-4656-bdcb-376814c90e96",
+    "external_id": 256,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Barbell",
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "d677de4c-5bd9-412a-91f1-857116a666a2",
+    "external_id": 257,
+    "category": "Legs",
+    "primary_muscles": [
+      "Glutes"
+    ],
+    "secondary_muscles": [
+      "Abs"
+    ],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "6260e3aa-e46b-4b4b-8ada-58bfd0922d3a",
+    "external_id": 258,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Biceps",
+      "Brachialis"
+    ],
+    "equipment": [
+      "Barbell",
+      "SZ-Bar"
+    ]
+  },
+  {
+    "uuid": "5b4b94ca-f429-4394-9477-c00be8f2bb04",
+    "external_id": 259,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [
+      "Biceps",
+      "Brachialis"
+    ],
+    "equipment": [
+      "Barbell",
+      "SZ-Bar"
+    ]
+  },
+  {
+    "uuid": "e5a62151-5350-4c86-8a19-3e9ca7bf0f38",
+    "external_id": 260,
+    "category": "Abs",
+    "primary_muscles": [
+      "Glutes",
+      "Obliques",
+      "Abs"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "ceb0c2d0-06ac-4a49-89e7-8d7b1c1e5672",
+    "external_id": 265,
+    "category": "Legs",
+    "primary_muscles": [
+      "Glutes"
+    ],
+    "secondary_muscles": [
+      "Hamstrings"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "fb928a58-9e24-4e7b-b714-71a5f759e8d6",
+    "external_id": 268,
+    "category": "Legs",
+    "primary_muscles": [
+      "Hamstrings"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "c0d9fe98-f4fe-49f3-8037-05e1984e7d2d",
+    "external_id": 272,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "04365177-e078-489b-983a-8ac61b7346f1",
+    "external_id": 275,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [
+      "Brachialis"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "4e238360-a4c1-4509-85c1-f96d01e69cf9",
+    "external_id": 279,
+    "category": "Arms",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "7704e810-c05d-47cc-a384-265e0231a497",
+    "external_id": 282,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Trapezius",
+      "Triceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "9b993e99-8701-43f0-84d6-689123183880",
+    "external_id": 283,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Pull-up bar"
+    ]
+  },
+  {
+    "uuid": "8381f40c-3168-4d98-af60-6a89800dd308",
+    "external_id": 284,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps",
+      "Brachialis",
+      "Triceps"
+    ],
+    "secondary_muscles": [
+      "Shoulders"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "3edbb63e-f326-4bd0-8af3-2d5deabb864f",
+    "external_id": 285,
+    "category": "Cardio",
+    "primary_muscles": [
+      "Hamstrings",
+      "Calves",
+      "Quads",
+      "Soleus"
+    ],
+    "secondary_muscles": [
+      "Obliques",
+      "Abs",
+      "Serratus anterior"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "b526b17b-408d-4da2-8940-ceaf9dae9d93",
+    "external_id": 289,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [
+      "Glutes"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "1d610575-eed0-42cf-8737-29788a372af6",
+    "external_id": 291,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [
+      "Glutes"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "541941e0-0fa5-4474-a382-9baf04948f8d",
+    "external_id": 292,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "19a289c0-33af-4055-bb34-3570c2975d3d",
+    "external_id": 294,
+    "category": "Legs",
+    "primary_muscles": [
+      "Glutes"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Barbell",
+      "Bench"
+    ]
+  },
+  {
+    "uuid": "d059c63d-0a81-48a3-912a-44070c0def2e",
+    "external_id": 297,
+    "category": "Abs",
+    "primary_muscles": [
+      "Obliques",
+      "Abs"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Gym mat",
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "37f6bd56-815a-4975-99af-05e749fae4b2",
+    "external_id": 301,
+    "category": "Back",
+    "primary_muscles": [
+      "Trapezius"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "55ff32e6-24ab-4303-9b50-176d60d48796",
+    "external_id": 308,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell",
+      "Incline bench"
+    ]
+  },
+  {
+    "uuid": "27eb3d4a-8677-4c1f-bf34-251e2b4741cb",
+    "external_id": 310,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [
+      "Lats"
+    ],
+    "equipment": [
+      "Dumbbell",
+      "Incline bench"
+    ]
+  },
+  {
+    "uuid": "aae91ecf-ffa4-4730-812c-cb00e423f91c",
+    "external_id": 312,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [
+      "Obliques"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "312017c4-c431-46b2-86dd-b9f480617d6f",
+    "external_id": 313,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Hamstrings"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "2f5032de-df6d-406b-b709-9223ef5c3e24",
+    "external_id": 314,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Abs"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "eeeb42ae-6a41-4127-b2ec-72376119531b",
+    "external_id": 319,
+    "category": "Cardio",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "4d255f25-f199-401a-bc81-7ffab1d0ed24",
+    "external_id": 320,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "b16e3e5d-8401-4d2b-919c-15b536f9ec5e",
+    "external_id": 323,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Shoulders"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "8b311259-4f67-4dbf-9574-8c38faa92160",
+    "external_id": 331,
+    "category": "Legs",
+    "primary_muscles": [
+      "Glutes"
+    ],
+    "secondary_muscles": [
+      "Hamstrings"
+    ],
+    "equipment": [
+      "Kettlebell"
+    ]
+  },
+  {
+    "uuid": "316aca47-6f5b-40b7-b04f-f69e68387354",
+    "external_id": 341,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [
+      "Glutes"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "91c47c8b-6290-4885-8921-df9aa7958c00",
+    "external_id": 346,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [
+      "Chest",
+      "Triceps"
+    ],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "63375f5b-2d81-471c-bea4-fc3d207e96cb",
+    "external_id": 348,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "57263316-6f34-4539-952b-b07e09bac3ba",
+    "external_id": 349,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "dac3c714-f0c6-4d97-8283-17be7dd77b65",
+    "external_id": 351,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders",
+      "Trapezius"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "8c496646-baa8-4ed3-97b1-702e213fdeca",
+    "external_id": 354,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "fff05d7a-f374-4c8a-9885-39f49076918f",
+    "external_id": 355,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "48836f44-efcd-4471-a456-5f024936025a",
+    "external_id": 364,
+    "category": "Legs",
+    "primary_muscles": [
+      "Hamstrings",
+      "Glutes"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "3bc8b411-a28d-4e1c-a6d1-769e18fe9881",
+    "external_id": 365,
+    "category": "Legs",
+    "primary_muscles": [
+      "Hamstrings"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "440a5184-de58-4a86-a7ba-76ddeafaa855",
+    "external_id": 366,
+    "category": "Legs",
+    "primary_muscles": [
+      "Hamstrings"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "49189e88-40b6-4c0d-a784-0cc3abbb8e75",
+    "external_id": 367,
+    "category": "Legs",
+    "primary_muscles": [
+      "Hamstrings"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "62170477-90ec-463c-907e-9e523abc0a15",
+    "external_id": 369,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "66a42396-c207-44da-bc75-758a89d32404",
+    "external_id": 371,
+    "category": "Legs",
+    "primary_muscles": [
+      "Hamstrings",
+      "Calves",
+      "Glutes",
+      "Quads"
+    ],
+    "secondary_muscles": [
+      "Calves",
+      "Glutes"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "5f0b757c-0d6a-430b-9d5e-3bfba202878e",
+    "external_id": 373,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [
+      "Glutes"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "661287d4-d1dc-485c-896b-73f90b000536",
+    "external_id": 374,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [
+      "Glutes"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "18104387-4567-4c1e-8d03-db0b274646dd",
+    "external_id": 375,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "c2078aac-e4e2-4103-a845-6252a3eb795e",
+    "external_id": 376,
+    "category": "Legs",
+    "primary_muscles": [
+      "Obliques",
+      "Abs"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "9e34bc01-9cec-4ee2-a9bb-9c937a471c24",
+    "external_id": 377,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [
+      "Serratus anterior"
+    ],
+    "equipment": [
+      "Gym mat"
+    ]
+  },
+  {
+    "uuid": "5f514f9e-6bd9-408e-85b2-c25eb04af33b",
+    "external_id": 378,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [
+      "Serratus anterior"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "82aec7f9-ee03-4b24-8994-f6bde07c6a41",
+    "external_id": 379,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "fd595232-b9ad-4216-bba1-92298f993ea9",
+    "external_id": 380,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "16089e03-5afc-4a18-a40a-beb337806ac0",
+    "external_id": 382,
+    "category": "Abs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "de22963a-5d42-4999-860e-377f64359432",
+    "external_id": 386,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Triceps"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "a7e6c20a-6ddc-4401-9935-ace2d02e3995",
+    "external_id": 394,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [
+      "Biceps",
+      "Brachialis"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "77c98954-b50d-46f0-9912-3981f856d5a6",
+    "external_id": 395,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [
+      "Biceps",
+      "Brachialis"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "183e7279-f052-4c70-8381-bbbda3bb9afe",
+    "external_id": 397,
+    "category": "Legs",
+    "primary_muscles": [
+      "Glutes",
+      "Quads"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "aa3b4ebe-6dee-45ad-a345-cf2acebf4159",
+    "external_id": 406,
+    "category": "Shoulders",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "7b1e458f-1857-4c2f-8463-7d67d4b2db93",
+    "external_id": 418,
+    "category": "Shoulders",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "SZ-Bar"
+    ]
+  },
+  {
+    "uuid": "0027b172-a83e-4f79-af47-483302a22c02",
+    "external_id": 423,
+    "category": "Back",
+    "primary_muscles": [
+      "Biceps",
+      "Hamstrings"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Pull-up bar"
+    ]
+  },
+  {
+    "uuid": "cbc5fbc9-9bca-4766-941d-4b6903d4a521",
+    "external_id": 427,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "c7058ff8-ca3b-4822-abdb-6341ce37c4d1",
+    "external_id": 439,
+    "category": "Abs",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "bc45125b-58da-4ee9-8895-16a7b930b789",
+    "external_id": 441,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "6441ff9e-037e-48d9-8800-67b430dc8e37",
+    "external_id": 445,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Triceps"
+    ],
+    "equipment": [
+      "Barbell",
+      "Bench"
+    ]
+  },
+  {
+    "uuid": "748e9635-7958-4a41-b1ed-93de74c7ef72",
+    "external_id": 448,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats",
+      "Trapezius"
+    ],
+    "secondary_muscles": [
+      "Biceps",
+      "Triceps"
+    ],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "98d73d2c-b8ee-44f4-a245-a7934adfbaef",
+    "external_id": 450,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "3b96a05b-9705-48da-b43e-6e098234bb35",
+    "external_id": 454,
+    "category": "Arms",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Triceps"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "fe04cf35-1af5-4b51-89d4-c38d7eaa0db1",
+    "external_id": 456,
+    "category": "Legs",
+    "primary_muscles": [
+      "Hamstrings",
+      "Glutes"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Biceps",
+      "Brachialis"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "c9e57bbe-e839-44c6-861d-1c8dd2845e36",
+    "external_id": 458,
+    "category": "Abs",
+    "primary_muscles": [
+      "Obliques",
+      "Abs"
+    ],
+    "secondary_muscles": [
+      "Biceps",
+      "Quads",
+      "Triceps"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "dd52fb99-9426-4a78-b446-20a8e3e4ec47",
+    "external_id": 465,
+    "category": "Arms",
+    "primary_muscles": [
+      "Brachialis"
+    ],
+    "secondary_muscles": [
+      "Brachialis"
+    ],
+    "equipment": [
+      "SZ-Bar"
+    ]
+  },
+  {
+    "uuid": "9cb69afc-7a44-4a22-b9a9-7bde8aca5b11",
+    "external_id": 468,
+    "category": "Back",
+    "primary_muscles": [
+      "Trapezius"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "8e420408-0682-4ab6-89f5-2681e54c7ce0",
+    "external_id": 475,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Biceps",
+      "Trapezius"
+    ],
+    "equipment": [
+      "Pull-up bar"
+    ]
+  },
+  {
+    "uuid": "7f834f07-fa7b-46b6-8ffa-45930b0602db",
+    "external_id": 477,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Biceps",
+      "Trapezius"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "4284336c-6cfa-4c4d-a440-26b30db035d1",
+    "external_id": 478,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Trapezius"
+    ],
+    "secondary_muscles": [
+      "Glutes"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "5930ce9c-dfbd-452c-9949-dd34c5e41fd6",
+    "external_id": 482,
+    "category": "Arms",
+    "primary_muscles": [
+      "Triceps"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Chest",
+      "Abs"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "a6c2a970-a621-4e03-be1d-4a29118b1687",
+    "external_id": 484,
+    "category": "Back",
+    "primary_muscles": [
+      "Glutes"
+    ],
+    "secondary_muscles": [
+      "Biceps"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "3f93459a-d06e-465c-85db-2137da759440",
+    "external_id": 487,
+    "category": "Shoulders",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "2b6c09f7-dbf1-45ea-baf6-9a12e0b12396",
+    "external_id": 490,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats",
+      "Trapezius"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "834c639f-4c82-404d-909f-4c75275465a0",
+    "external_id": 493,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "SZ-Bar"
+    ]
+  },
+  {
+    "uuid": "2cd5e3c6-a8c0-456a-ab47-5e7b3a435407",
+    "external_id": 495,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps",
+      "Brachialis"
+    ],
+    "secondary_muscles": [
+      "Biceps"
+    ],
+    "equipment": [
+      "Barbell",
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "1b95d961-1d5c-4ded-b25e-c090295ffe37",
+    "external_id": 498,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest",
+      "Triceps"
+    ],
+    "secondary_muscles": [
+      "Shoulders"
+    ],
+    "equipment": [
+      "Barbell",
+      "Bench"
+    ]
+  },
+  {
+    "uuid": "09349391-375b-42d5-8979-00a5d7196a5b",
+    "external_id": 500,
+    "category": "Abs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "7671b16c-5023-4663-b00d-86dd018e024f",
+    "external_id": 501,
+    "category": "Arms",
+    "primary_muscles": [
+      "Triceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "af2f774c-296c-4d14-8e4a-fad77175ae37",
+    "external_id": 505,
+    "category": "Abs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "2e7ffff9-e603-4b28-98c8-31d1a6ce8cd9",
+    "external_id": 507,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "4b7cb037-0789-4014-ab6f-a451716b7538",
+    "external_id": 508,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats",
+      "Trapezius"
+    ],
+    "secondary_muscles": [
+      "Quads"
+    ],
+    "equipment": [
+      "Barbell",
+      "Dumbbell",
+      "Pull-up bar"
+    ]
+  },
+  {
+    "uuid": "88dbcc74-0304-4fcf-8a47-92d14a484b0a",
+    "external_id": 510,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "00fcf603-b0d0-48d2-9b5e-c7f0d510d46c",
+    "external_id": 512,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "32c129f7-cc28-4ebc-8465-e4fa62e220b1",
+    "external_id": 513,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Biceps",
+      "Brachialis"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "58416166-7a3a-470d-b493-27332799dcdf",
+    "external_id": 516,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "d9e306b6-d6ff-4e61-b283-4b085d8edaaf",
+    "external_id": 525,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Biceps"
+    ],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "a48295d8-21da-4625-8a85-331d7ced8d8b",
+    "external_id": 527,
+    "category": "Cardio",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "6cf55ecc-86ee-492d-a7f6-977bf61758b3",
+    "external_id": 529,
+    "category": "Cardio",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "654793c2-e0e3-41fd-a549-0ece0f4378e8",
+    "external_id": 530,
+    "category": "Cardio",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "57e17672-52b9-43cf-8d0d-4b3f06a0c0d0",
+    "external_id": 537,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Triceps"
+    ],
+    "equipment": [
+      "Dumbbell",
+      "Incline bench"
+    ]
+  },
+  {
+    "uuid": "275fb49f-975c-4d6e-9d63-2c86ed740f40",
+    "external_id": 538,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Triceps"
+    ],
+    "equipment": [
+      "Barbell",
+      "Incline bench"
+    ]
+  },
+  {
+    "uuid": "60e9a0c0-5458-46cd-ab41-7d7b85225cf8",
+    "external_id": 539,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Triceps"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "5912d7ed-6a0e-4b4c-b30a-fc9f3f890fc1",
+    "external_id": 543,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [
+      "Triceps"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "e28b0685-7a8f-4343-9c0b-63b38386d30b",
+    "external_id": 545,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "cc5bf1a3-29b5-4c5a-8600-5e35c79ab4bf",
+    "external_id": 549,
+    "category": "Arms",
+    "primary_muscles": [
+      "Triceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bench",
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "919bb48a-42fe-4a11-9078-ea2b5087c49f",
+    "external_id": 556,
+    "category": "Abs",
+    "primary_muscles": [
+      "Obliques"
+    ],
+    "secondary_muscles": [
+      "Abs"
+    ],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "169896b2-90e3-4497-9d73-56bee4a34697",
+    "external_id": 562,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "8b0a0371-c0a9-42a7-aab7-68d520542fb2",
+    "external_id": 566,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "87affa4b-395b-437c-9581-2bd20ea5aa7c",
+    "external_id": 567,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "141bc870-56be-4749-a3b9-e56d5d5618b4",
+    "external_id": 569,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "f956977e-cc05-4db2-a387-ba6140b1ef34",
+    "external_id": 570,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Trapezius"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "270e108d-3cd2-45a9-807b-c357317eb15c",
+    "external_id": 571,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "72a945ec-3a7f-424b-9a05-1616ef7dce91",
+    "external_id": 572,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "6199b3c7-3ccb-47fa-89bb-ef7fef12c0e3",
+    "external_id": 575,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [
+      "Triceps"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "2f8ee51b-f493-47f7-8b2a-1da16c128f73",
+    "external_id": 576,
+    "category": "Abs",
+    "primary_muscles": [
+      "Obliques"
+    ],
+    "secondary_muscles": [
+      "Abs"
+    ],
+    "equipment": [
+      "Gym mat"
+    ]
+  },
+  {
+    "uuid": "cf1f0fed-6310-4210-8f7d-22e375e6c60c",
+    "external_id": 577,
+    "category": "Abs",
+    "primary_muscles": [
+      "Obliques"
+    ],
+    "secondary_muscles": [
+      "Abs"
+    ],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "d9f6c15a-b224-4ef6-93e9-fd6509b66add",
+    "external_id": 578,
+    "category": "Shoulders",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "e1b99153-0102-47fc-b0cd-c21509827b0b",
+    "external_id": 580,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [
+      "Obliques"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "9374fdaf-411f-4ae6-8f0c-21cc2d3dc667",
+    "external_id": 583,
+    "category": "Chest",
+    "primary_muscles": [
+      "Shoulders",
+      "Obliques",
+      "Chest",
+      "Triceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "c85e6137-2577-4e28-82c2-427407d534eb",
+    "external_id": 584,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "6e46833d-fd83-4c1a-90af-eb3f3a917199",
+    "external_id": 590,
+    "category": "Calves",
+    "primary_muscles": [
+      "Soleus"
+    ],
+    "secondary_muscles": [
+      "Calves"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "f38e9c23-031d-44d0-ac27-7f1026212c73",
+    "external_id": 591,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "e60125f0-3a88-4707-815f-fe0e2b4be3c4",
+    "external_id": 595,
+    "category": "Cardio",
+    "primary_muscles": [
+      "Calves"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "092d0fbb-0409-470e-a087-beb9a378f3f7",
+    "external_id": 598,
+    "category": "Arms",
+    "primary_muscles": [
+      "Triceps"
+    ],
+    "secondary_muscles": [
+      "Chest"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "8161de8b-7802-46c0-9bd4-db60f39b7677",
+    "external_id": 599,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "b1051c3e-78a9-4b73-899c-c700098cf1a8",
+    "external_id": 604,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "eaf6f39e-d46d-4460-b5a9-71e814b18f89",
+    "external_id": 607,
+    "category": "Abs",
+    "primary_muscles": [
+      "Obliques"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "5c0824dc-f2fb-4d19-a1e5-7c33219ad51d",
+    "external_id": 614,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "a2f5b6ef-b780-49c0-8d96-fdaff23e27ce",
+    "external_id": 615,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [
+      "Glutes"
+    ],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "30ac081b-fb79-4253-9457-8efc07568790",
+    "external_id": 616,
+    "category": "Legs",
+    "primary_muscles": [
+      "Glutes",
+      "Quads",
+      "Abs",
+      "Soleus"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "eb61c7a1-e1c9-4c44-a8ce-2bbe98a39857",
+    "external_id": 621,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps",
+      "Brachialis"
+    ],
+    "secondary_muscles": [
+      "Brachialis"
+    ],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "7ce443b6-eb84-4f65-b05f-461c1cc8bcc0",
+    "external_id": 622,
+    "category": "Calves",
+    "primary_muscles": [
+      "Calves"
+    ],
+    "secondary_muscles": [
+      "Soleus"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "7dc59fa0-5552-4ffa-954f-9bc8c22740bf",
+    "external_id": 623,
+    "category": "Arms",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "4d5decb3-5fbe-45c1-9ad5-ff715e53cb34",
+    "external_id": 624,
+    "category": "Cardio",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "22c59ede-970b-43e1-bb51-ac1c2be0b0e0",
+    "external_id": 627,
+    "category": "Legs",
+    "primary_muscles": [
+      "Hamstrings"
+    ],
+    "secondary_muscles": [
+      "Glutes"
+    ],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "0f5fc602-afb6-4500-87da-f115f3ef3f47",
+    "external_id": 628,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [
+      "Triceps"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "2f7149c3-77ce-4313-a59c-aef82b5a730a",
+    "external_id": 629,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [
+      "Triceps"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "0c2d9b74-3d1e-481f-a7bf-3b3532f7d6b0",
+    "external_id": 630,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "0a5a7661-1e24-4c15-bb2b-503672141307",
+    "external_id": 632,
+    "category": "Legs",
+    "primary_muscles": [
+      "Glutes",
+      "Quads"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "66c90ca7-23d8-47b1-820f-dc0c8140603b",
+    "external_id": 636,
+    "category": "Back",
+    "primary_muscles": [
+      "Glutes",
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Gym mat"
+    ]
+  },
+  {
+    "uuid": "51420ded-5c17-4ce0-b005-89f1b67b7c65",
+    "external_id": 650,
+    "category": "Legs",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [
+      "Trapezius"
+    ],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "5915fabe-c941-4dac-b196-bc4e8c7ce57b",
+    "external_id": 655,
+    "category": "Arms",
+    "primary_muscles": [
+      "Triceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "3188868c-84e2-4a3b-b7dc-f79d8650988d",
+    "external_id": 659,
+    "category": "Arms",
+    "primary_muscles": [
+      "Triceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "f00630d6-578f-487f-8bf5-39c96366ccb8",
+    "external_id": 660,
+    "category": "Arms",
+    "primary_muscles": [
+      "Triceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "6c671e43-497f-4863-8d78-b592f3b5e7c6",
+    "external_id": 661,
+    "category": "Arms",
+    "primary_muscles": [
+      "Triceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "90e9f590-7d68-4afb-9f95-8429246ea4aa",
+    "external_id": 672,
+    "category": "Abs",
+    "primary_muscles": [
+      "Obliques"
+    ],
+    "secondary_muscles": [
+      "Lats"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "8766d43c-e035-4c37-b824-b94dce5bf710",
+    "external_id": 674,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "309bfd2b-1af4-49db-b64b-d7d7c7dd39bb",
+    "external_id": 675,
+    "category": "Abs",
+    "primary_muscles": [
+      "Shoulders",
+      "Glutes",
+      "Obliques",
+      "Serratus anterior"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Glutes",
+      "Obliques",
+      "Serratus anterior"
+    ],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "52dec48d-25a4-4a78-b66b-ad6a773e143a",
+    "external_id": 683,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "76965848-9776-4be5-b879-e3c97033b80f",
+    "external_id": 684,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [
+      "Biceps"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "f4467e9a-9bb1-4e93-bec6-10a5d7738ffb",
+    "external_id": 687,
+    "category": "Chest",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "6fc4815a-8852-4e89-a10b-bd36a9029dbb",
+    "external_id": 688,
+    "category": "Chest",
+    "primary_muscles": [
+      "Obliques"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Pull-up bar"
+    ]
+  },
+  {
+    "uuid": "738137c0-5387-4215-b457-ea7af113b3ba",
+    "external_id": 691,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders",
+      "Trapezius"
+    ],
+    "secondary_muscles": [
+      "Biceps"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "5d40c67d-be59-4092-9c9c-301ca5310e2b",
+    "external_id": 693,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders",
+      "Trapezius"
+    ],
+    "secondary_muscles": [
+      "Biceps"
+    ],
+    "equipment": [
+      "SZ-Bar"
+    ]
+  },
+  {
+    "uuid": "01976085-6701-45ea-b152-5c46ba60550d",
+    "external_id": 694,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders",
+      "Trapezius"
+    ],
+    "secondary_muscles": [
+      "Biceps"
+    ],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "d847301e-1613-4987-85cd-61d3ff9d7ef8",
+    "external_id": 695,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "4e752292-051a-4043-8f80-a390c23875e6",
+    "external_id": 702,
+    "category": "Calves",
+    "primary_muscles": [
+      "Calves"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "0d68029a-f025-41fe-9c56-6ccbc32bc43d",
+    "external_id": 711,
+    "category": "Shoulders",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "51a80676-92d8-4f91-b51a-4666888e40db",
+    "external_id": 713,
+    "category": "Arms",
+    "primary_muscles": [
+      "Shoulders",
+      "Chest",
+      "Triceps"
+    ],
+    "secondary_muscles": [
+      "Glutes",
+      "Abs",
+      "Serratus anterior",
+      "Trapezius"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "f1946fd4-793d-47a5-b66f-599b7f53695d",
+    "external_id": 716,
+    "category": "Back",
+    "primary_muscles": [
+      "Biceps",
+      "Hamstrings",
+      "Chest",
+      "Trapezius",
+      "Triceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "46ee5805-512a-43a2-944c-97f7744b0078",
+    "external_id": 718,
+    "category": "Legs",
+    "primary_muscles": [
+      "Hamstrings",
+      "Quads"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "591992cb-48ee-4b39-b790-e05b4a2c11e3",
+    "external_id": 722,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "55b9d286-c4cc-4a29-97ad-58cb13c2bb7e",
+    "external_id": 723,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "68e5eae7-7fd0-4d69-9b50-d0df15feac91",
+    "external_id": 801,
+    "category": "Chest",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "072a9fa8-1028-47b3-b958-d8052c6b8661",
+    "external_id": 802,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "f8d69dd4-3c35-49c7-8cbe-f0132eca4c52",
+    "external_id": 803,
+    "category": "Arms",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "9f9edad8-7da0-448c-bfcb-ec61f2d28162",
+    "external_id": 804,
+    "category": "Arms",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "ea63d85c-8579-4dda-b99f-c4c8930f9af6",
+    "external_id": 805,
+    "category": "Arms",
+    "primary_muscles": [
+      "Triceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "0ecd5f3a-f156-4f1b-b29e-16fb80802a50",
+    "external_id": 820,
+    "category": "Arms",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "a540925e-fe66-47cc-ae28-ecdce408fb6d",
+    "external_id": 821,
+    "category": "Arms",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "5d244235-cd56-472a-876e-6e530a899ef2",
+    "external_id": 822,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders",
+      "Trapezius"
+    ],
+    "secondary_muscles": [
+      "Triceps"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "d3b21677-7311-40f8-a321-0ad4f7dfc3a9",
+    "external_id": 827,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "70c99a4e-3340-4993-a7f1-2d2709dada1a",
+    "external_id": 828,
+    "category": "Back",
+    "primary_muscles": [
+      "Shoulders",
+      "Trapezius"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "dc400220-b483-4b60-8f52-c36c70a782b5",
+    "external_id": 829,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders",
+      "Trapezius"
+    ],
+    "secondary_muscles": [
+      "Lats"
+    ],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "fb0c8c53-27ec-4aac-ab6e-403b7d7f250b",
+    "external_id": 849,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [
+      "Hamstrings"
+    ],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "0b84816e-3d11-47f0-a043-2a3f20504a48",
+    "external_id": 851,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [
+      "Hamstrings"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "7b6460b2-49d2-40b0-a4f6-4780c79f7e25",
+    "external_id": 901,
+    "category": "Legs",
+    "primary_muscles": [
+      "Glutes"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "50edc0f5-e9d0-471c-9fd7-fd691162b447",
+    "external_id": 902,
+    "category": "Legs",
+    "primary_muscles": [
+      "Glutes"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "af0be7c9-2b9d-47fd-abee-84edd8207b9b",
+    "external_id": 906,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "ed00a43f-f761-41f2-94d4-056120bc5f6d",
+    "external_id": 907,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders",
+      "Triceps"
+    ],
+    "secondary_muscles": [
+      "Chest"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "89c3d614-e841-4c04-bee8-6761567e4b7c",
+    "external_id": 908,
+    "category": "Cardio",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "6cbdd70c-0691-4288-b58a-24001384f1b3",
+    "external_id": 909,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [
+      "Glutes",
+      "Abs"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "9b0f7101-b78a-4c47-b680-fbef15469a8a",
+    "external_id": 910,
+    "category": "Legs",
+    "primary_muscles": [
+      "Hamstrings"
+    ],
+    "secondary_muscles": [
+      "Glutes"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "76a2f8a6-374b-42c8-b8ac-e8d64612f046",
+    "external_id": 911,
+    "category": "Arms",
+    "primary_muscles": [
+      "Triceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "36274d27-3812-4b8c-80e2-ab59acf82c4d",
+    "external_id": 912,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "edc44b1a-35d7-4c37-ab20-05842fb40576",
+    "external_id": 913,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "SZ-Bar"
+    ]
+  },
+  {
+    "uuid": "960697af-9a0e-4bfd-a8ba-989718b6b5c7",
+    "external_id": 914,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "SZ-Bar"
+    ]
+  },
+  {
+    "uuid": "3d85bdce-e1a9-48a2-b14d-8032820ebf25",
+    "external_id": 915,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "cbf4cf16-f188-4a60-a223-aa50b163f4b7",
+    "external_id": 916,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Incline bench"
+    ]
+  },
+  {
+    "uuid": "ca16aa3c-9b43-4d81-ae60-1e225163b767",
+    "external_id": 917,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "SZ-Bar"
+    ]
+  },
+  {
+    "uuid": "6d010eae-2e36-4ec6-b191-c0373f237bb4",
+    "external_id": 918,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "1eeccede-29c5-4f38-9ba7-d77c7c47993d",
+    "external_id": 919,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats",
+      "Trapezius"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Barbell"
+    ]
+  },
+  {
+    "uuid": "887fea99-352d-45ff-8e06-ef95eaa37902",
+    "external_id": 920,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "d6e9ed59-497a-4c93-ac7d-f9696fcd21ab",
+    "external_id": 921,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "ad3716b1-5fc9-45aa-9de4-9a1c0153915d",
+    "external_id": 922,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "dab7400b-e86e-4224-bcea-4a915dc928e0",
+    "external_id": 923,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "40d35363-0579-4f0f-aac6-a32a6de3f08a",
+    "external_id": 924,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "ef2df6a2-41df-4a25-b2e0-4808dc2c3305",
+    "external_id": 925,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "1e827ef8-0a01-4b26-9e26-eff9d200acca",
+    "external_id": 926,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "e0d9e9ef-09ee-4d26-9504-622093810414",
+    "external_id": 927,
+    "category": "Cardio",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "80c167b9-3749-48a1-8686-fc2163a1e7fb",
+    "external_id": 957,
+    "category": "Back",
+    "primary_muscles": [
+      "Shoulders",
+      "Glutes",
+      "Serratus anterior",
+      "Trapezius"
+    ],
+    "secondary_muscles": [
+      "Lats"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "596b9d2d-0f01-41a0-97e1-1839ffdb824d",
+    "external_id": 958,
+    "category": "Abs",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "e2599e86-d8b0-434e-8a48-aa3c2df7e790",
+    "external_id": 959,
+    "category": "Abs",
+    "primary_muscles": [
+      "Shoulders",
+      "Biceps",
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "d813ef7c-b10a-4c5c-ba55-6b9518e7ff4c",
+    "external_id": 960,
+    "category": "Abs",
+    "primary_muscles": [
+      "Shoulders",
+      "Glutes"
+    ],
+    "secondary_muscles": [
+      "Quads",
+      "Abs",
+      "Trapezius"
+    ],
+    "equipment": [
+      "Kettlebell"
+    ]
+  },
+  {
+    "uuid": "6c8b0c67-68af-4473-907e-31fb1e48430c",
+    "external_id": 961,
+    "category": "Cardio",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "95a300de-2ad8-492e-9364-13766d9e7618",
+    "external_id": 962,
+    "category": "Cardio",
+    "primary_muscles": [
+      "Glutes",
+      "Quads",
+      "Trapezius"
+    ],
+    "secondary_muscles": [
+      "Biceps",
+      "Abs",
+      "Triceps"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "3de523ee-d359-4044-a792-6de22eef0495",
+    "external_id": 974,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Kettlebell"
+    ]
+  },
+  {
+    "uuid": "d7d4fc16-08cd-4568-87e7-d9e4e2f77393",
+    "external_id": 975,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Kettlebell"
+    ]
+  },
+  {
+    "uuid": "346634cf-3896-4c10-bd66-28fb69d02573",
+    "external_id": 976,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "151434a5-c046-459f-a3a9-c3125075856f",
+    "external_id": 977,
+    "category": "Abs",
+    "primary_muscles": [
+      "Glutes",
+      "Quads",
+      "Soleus"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "f4991a98-6422-4884-8ad3-43412f91fac1",
+    "external_id": 978,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [
+      "Obliques"
+    ],
+    "equipment": [
+      "Pull-up bar"
+    ]
+  },
+  {
+    "uuid": "b2025776-2397-4de7-a49e-296321169481",
+    "external_id": 979,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [
+      "Obliques",
+      "Quads"
+    ],
+    "equipment": [
+      "Pull-up bar"
+    ]
+  },
+  {
+    "uuid": "e872658a-3bac-4d9e-bcf2-15919ebea43a",
+    "external_id": 980,
+    "category": "Abs",
+    "primary_muscles": [
+      "Shoulders",
+      "Biceps",
+      "Lats",
+      "Trapezius"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Pull-up bar"
+    ]
+  },
+  {
+    "uuid": "9e6dae29-5d03-440a-bdf1-2cb25a5179c2",
+    "external_id": 981,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bench"
+    ]
+  },
+  {
+    "uuid": "db5bd076-2f1d-4b72-9be9-610e5c3f5724",
+    "external_id": 983,
+    "category": "Cardio",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "3284fd27-5402-4821-9c32-29066d4e2667",
+    "external_id": 984,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "a9633731-1d86-4b4a-996f-33a1dee0b0e1",
+    "external_id": 985,
+    "category": "Arms",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "9801e20b-69c3-43d0-9066-450a68230c42",
+    "external_id": 986,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "fa9838ed-84e8-476c-8157-1774a9c90aff",
+    "external_id": 987,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "7ce489d2-1948-46de-aa80-277b2ca737aa",
+    "external_id": 988,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "44afe80f-1ab2-4149-adbf-d8e0ece990ce",
+    "external_id": 989,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "6ddea666-5a57-4ac0-926f-01f8cfdaa4fd",
+    "external_id": 990,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "80d83f98-efe5-4d87-a403-c0feadc8650f",
+    "external_id": 991,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "1d8599d8-59a5-4faf-a9cf-b81639cbf68b",
+    "external_id": 992,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "cd51aa2a-52b3-43df-8011-0c8ef4b7ed11",
+    "external_id": 993,
+    "category": "Cardio",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "9d9c4c9f-045f-4af5-adf2-8bb07c3516dc",
+    "external_id": 994,
+    "category": "Arms",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "69b3da17-11cc-41fe-bbc1-ee6c45ced41c",
+    "external_id": 995,
+    "category": "Arms",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "53324f8e-df38-456f-9b7d-8f3a43f45f31",
+    "external_id": 996,
+    "category": "Chest",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "18d277a0-7222-46e7-b2bf-47c8ed169c30",
+    "external_id": 997,
+    "category": "Chest",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "853e4429-da4a-492d-b042-5c124282c005",
+    "external_id": 998,
+    "category": "Chest",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "616f9026-1a1d-4ed8-b068-cfbb81b6a000",
+    "external_id": 999,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "cf79d9fb-ffce-4648-a64f-27e4274e4c20",
+    "external_id": 1000,
+    "category": "Arms",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "b2b40a54-e42b-49ec-97da-4c929ae41d42",
+    "external_id": 1001,
+    "category": "Chest",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "6e1af72c-f9f5-490d-8977-564df4f24b6f",
+    "external_id": 1002,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "9b5f8c6e-2436-4ded-aea9-8c698b0c8768",
+    "external_id": 1003,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Kettlebell"
+    ]
+  },
+  {
+    "uuid": "4b278f57-4505-419a-8b34-172b53eb4adc",
+    "external_id": 1004,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "1a40cc23-4609-4951-9b76-237715ae85ed",
+    "external_id": 1005,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "04e7fd92-e2e5-4212-ad7c-7542e98f7d83",
+    "external_id": 1006,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "336e224a-a7a1-4808-9871-1ad8cfc3fee7",
+    "external_id": 1007,
+    "category": "Shoulders",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "2ecf2e55-c1f3-40ac-b20e-0954f41a2021",
+    "external_id": 1008,
+    "category": "Shoulders",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "7ea504e7-3310-4638-a111-054fabfd4b80",
+    "external_id": 1009,
+    "category": "Shoulders",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "b646e62d-c616-4460-b4d1-23cc6a6ddb51",
+    "external_id": 1010,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "dcbfa3f0-ba88-4633-a30d-c188dccc5d3f",
+    "external_id": 1011,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "a136959c-b0c8-49d3-99b9-0a5f41abf00e",
+    "external_id": 1012,
+    "category": "Arms",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "7f8997d2-e21f-492f-a470-b9f0c5e54f1d",
+    "external_id": 1013,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "8374a856-9293-4b90-900e-00c3bfe21cc4",
+    "external_id": 1014,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "b50a3d3e-cf75-42de-8729-80e163748fb1",
+    "external_id": 1015,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "00ecb956-9483-4d08-a9b1-6a236d4d8ff3",
+    "external_id": 1016,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "8bffd3b2-663a-4617-9d95-dce24e795470",
+    "external_id": 1017,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "36eaf240-db34-4d83-bba9-94d0e989c9e2",
+    "external_id": 1018,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "5e2761cf-839e-435e-bedb-35e132dcb5ce",
+    "external_id": 1019,
+    "category": "Abs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "ec9dca8d-1456-430a-abed-70b8bab4779a",
+    "external_id": 1020,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "04ba9a37-4725-43f0-a0b6-767cdab9a79e",
+    "external_id": 1021,
+    "category": "Calves",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "768e0703-a04d-4d97-89ce-a49cd6be2b06",
+    "external_id": 1022,
+    "category": "Back",
+    "primary_muscles": [
+      "Shoulders",
+      "Biceps",
+      "Brachialis",
+      "Lats",
+      "Obliques",
+      "Abs",
+      "Serratus anterior"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Kettlebell"
+    ]
+  },
+  {
+    "uuid": "302e02df-4270-4a0b-8c5d-b743cdb06fc9",
+    "external_id": 1027,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bench"
+    ]
+  },
+  {
+    "uuid": "25854f7a-485a-4280-a0fa-f024655733b0",
+    "external_id": 1028,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "da588c5e-ab8b-42a7-a52c-1e680a484334",
+    "external_id": 1029,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "431bb116-2833-4f28-b9e4-350fab6dc145",
+    "external_id": 1079,
+    "category": "Abs",
+    "primary_muscles": [
+      "Obliques",
+      "Abs"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Gym mat"
+    ]
+  },
+  {
+    "uuid": "476c1d96-6590-4f86-98f0-3f12808fab53",
+    "external_id": 1080,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders",
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Triceps"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "664ddd40-a595-420d-801f-148e4bf0594c",
+    "external_id": 1081,
+    "category": "Shoulders",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "f3f4e9c5-9bf6-43f6-a2cf-798507a50293",
+    "external_id": 1082,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "981b07b6-e76e-438c-bad4-388441b7ff33",
+    "external_id": 1083,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "e4966cb8-9089-4595-9c78-99a27821e6ff",
+    "external_id": 1084,
+    "category": "Arms",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Biceps",
+      "Triceps"
+    ],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "927b0e58-c57c-4234-8079-2548f8e35687",
+    "external_id": 1085,
+    "category": "Shoulders",
+    "primary_muscles": [
+      "Shoulders",
+      "Biceps",
+      "Lats",
+      "Serratus anterior",
+      "Trapezius",
+      "Triceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "44cfa56c-d8c2-4f2c-8b5a-f29810fd60e7",
+    "external_id": 1086,
+    "category": "Chest",
+    "primary_muscles": [
+      "Brachialis",
+      "Lats",
+      "Chest",
+      "Trapezius"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Biceps",
+      "Triceps"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "f0f53b8e-0136-4195-baf3-781903651359",
+    "external_id": 1087,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "0c30c543-e2cc-499b-bc31-8c28db445ed2",
+    "external_id": 1088,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "66c7eb38-77b5-4d2f-810f-cddd8d97d5a3",
+    "external_id": 1089,
+    "category": "Abs",
+    "primary_muscles": [
+      "Obliques",
+      "Abs"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Swiss Ball"
+    ]
+  },
+  {
+    "uuid": "36b6919a-0e9d-49c6-891b-28fb55ae88ad",
+    "external_id": 1090,
+    "category": "Abs",
+    "primary_muscles": [
+      "Chest",
+      "Quads",
+      "Abs",
+      "Triceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "75d730d0-3b26-4a25-8f1a-7119a98e02ef",
+    "external_id": 1091,
+    "category": "Abs",
+    "primary_muscles": [
+      "Shoulders",
+      "Glutes",
+      "Abs"
+    ],
+    "secondary_muscles": [
+      "Lats"
+    ],
+    "equipment": [
+      "Gym mat"
+    ]
+  },
+  {
+    "uuid": "d301d901-a2c6-4916-b09e-07ab7a3c8519",
+    "external_id": 1092,
+    "category": "Cardio",
+    "primary_muscles": [
+      "Shoulders",
+      "Chest",
+      "Trapezius"
+    ],
+    "secondary_muscles": [
+      "Biceps",
+      "Hamstrings",
+      "Calves",
+      "Lats",
+      "Obliques",
+      "Abs"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "f6d8e157-c233-4a22-9c1a-83cb8f613ea5",
+    "external_id": 1093,
+    "category": "Cardio",
+    "primary_muscles": [
+      "Shoulders",
+      "Biceps",
+      "Hamstrings",
+      "Brachialis",
+      "Calves",
+      "Glutes",
+      "Lats",
+      "Obliques",
+      "Quads",
+      "Abs",
+      "Serratus anterior",
+      "Soleus",
+      "Trapezius"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "117df66c-bc8d-43cc-9903-0be2a0864486",
+    "external_id": 1094,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bench"
+    ]
+  },
+  {
+    "uuid": "acbe9416-c717-40f4-a30e-9375b1f3e797",
+    "external_id": 1095,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Triceps"
+    ],
+    "equipment": [
+      "Bench"
+    ]
+  },
+  {
+    "uuid": "d015a276-02ad-4c28-9d36-aedfbb431f53",
+    "external_id": 1096,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "f3ec1836-ef65-490e-8246-5ab0d3640a7f",
+    "external_id": 1097,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "c302fd80-ce74-4202-9eee-30834872cffb",
+    "external_id": 1098,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "45d89ca5-f5c7-4e56-9833-fd160cd2666d",
+    "external_id": 1099,
+    "category": "Abs",
+    "primary_muscles": [
+      "Obliques"
+    ],
+    "secondary_muscles": [
+      "Abs"
+    ],
+    "equipment": [
+      "Kettlebell"
+    ]
+  },
+  {
+    "uuid": "f20ab712-f953-4705-8710-9681392ddd07",
+    "external_id": 1100,
+    "category": "Legs",
+    "primary_muscles": [
+      "Shoulders",
+      "Glutes",
+      "Quads"
+    ],
+    "secondary_muscles": [
+      "Biceps",
+      "Chest",
+      "Abs",
+      "Trapezius"
+    ],
+    "equipment": [
+      "Swiss Ball"
+    ]
+  },
+  {
+    "uuid": "8ccd5844-4b46-475d-b36f-5f58ca496840",
+    "external_id": 1101,
+    "category": "Abs",
+    "primary_muscles": [
+      "Lats",
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Biceps"
+    ],
+    "equipment": [
+      "Pull-up bar"
+    ]
+  },
+  {
+    "uuid": "5831bcbb-28a7-4bd5-930d-a740acccf747",
+    "external_id": 1102,
+    "category": "Legs",
+    "primary_muscles": [
+      "Glutes",
+      "Quads"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "f636ae1c-f678-48fe-96b3-1a9ae81f43ce",
+    "external_id": 1103,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Biceps",
+      "Glutes",
+      "Lats"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "2e00d8e5-19a2-42ad-a954-f06a56f56561",
+    "external_id": 1104,
+    "category": "Cardio",
+    "primary_muscles": [
+      "Hamstrings",
+      "Calves",
+      "Glutes",
+      "Lats",
+      "Obliques",
+      "Quads",
+      "Abs"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "371cfda2-1de6-419a-b40c-fc98fd3f7e41",
+    "external_id": 1105,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [
+      "Obliques"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "3a8a9588-3d19-4042-84e5-2ff49a842c67",
+    "external_id": 1106,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [
+      "Obliques"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "b1bf02cf-17b2-4bfc-a5b0-4ff7a2768dbb",
+    "external_id": 1109,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps",
+      "Brachialis"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "f509a2e2-a9f1-48c0-8421-836836110fdc",
+    "external_id": 1110,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Triceps"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "4aa7e2a7-86ad-4322-978f-ff8b391f556c",
+    "external_id": 1111,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Triceps"
+    ],
+    "equipment": [
+      "Bench",
+      "Incline bench"
+    ]
+  },
+  {
+    "uuid": "50037aaf-34f1-4018-b504-206623b77c46",
+    "external_id": 1112,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Triceps"
+    ],
+    "equipment": [
+      "Bench",
+      "Incline bench"
+    ]
+  },
+  {
+    "uuid": "bd141adb-b9ad-4038-b11f-1db8665f72bc",
+    "external_id": 1113,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [
+      "Shoulders",
+      "Triceps"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "af5a3520-25eb-4dd7-b802-a7382b8ce3ef",
+    "external_id": 1114,
+    "category": "Arms",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "7c2a70bc-ed97-440c-afd6-ed27daf63f25",
+    "external_id": 1115,
+    "category": "Cardio",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "3393db0b-98b7-4d53-a0d4-985f97875295",
+    "external_id": 1116,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "0ecfec6f-5d0f-4e8a-8d37-f6203a8923b8",
+    "external_id": 1117,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "3a0bfbe7-9a9e-43af-9fcd-f2aedcc99852",
+    "external_id": 1118,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "ace5d444-6a41-44bc-a4b6-548bb18cfc9b",
+    "external_id": 1119,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "443fec2e-dcca-46fe-ab4a-9a8beb50891e",
+    "external_id": 1120,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "e87d355b-d2a4-40c4-a2de-e09e8a701c9d",
+    "external_id": 1122,
+    "category": "Legs",
+    "primary_muscles": [
+      "Calves",
+      "Soleus"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "ad20f70b-fcda-4282-a452-0cd8c3b38eda",
+    "external_id": 1123,
+    "category": "Legs",
+    "primary_muscles": [
+      "Calves",
+      "Soleus"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "62350da8-b589-4022-a94a-3341f79295a4",
+    "external_id": 1124,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "d33f3b19-436f-48a2-aff6-946582c94bdb",
+    "external_id": 1125,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "f1bbbc07-d7ed-44c4-a4e3-9af126fc7c33",
+    "external_id": 1126,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "4eb41bfb-cbeb-4683-b9c6-902ee7e028e0",
+    "external_id": 1127,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "aa207863-0156-4fa7-919a-cff839ea2418",
+    "external_id": 1128,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "9cfde79e-41fe-4180-a1c6-04df42fcbacf",
+    "external_id": 1129,
+    "category": "Chest",
+    "primary_muscles": [
+      "Shoulders",
+      "Biceps",
+      "Chest"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "cd376975-6095-4643-bfdd-920bad3c2023",
+    "external_id": 1130,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "19a9f67b-60f5-4367-9134-b805f3e73956",
+    "external_id": 1131,
+    "category": "Legs",
+    "primary_muscles": [
+      "Glutes"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "ab872d04-ca20-4341-b3c9-76763b25ef42",
+    "external_id": 1132,
+    "category": "Legs",
+    "primary_muscles": [
+      "Glutes"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "710abc6c-40f4-4317-8bb7-6abce242e670",
+    "external_id": 1133,
+    "category": "Chest",
+    "primary_muscles": [
+      "Chest"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "eaa7927e-6ea0-4fd5-bbcd-525fe90a184b",
+    "external_id": 1136,
+    "category": "Back",
+    "primary_muscles": [
+      "Biceps",
+      "Lats",
+      "Serratus anterior"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "e87b76b8-2960-4225-9146-47f78bf8c630",
+    "external_id": 1137,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats",
+      "Serratus anterior"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "4e941b0d-4b2f-4393-89cf-6a5e9b69252e",
+    "external_id": 1138,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "f32a61d0-bef3-4ea8-a296-6a64c7a6ece7",
+    "external_id": 1139,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "e90cedcc-b179-4ee9-b24c-dc11b49c602f",
+    "external_id": 1140,
+    "category": "Legs",
+    "primary_muscles": [
+      "Soleus"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "7dd7a735-c1fe-4ca0-a6e8-e825d897b065",
+    "external_id": 1141,
+    "category": "Legs",
+    "primary_muscles": [
+      "Hamstrings",
+      "Glutes"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "78c27d09-223b-4e46-a134-060f9f5c6c74",
+    "external_id": 1142,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "deebd257-f84d-4879-9dc4-353ee0ea534f",
+    "external_id": 1143,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats",
+      "Serratus anterior"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "636f7aba-518d-49c9-b21d-5e366185ea29",
+    "external_id": 1144,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "92d508ce-2524-47a3-ac51-1520ccbfd75e",
+    "external_id": 1145,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "62dcdf81-287a-41cc-ab7e-651044534c5e",
+    "external_id": 1146,
+    "category": "Abs",
+    "primary_muscles": [
+      "Glutes"
+    ],
+    "secondary_muscles": [
+      "Hamstrings",
+      "Brachialis",
+      "Lats"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "6ebb138e-bb0a-402e-84e5-68fe0896e897",
+    "external_id": 1185,
+    "category": "Arms",
+    "primary_muscles": [
+      "Triceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "6b6c69bc-0b1e-4b2f-ab61-4945eb18047e",
+    "external_id": 1186,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "cd4c5295-4265-4bc9-8f4f-b0ec5b7483ad",
+    "external_id": 1187,
+    "category": "Back",
+    "primary_muscles": [
+      "Lats"
+    ],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "d36fdd3c-9a35-4643-a3fd-57db78c866d6",
+    "external_id": 1188,
+    "category": "Abs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "75e2bca9-8d12-4d7f-b27f-a8c6f8be8ded",
+    "external_id": 1189,
+    "category": "Abs",
+    "primary_muscles": [
+      "Abs"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Kettlebell"
+    ]
+  },
+  {
+    "uuid": "9ce236dc-7704-4f3e-a3d0-4fea382a950b",
+    "external_id": 1190,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "3e2adb27-49ac-42ac-90e3-43bcef160bb4",
+    "external_id": 1191,
+    "category": "Legs",
+    "primary_muscles": [
+      "Hamstrings",
+      "Glutes",
+      "Quads"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell",
+      "Kettlebell"
+    ]
+  },
+  {
+    "uuid": "94238bef-15ee-42b6-8035-79854b3c6e65",
+    "external_id": 1192,
+    "category": "Arms",
+    "primary_muscles": [
+      "Biceps"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "10510fb5-6ebd-4ddc-b03e-423b15deceea",
+    "external_id": 1193,
+    "category": "Abs",
+    "primary_muscles": [
+      "Lats",
+      "Obliques",
+      "Abs"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell",
+      "Gym mat",
+      "Swiss Ball"
+    ]
+  },
+  {
+    "uuid": "e56f2970-e4c9-45eb-8e8c-52abb590e7a6",
+    "external_id": 1194,
+    "category": "Abs",
+    "primary_muscles": [
+      "Shoulders",
+      "Glutes",
+      "Obliques",
+      "Abs",
+      "Serratus anterior",
+      "Trapezius"
+    ],
+    "secondary_muscles": [
+      "Chest",
+      "Triceps"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "cd7bbafc-4092-4194-aa20-e380f1fe45f0",
+    "external_id": 1195,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [
+      "Calves",
+      "Glutes"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "36a309ba-7dd1-43c9-9efc-788c7cd9fbd6",
+    "external_id": 1196,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [
+      "Calves"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "8d56eb18-b000-41ff-8b31-c74df3a4b34b",
+    "external_id": 1198,
+    "category": "Chest",
+    "primary_muscles": [
+      "Biceps",
+      "Lats"
+    ],
+    "secondary_muscles": [
+      "Chest",
+      "Abs",
+      "Trapezius"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "6112a068-d4a7-4af3-8dcb-f45253d6787b",
+    "external_id": 1199,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "f5252fbe-1e00-4b8d-8781-2e56d6a5250f",
+    "external_id": 1200,
+    "category": "Calves",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "8c132ea0-7885-474f-8514-0909ae22bdf6",
+    "external_id": 1201,
+    "category": "Legs",
+    "primary_muscles": [
+      "Quads"
+    ],
+    "secondary_muscles": [
+      "Hamstrings",
+      "Calves",
+      "Glutes"
+    ],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "7212cc74-656e-47ce-8292-d211676f2ee1",
+    "external_id": 1202,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "db4eaf0f-f4d4-4e63-b9fb-258985bc2858",
+    "external_id": 1203,
+    "category": "Calves",
+    "primary_muscles": [
+      "Calves"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "517265a2-e4f7-4b33-979f-9be1efd86343",
+    "external_id": 1204,
+    "category": "Cardio",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": []
+  },
+  {
+    "uuid": "2cc92db8-b245-44b8-b1d6-bf91c78c2ab9",
+    "external_id": 1205,
+    "category": "Arms",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell"
+    ]
+  },
+  {
+    "uuid": "6f0d5766-05ac-41b5-a592-7036ac99ee49",
+    "external_id": 1206,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "89651d40-9abf-49b5-9ee5-7b0ecb25fd03",
+    "external_id": 1207,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "f9866335-e489-404b-84b5-248fb8512702",
+    "external_id": 1208,
+    "category": "Legs",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "716286dd-05b1-4f87-8b3b-a0c559bcafc4",
+    "external_id": 1209,
+    "category": "Arms",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "965b0d80-544b-4f22-a64b-32dc033f071a",
+    "external_id": 1210,
+    "category": "Back",
+    "primary_muscles": [],
+    "secondary_muscles": [],
+    "equipment": [
+      "Bodyweight"
+    ]
+  },
+  {
+    "uuid": "a3125129-203f-4195-8f8a-a460ff9e9481",
+    "external_id": 1211,
+    "category": "Legs",
+    "primary_muscles": [
+      "Hamstrings"
+    ],
+    "secondary_muscles": [],
+    "equipment": [
+      "Dumbbell",
+      "Kettlebell"
+    ]
+  },
+  {
+    "uuid": "1bccba58-1639-4e5c-8a33-0d595aa41a7c",
+    "external_id": 1212,
+    "category": "Abs",
+    "primary_muscles": [],
+    "secondary_muscles": [
+      "Abs"
+    ],
+    "equipment": []
+  },
+  {
+    "uuid": "d05a86fd-5699-4655-bec1-9ffbd5a6ef4b",
+    "external_id": 1213,
+    "category": "Back",
+    "primary_muscles": [
+      "Shoulders",
+      "Biceps",
+      "Lats"
+    ],
+    "secondary_muscles": [
+      "Brachialis"
+    ],
+    "equipment": [
+      "Pull-up bar"
+    ]
+  },
+  {
+    "uuid": "e79616cb-f5fb-4b10-b99d-09d43774e142",
+    "external_id": 1214,
+    "category": "Back",
+    "primary_muscles": [
+      "Shoulders",
+      "Biceps",
+      "Lats"
+    ],
+    "secondary_muscles": [
+      "Triceps"
+    ],
+    "equipment": [
+      "Pull-up bar"
+    ]
+  }
+]

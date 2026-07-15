@@ -1,0 +1,38 @@
+services:
+  # Backend Web Service
+  - type: web
+    name: aurafit-backend
+    env: docker
+    dockerfilePath: ./backend.Dockerfile
+    envVars:
+      # We use sync: false to ensure sensitive keys are NOT stored in the code repository.
+      # You will input these securely in the Render Dashboard.
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: EXERCISEDB_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: SECRET_KEY
+        generateValue: true
+
+  # Frontend Web Service
+  - type: web
+    name: aurafit-frontend
+    env: docker
+    dockerfilePath: ./frontend.Dockerfile
+    envVars:
+      # React needs this at BUILD time. Set it to the Render URL of your backend + /api
+      # Example: https://aurafit-backend.onrender.com/api
+      - key: REACT_APP_API_URL
+        sync: false
+      - key: REACT_APP_GOOGLE_CLIENT_ID
+        sync: false

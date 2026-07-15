@@ -1,0 +1,10 @@
+node_modules
+.git
+.github
+.idea
+__pycache__
+*.pyc
+.env
+.env.*
+backend/.env
+frontend/.env
