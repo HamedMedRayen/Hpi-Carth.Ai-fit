@@ -1164,8 +1164,9 @@ export default function CoachDashboard() {
                   </div>
                 )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
 
             <div style={{ display: activeTab === "my-coach" ? "flex" : "none", flexDirection: "column", gap: 24 }}>
             {/* Active Coaches */}
