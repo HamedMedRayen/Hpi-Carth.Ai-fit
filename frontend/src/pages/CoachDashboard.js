@@ -1053,9 +1053,9 @@ export default function CoachDashboard() {
                 </div>
               </div>
               
-              <div style={{ display: "grid", gridTemplateColumns: "1.7fr 1.3fr", gap: 24 }}>
+              <div style={{ display: "flex", gap: 24, width: "100%" }}>
                 {/* Map Area */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ flex: 1.7, minWidth: 0, display: "flex", flexDirection: "column", gap: 12 }}>
                   {/* Region & Specialty Selectors */}
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, overflowX: "auto", paddingBottom: 6 }}>
                     <div style={{ display: "flex", gap: 8 }}>
@@ -1134,7 +1134,7 @@ export default function CoachDashboard() {
                 </div>
 
                 {/* Sidebar Directory */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ flex: 1.3, minWidth: 0, display: "flex", flexDirection: "column", gap: 12 }}>
                   <h4 style={{ fontSize: 11, fontWeight: 900, margin: "0 0 4px", color: "var(--color-text-3)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
                     Gym Directory ({nearestGyms.length} Facilities)
                   </h4>
@@ -1269,7 +1269,7 @@ export default function CoachDashboard() {
                                       <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                                         {c.name || c.email.split('@')[0]}
                                       </div>
-                                      <div style={{ fontSize: 10, color: "var(--color-text-3)", marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                      <div style={{ fontSize: 9, color: "var(--color-text-3)", marginTop: 2, lineHeight: 1.3 }}>
                                         {(EXP_LABELS[c.experience?.toLowerCase()] || c.experience || 'TRAINER').toUpperCase()} • {(GOAL_LABELS[c.goal?.toLowerCase()] || c.goal || 'FITNESS').toUpperCase()}
                                       </div>
                                     </div>
