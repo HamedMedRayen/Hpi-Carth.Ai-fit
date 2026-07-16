@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { 
   Users, UserPlus, Check, X, Search, Activity, 
   ChevronRight, Dumbbell, Calendar, AlertCircle, 
-  MessageSquare, Send, ArrowLeft, Plus, Trash2, Award
+  MessageSquare, Send, ArrowLeft, Plus, Trash2, Award, Heart
 } from "lucide-react";
 import { api } from "../../utils/api";
 import { resolveBackendUrl } from "../../utils/config";
@@ -29,6 +29,174 @@ export default function MobileCoachingZone() {
   // Sub-views inside selected athlete: 'stats' | 'chat' | 'suggest'
   const [athleteSubView, setAthleteSubView] = useState("stats");
 
+  // Clicked Workout Detail
+  const [selectedWorkoutDetail, setSelectedWorkoutDetail] = useState(null);
+  const [loadingWorkoutDetail, setLoadingWorkoutDetail] = useState(false);
+  const [sessionNotes, setSessionNotes] = useState([]);
+  const [newSessionNote, setNewSessionNote] = useState("");
+  const [submittingNote, setSubmittingNote] = useState(false);
+
+  // Gym Finder states
+  const [gyms, setGyms] = useState([]);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [userLoc, setUserLoc] = useState({ lat: 36.8065, lng: 10.1815 });
+  const [nearestGyms, setNearestGyms] = useState([]);
+  const [selectedRegion, setSelectedRegion] = useState("all");
+
+  const REGIONS = {
+    all: { name: "All Tunisia", lat: 36.8065, lng: 10.1815 },
+    tunis: { name: "Tunis", lat: 36.8065, lng: 10.1815 },
+    ben_arous: { name: "Ben Arous", lat: 36.7533, lng: 10.2223 },
+    ariana: { name: "Ariana", lat: 36.8625, lng: 10.1956 },
+    sousse: { name: "Sousse", lat: 35.8256, lng: 10.6369 },
+    sfax: { name: "Sfax", lat: 34.7406, lng: 10.7603 }
+  };
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
+  useEffect(() => {
+    if (window.L) {
+      setMapLoaded(true);
+      return;
+    }
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+    document.head.appendChild(link);
+
+    const style = document.createElement("style");
+    style.innerHTML = `
+      #leaflet-coaches-map .leaflet-tile-container {
+        filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+      }
+      #leaflet-coaches-map {
+        background: #111 !important;
+      }
+      .leaflet-popup-content-wrapper {
+        background: var(--color-bg) !important;
+        color: var(--color-text) !important;
+        border: 1px solid var(--border-card);
+      }
+      .leaflet-popup-tip {
+        background: var(--color-bg) !important;
+      }
+    `;
+    document.head.appendChild(style);
+
+    const script = document.createElement("script");
+    script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+    script.async = true;
+    script.onload = () => setMapLoaded(true);
+    document.body.appendChild(script);
+  }, []);
+
+  useEffect(() => {
+    api.getGyms().then(res => {
+      setGyms(res || []);
+    }).catch(e => console.error(e));
+  }, []);
+
+  useEffect(() => {
+    if (!userLoc || !gyms.length) return;
+    const computed = gyms.map(g => {
+      const dist = calculateDistance(userLoc.lat, userLoc.lng, g.latitude, g.longitude);
+      return { ...g, distance: dist };
+    }).sort((a, b) => a.distance - b.distance);
+    setNearestGyms(computed);
+  }, [userLoc, gyms]);
+
+  const mapRef = useRef(null);
+
+  useEffect(() => {
+    if (!mapLoaded || !gyms.length || activeTab !== 'my-coach') return;
+    
+    const container = window.L.DomUtil.get("leaflet-coaches-map");
+    if (!container) return;
+    
+    const L = window.L;
+    
+    // Clean up previous map instance if it exists
+    if (mapRef.current) {
+      try {
+        mapRef.current.remove();
+      } catch (err) {
+        console.error("Error removing old map:", err);
+      }
+      mapRef.current = null;
+    }
+    
+    const map = L.map("leaflet-coaches-map").setView([userLoc.lat, userLoc.lng], selectedRegion === 'all' ? 10 : 12);
+    mapRef.current = map;
+    
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    // Force map invalidateSize after rendering
+    const timer = setTimeout(() => {
+      if (mapRef.current) {
+        mapRef.current.invalidateSize();
+      }
+    }, 250);
+
+    const userIcon = L.divIcon({
+      className: 'user-marker-icon',
+      html: `<div style="background: var(--aura-accent); border: 2px solid #000; width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 10px var(--aura-accent);"></div>`,
+      iconSize: [14, 14],
+      iconAnchor: [7, 7]
+    });
+    
+    const userMarker = L.marker([userLoc.lat, userLoc.lng], { icon: userIcon, draggable: true }).addTo(map);
+    userMarker.on('dragend', (e) => {
+      const position = e.target.getLatLng();
+      setUserLoc({ lat: position.lat, lng: position.lng });
+    });
+
+    gyms.forEach(g => {
+      const gymIcon = L.divIcon({
+        className: 'gym-marker-icon',
+        html: `<div style="background: var(--aura-cyan); border: 2px solid #000; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 8px var(--aura-cyan); color: #000; font-size: 10px; font-weight: 800;">G</div>`,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8]
+      });
+
+      const marker = L.marker([g.latitude, g.longitude], { icon: gymIcon }).addTo(map);
+      marker.bindPopup(`
+        <div style="color: #fff; font-family: sans-serif; font-size: 12px; padding: 4px;">
+          <strong style="font-size: 13px; color: var(--aura-cyan);">${g.name}</strong><br/>
+          <span style="color: #ccc;">${g.address || ""}</span><br/>
+          <strong style="color: var(--aura-accent);">${g.coaches?.length || 0} Coaches</strong>
+        </div>
+      `);
+      
+      marker.on('click', () => {
+        setUserLoc({ lat: g.latitude, lng: g.longitude });
+      });
+    });
+
+    return () => {
+      clearTimeout(timer);
+      if (mapRef.current) {
+        try {
+          mapRef.current.remove();
+        } catch (err) {
+          console.error("Error cleaning up map:", err);
+        }
+        mapRef.current = null;
+      }
+    };
+  }, [mapLoaded, gyms, selectedRegion, activeTab]);
+
   // Coach Chat states (for both coach chatting with athlete, or athlete chatting with coach)
   const [chattingWith, setChattingWith] = useState(null); // { id, name, avatar }
   const [messages, setMessages] = useState([]);
@@ -53,16 +221,16 @@ export default function MobileCoachingZone() {
   const fetchInitialData = async () => {
     setLoading(true);
     try {
-      const [roleData, aths, cochs] = await Promise.all([
+      const [roleData, aths, coachesList] = await Promise.all([
         api.getCoachRole().catch(() => ({ role: "athlete" })),
         api.getMyAthletes().catch(() => []),
-        api.getMyCoach().catch(() => [])
+        api.getAllCoaches().catch(() => [])
       ]);
       
       const userRole = roleData?.role || "athlete";
       setRole(userRole);
       setAthletes(aths || []);
-      setCoaches(cochs || []);
+      setCoaches(coachesList || []);
 
       if (userRole === "coach") {
         setActiveTab("roster");
@@ -95,14 +263,40 @@ export default function MobileCoachingZone() {
     }
   };
 
+  const handleHireCoach = async (coachId) => {
+    try {
+      const res = await api.hireCoach(coachId);
+      toast.success(res.message || "Hire request sent to coach!");
+      const coachesList = await api.getAllCoaches().catch(() => []);
+      setCoaches(coachesList || []);
+    } catch (e) {
+      console.error(e);
+      toast.error(e.message || "Failed to send hire request");
+    }
+  };
+
   const handleResponse = async (relationshipId, action) => {
     try {
       await api.respondInvite(relationshipId, action);
-      toast.success(`Invitation ${action}ed successfully.`);
+      toast.success(`Request ${action}ed successfully.`);
       fetchInitialData();
     } catch (e) {
       console.error(e);
-      toast.error("Failed to respond to invitation");
+      toast.error("Failed to respond to request");
+    }
+  };
+
+  const handleKickAthlete = async (relationshipId, name) => {
+    if (!window.confirm(`Are you sure you want to remove ${name} from your roster?`)) return;
+    try {
+      await api.removeRelationship(relationshipId);
+      setSelectedAthlete(null);
+      setAthleteSubView(null);
+      toast.success("Athlete removed successfully.");
+      fetchInitialData();
+    } catch (e) {
+      console.error("Failed to remove athlete:", e);
+      toast.error(e.message || "Failed to remove athlete");
     }
   };
 
@@ -119,6 +313,42 @@ export default function MobileCoachingZone() {
       setAthleteStats(null);
     } finally {
       setLoadingStats(false);
+    }
+  };
+
+  const loadWorkoutDetail = async (workoutId) => {
+    setLoadingWorkoutDetail(true);
+    try {
+      const detail = await api.getWorkout(workoutId);
+      setSelectedWorkoutDetail(detail);
+      const notes = await api.getSessionNotes(workoutId).catch(() => []);
+      setSessionNotes(notes || []);
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to load workout details");
+    } finally {
+      setLoadingWorkoutDetail(false);
+    }
+  };
+
+  const handleAddSessionNote = async (e) => {
+    e.preventDefault();
+    if (!newSessionNote.trim() || !selectedWorkoutDetail) return;
+    setSubmittingNote(true);
+    try {
+      const added = await api.addSessionNote(
+        selectedAthlete.athlete_id,
+        selectedWorkoutDetail.id,
+        newSessionNote
+      );
+      setSessionNotes([...sessionNotes, added]);
+      setNewSessionNote("");
+      toast.success("Feedback note added!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to add feedback note");
+    } finally {
+      setSubmittingNote(false);
     }
   };
 
@@ -301,12 +531,12 @@ export default function MobileCoachingZone() {
             {chattingWith.avatar ? (
               <img src={resolveBackendUrl(chattingWith.avatar)} alt={chattingWith.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             ) : (
-              chattingWith.name.charAt(0).toUpperCase()
+              (chattingWith.name || 'C').charAt(0).toUpperCase()
             )}
           </div>
           
           <div>
-            <h2 style={{ fontSize: 16, fontWeight: 800, color: "var(--color-text)", margin: 0 }}>{chattingWith.name}</h2>
+            <h2 style={{ fontSize: 16, fontWeight: 800, color: "var(--color-text)", margin: 0 }}>{chattingWith.name || 'Chat'}</h2>
             <span style={{ fontSize: 11, color: "var(--aura-cyan)", fontWeight: 700 }}>Direct Chat</span>
           </div>
         </div>
@@ -403,22 +633,180 @@ export default function MobileCoachingZone() {
     );
   }
 
-  // Detailed Athlete Profile view for coaches
-  if (selectedAthlete) {
+  // Sub-view: Detailed Workout Session Card
+  if (selectedWorkoutDetail) {
     return (
       <div className="mobile-page" style={{ paddingBottom: 100 }}>
-        {/* Header Navigation */}
+        {/* Header */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "16px 0", marginBottom: 16 }}>
           <button 
-            onClick={() => setSelectedAthlete(null)}
+            onClick={() => setSelectedWorkoutDetail(null)}
             style={{ background: "var(--color-surface)", border: "none", color: "var(--color-text)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, borderRadius: 10 }}
           >
             <ArrowLeft size={18} />
           </button>
           <div>
-            <h2 style={{ fontSize: 18, fontWeight: 800, color: "var(--color-text)", margin: 0 }}>{selectedAthlete.name}</h2>
-            <p style={{ color: "var(--text-secondary)", fontSize: 12, margin: 0 }}>Athlete profile & analytics</p>
+            <h2 style={{ fontSize: 18, fontWeight: 800, color: "var(--color-text)", margin: 0 }}>{selectedWorkoutDetail.workout_name}</h2>
+            <p style={{ color: "var(--text-secondary)", fontSize: 12, margin: 0 }}>{new Date(selectedWorkoutDetail.session_date).toLocaleDateString()} • {Math.round(selectedWorkoutDetail.duration_sec / 60)} min</p>
           </div>
+        </div>
+
+        {/* Workout Info Cards */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+          <div className="mobile-card" style={{ padding: 12, textAlign: "center" }}>
+            <span style={{ fontSize: 10, color: "var(--text-secondary)", fontWeight: 700, textTransform: "uppercase" }}>Total Volume</span>
+            <div style={{ fontSize: 18, fontWeight: 800, color: "var(--aura-cyan)", marginTop: 4 }}>{selectedWorkoutDetail.total_volume} kg</div>
+          </div>
+          <div className="mobile-card" style={{ padding: 12, textAlign: "center" }}>
+            <span style={{ fontSize: 10, color: "var(--text-secondary)", fontWeight: 700, textTransform: "uppercase" }}>Total Sets</span>
+            <div style={{ fontSize: 18, fontWeight: 800, color: "var(--aura-cyan)", marginTop: 4 }}>{selectedWorkoutDetail.total_sets} sets</div>
+          </div>
+        </div>
+
+        {/* Notes (if client left any) */}
+        {selectedWorkoutDetail.notes && (
+          <div className="mobile-card" style={{ padding: 14, marginBottom: 20 }}>
+            <span style={{ fontSize: 10, color: "var(--text-secondary)", fontWeight: 700, textTransform: "uppercase" }}>Client Notes</span>
+            <p style={{ fontSize: 13, color: "var(--color-text)", margin: "6px 0 0", lineHeight: 1.4 }}>{selectedWorkoutDetail.notes}</p>
+          </div>
+        )}
+
+        {/* Exercises list */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
+          <h3 style={{ fontSize: 14, fontWeight: 800, color: "var(--color-text)" }}>Exercises</h3>
+          
+          {selectedWorkoutDetail.sets && selectedWorkoutDetail.sets.length === 0 ? (
+            <div style={{ color: "var(--text-secondary)", fontSize: 12, textAlign: "center", padding: 20 }}>No exercises recorded.</div>
+          ) : (
+            // Group sets by exercise_name
+            Object.entries(selectedWorkoutDetail.sets.reduce((groups, s) => {
+              const name = s.exercise_name || "Unknown";
+              if (!groups[name]) groups[name] = [];
+              groups[name].push(s);
+              return groups;
+            }, {})).map(([name, exSets]) => (
+              <div key={name} className="mobile-card" style={{ padding: 14 }}>
+                <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 8, color: "var(--color-text)" }}>{name}</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {exSets.map((s, idx) => (
+                    <div key={s.id || idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12, color: "var(--text-secondary)", borderBottom: "1px solid rgba(255,255,255,0.02)", paddingBottom: 4 }}>
+                      <span>Set {idx + 1} ({s.set_type || "normal"})</span>
+                      <span style={{ fontWeight: 700, color: "var(--color-text)" }}>
+                        {s.weight_kg} kg × {s.reps} reps {s.rpe ? `(RPE ${s.rpe})` : ""}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Coach Feedback Notes */}
+        <div className="mobile-card" style={{ padding: 16 }}>
+          <h3 style={{ fontSize: 13, fontWeight: 800, color: "var(--aura-cyan)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+            <MessageSquare size={14} /> Coach Feedback
+          </h3>
+
+          {/* List existing feedback */}
+          {sessionNotes.length === 0 ? (
+            <p style={{ fontSize: 12, color: "var(--text-secondary)", fontStyle: "italic", margin: "0 0 16px" }}>No feedback left on this session yet.</p>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+              {sessionNotes.map(n => (
+                <div key={n.id} style={{ background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: 10, border: "1px solid rgba(255,255,255,0.04)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "var(--text-secondary)", fontWeight: 700, marginBottom: 4 }}>
+                    <span>{n.coach_name || "Coach"}</span>
+                    <span>{new Date(n.created_at).toLocaleDateString()}</span>
+                  </div>
+                  <p style={{ fontSize: 12, color: "var(--color-text)", margin: 0, lineHeight: 1.4 }}>{n.note}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Form to leave feedback (only if coach) */}
+          {role === 'coach' && (
+            <form onSubmit={handleAddSessionNote} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <textarea 
+                placeholder="Leave feedback or recommendations for this session..."
+                value={newSessionNote}
+                onChange={e => setNewSessionNote(e.target.value)}
+                style={{ width: "100%", background: "var(--color-surface-h)", border: "1px solid var(--color-border)", borderRadius: 10, padding: 12, color: "var(--color-text)", fontSize: 13, minHeight: 60, resize: "none" }}
+                required
+              />
+              <button 
+                type="submit"
+                disabled={submittingNote || !newSessionNote.trim()}
+                style={{ alignSelf: "flex-end", background: "var(--aura-cyan)", color: "#000", border: "none", borderRadius: 8, padding: "8px 16px", fontWeight: 800, fontSize: 12, cursor: "pointer" }}
+              >
+                {submittingNote ? "Submitting..." : "Add Feedback"}
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Detailed Athlete Profile view for coaches
+  if (selectedAthlete) {
+    const avgSleep = athleteStats?.recent_sleep?.length 
+      ? (athleteStats.recent_sleep.reduce((acc, s) => acc + s.hours, 0) / athleteStats.recent_sleep.length).toFixed(1)
+      : null;
+    const avgQuality = athleteStats?.recent_sleep?.length
+      ? (athleteStats.recent_sleep.reduce((acc, s) => acc + s.quality, 0) / athleteStats.recent_sleep.length).toFixed(1)
+      : null;
+
+    const avgCal = athleteStats?.recent_nutrition?.length
+      ? Math.round(athleteStats.recent_nutrition.reduce((acc, n) => acc + n.calories, 0) / athleteStats.recent_nutrition.length)
+      : 0;
+    const avgProt = athleteStats?.recent_nutrition?.length
+      ? Math.round(athleteStats.recent_nutrition.reduce((acc, n) => acc + n.protein, 0) / athleteStats.recent_nutrition.length)
+      : 0;
+    const avgCarb = athleteStats?.recent_nutrition?.length
+      ? Math.round(athleteStats.recent_nutrition.reduce((acc, n) => acc + n.carbs, 0) / athleteStats.recent_nutrition.length)
+      : 0;
+    const avgFat = athleteStats?.recent_nutrition?.length
+      ? Math.round(athleteStats.recent_nutrition.reduce((acc, n) => acc + n.fat, 0) / athleteStats.recent_nutrition.length)
+      : 0;
+    
+    const nutritionTarget = athleteStats?.nutrition_target;
+
+    return (
+      <div className="mobile-page" style={{ paddingBottom: 100 }}>
+        {/* Header Navigation */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 0", marginBottom: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <button 
+              onClick={() => setSelectedAthlete(null)}
+              style={{ background: "var(--color-surface)", border: "none", color: "var(--color-text)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", width: 36, height: 36, borderRadius: 10 }}
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <div>
+              <h2 style={{ fontSize: 18, fontWeight: 800, color: "var(--color-text)", margin: 0 }}>{selectedAthlete.name}</h2>
+              <p style={{ color: "var(--text-secondary)", fontSize: 12, margin: 0 }}>Athlete profile & analytics</p>
+            </div>
+          </div>
+          <button
+            onClick={() => handleKickAthlete(selectedAthlete.relationship_id, selectedAthlete.name)}
+            style={{
+              background: "rgba(239, 68, 68, 0.1)",
+              color: "#EF4444",
+              border: "1px solid rgba(239, 68, 68, 0.15)",
+              padding: "8px 14px",
+              borderRadius: 10,
+              fontSize: 11,
+              fontWeight: 800,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 4
+            }}
+          >
+            <X size={12} /> Kick
+          </button>
         </div>
 
         {/* Mini Tab selector */}
@@ -671,11 +1059,11 @@ export default function MobileCoachingZone() {
                 {selectedAthlete.avatar_url ? (
                   <img src={resolveBackendUrl(selectedAthlete.avatar_url)} alt={selectedAthlete.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 ) : (
-                  selectedAthlete.name.charAt(0).toUpperCase()
+                  (selectedAthlete.name || selectedAthlete.email || 'A').charAt(0).toUpperCase()
                 )}
               </div>
               <div>
-                <h3 style={{ fontSize: 15, fontWeight: 800, color: "var(--color-text)", margin: 0 }}>{selectedAthlete.name}</h3>
+                <h3 style={{ fontSize: 15, fontWeight: 800, color: "var(--color-text)", margin: 0 }}>{selectedAthlete.name || selectedAthlete.email.split('@')[0]}</h3>
                 <p style={{ color: "var(--text-secondary)", fontSize: 11, margin: "2px 0 0" }}>{selectedAthlete.email}</p>
                 <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
                   <span style={{ fontSize: 9, fontWeight: 700, background: "var(--color-surface-h)", color: "var(--color-text)", padding: "2px 6px", borderRadius: 6 }}>
@@ -716,6 +1104,163 @@ export default function MobileCoachingZone() {
                   </div>
                 </div>
 
+                {/* Nutrition Card */}
+                <div className="mobile-card" style={{ padding: 16 }}>
+                  <h4 style={{ fontSize: 11, fontWeight: 800, color: "var(--aura-cyan)", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                    <Heart size={14} /> Nutrition & Macro Compliance
+                  </h4>
+                  
+                  {nutritionTarget ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                      <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                        Goal: <span style={{ color: "#fff", fontWeight: 700 }}>{nutritionTarget.goal}</span> ({nutritionTarget.pace} pace, {nutritionTarget.diet_style})
+                      </div>
+                      
+                      {/* Calories */}
+                      <div>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+                          <span>Calories (7-day avg)</span>
+                          <span style={{ fontWeight: 700 }}>{avgCal} / {Math.round(nutritionTarget.final_calories)} kcal</span>
+                        </div>
+                        <div style={{ height: 6, background: "rgba(255,255,255,0.05)", borderRadius: 3, overflow: "hidden" }}>
+                          <div style={{ height: "100%", width: `${Math.min((avgCal / nutritionTarget.final_calories) * 100, 100)}%`, background: "var(--aura-cyan)", borderRadius: 3 }} />
+                        </div>
+                      </div>
+
+                      {/* Protein */}
+                      <div>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+                          <span>Protein</span>
+                          <span style={{ fontWeight: 700 }}>{avgProt}g / {Math.round(nutritionTarget.final_protein)}g</span>
+                        </div>
+                        <div style={{ height: 6, background: "rgba(255,255,255,0.05)", borderRadius: 3, overflow: "hidden" }}>
+                          <div style={{ height: "100%", width: `${Math.min((avgProt / nutritionTarget.final_protein) * 100, 100)}%`, background: "#f59e0b", borderRadius: 3 }} />
+                        </div>
+                      </div>
+
+                      {/* Carbs */}
+                      <div>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+                          <span>Carbs</span>
+                          <span style={{ fontWeight: 700 }}>{avgCarb}g / {Math.round(nutritionTarget.final_carbs)}g</span>
+                        </div>
+                        <div style={{ height: 6, background: "rgba(255,255,255,0.05)", borderRadius: 3, overflow: "hidden" }}>
+                          <div style={{ height: "100%", width: `${Math.min((avgCarb / nutritionTarget.final_carbs) * 100, 100)}%`, background: "#3b82f6", borderRadius: 3 }} />
+                        </div>
+                      </div>
+
+                      {/* Fats */}
+                      <div>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+                          <span>Fats</span>
+                          <span style={{ fontWeight: 700 }}>{avgFat}g / {Math.round(nutritionTarget.final_fat)}g</span>
+                        </div>
+                        <div style={{ height: 6, background: "rgba(255,255,255,0.05)", borderRadius: 3, overflow: "hidden" }}>
+                          <div style={{ height: "100%", width: `${Math.min((avgFat / nutritionTarget.final_fat) * 100, 100)}%`, background: "#ef4444", borderRadius: 3 }} />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>No nutrition target macros configured.</div>
+                  )}
+
+                  {athleteStats.recent_nutrition?.length > 0 && (
+                    <div style={{ marginTop: 14, borderTop: "1px solid rgba(255,255,255,0.04)", paddingTop: 10 }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: "var(--text-secondary)", marginBottom: 8, textTransform: "uppercase" }}>Recent Logged Days</div>
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                        {athleteStats.recent_nutrition.slice(0, 3).map(n => (
+                          <div key={n.date} style={{ display: "flex", justifyContent: "space-between", fontSize: 11 }}>
+                            <span>{new Date(n.date).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                            <span style={{ color: "var(--color-text)", fontWeight: 700 }}>{n.calories} kcal (P: {Math.round(n.protein)}g C: {Math.round(n.carbs)}g F: {Math.round(n.fat)}g)</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Sleep Quality & Recovery */}
+                <div className="mobile-card" style={{ padding: 16 }}>
+                  <h4 style={{ fontSize: 11, fontWeight: 800, color: "var(--aura-cyan)", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                    <Activity size={14} /> Sleep & Recovery
+                  </h4>
+
+                  {avgSleep ? (
+                    <div style={{ display: "flex", gap: 20, marginBottom: 14 }}>
+                      <div>
+                        <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>Avg Duration</span>
+                        <div style={{ fontSize: 18, fontWeight: 800, color: "var(--color-text)" }}>{avgSleep} hrs</div>
+                      </div>
+                      <div>
+                        <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>Avg Quality</span>
+                        <div style={{ fontSize: 18, fontWeight: 800, color: "var(--color-text)" }}>{avgQuality} / 5 ★</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 10 }}>No sleep reports submitted recently.</div>
+                  )}
+
+                  {athleteStats.recent_sleep?.length > 0 && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8, borderTop: "1px solid rgba(255,255,255,0.04)", paddingTop: 10 }}>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: "var(--text-secondary)", marginBottom: 4, textTransform: "uppercase" }}>Recent Sleep Logs</div>
+                      {athleteStats.recent_sleep.slice(0, 3).map(s => (
+                        <div key={s.date} style={{ fontSize: 11, borderBottom: "1px solid rgba(255,255,255,0.02)", paddingBottom: 4 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between" }}>
+                            <span style={{ fontWeight: 700 }}>{new Date(s.date).toLocaleDateString([], { month: 'short', day: 'numeric' })}</span>
+                            <span style={{ color: "var(--aura-cyan)" }}>{s.hours} hrs ({s.quality}/5 ★)</span>
+                          </div>
+                          {s.notes && <div style={{ fontSize: 10, color: "var(--text-secondary)", marginTop: 2, fontStyle: "italic" }}>"{s.notes}"</div>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Bodyweight History */}
+                <div className="mobile-card" style={{ padding: 16 }}>
+                  <h4 style={{ fontSize: 11, fontWeight: 800, color: "var(--aura-cyan)", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                    <TrendingUpIcon size={14} /> Weight Logs & Progress
+                  </h4>
+                  
+                  {athleteStats.recent_weights?.length > 0 ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {athleteStats.recent_weights.slice(0, 5).map(w => (
+                        <div key={w.logged_at} style={{ display: "flex", justifyContent: "space-between", fontSize: 12, borderBottom: "1px solid rgba(255,255,255,0.02)", paddingBottom: 4 }}>
+                          <span>{new Date(w.logged_at).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                          <span style={{ fontWeight: 800, color: "var(--color-text)" }}>{w.weight_kg} kg</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>No weight entries recorded.</div>
+                  )}
+                </div>
+
+                {/* Personal Records */}
+                <div className="mobile-card" style={{ padding: 16 }}>
+                  <h4 style={{ fontSize: 11, fontWeight: 800, color: "var(--aura-cyan)", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+                    <Award size={14} /> Best Lift Estimates (PRs)
+                  </h4>
+
+                  {athleteStats.personal_records?.length > 0 ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {athleteStats.personal_records.slice(0, 5).map((pr, idx) => (
+                        <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.02)", paddingBottom: 4 }}>
+                          <div>
+                            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--color-text)" }}>{pr.exercise_name}</div>
+                            <div style={{ fontSize: 10, color: "var(--text-secondary)" }}>{pr.weight_kg} kg × {pr.reps} reps • {new Date(pr.achieved_date).toLocaleDateString()}</div>
+                          </div>
+                          <div style={{ fontSize: 12, fontWeight: 800, color: "var(--aura-cyan)" }}>
+                            {Math.round(pr.one_rm_est)} kg <span style={{ fontSize: 9, fontWeight: 600, color: "var(--text-secondary)" }}>1RM</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>No personal records established.</div>
+                  )}
+                </div>
+
                 {/* Wellness Card */}
                 <div className="mobile-card" style={{ padding: 16 }}>
                   <h4 style={{ fontSize: 11, fontWeight: 800, color: "var(--aura-cyan)", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
@@ -747,21 +1292,28 @@ export default function MobileCoachingZone() {
                   )}
                 </div>
 
-                {/* Workouts Card */}
+                {/* Workouts Card (Clickable Recent Workouts) */}
                 <div className="mobile-card" style={{ padding: 16 }}>
                   <h4 style={{ fontSize: 11, fontWeight: 800, color: "var(--aura-cyan)", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
-                    <Calendar size={14} /> Recent Workouts
+                    <Calendar size={14} /> Recent Workouts (Click for Detail)
                   </h4>
 
                   {athleteStats.recent_workouts?.length > 0 ? (
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                      {athleteStats.recent_workouts.slice(0, 3).map(w => (
-                        <div key={w.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 6, borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                      {athleteStats.recent_workouts.map(w => (
+                        <div 
+                          key={w.id} 
+                          onClick={() => loadWorkoutDetail(w.id)}
+                          style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 8, borderBottom: "1px solid rgba(255,255,255,0.04)", cursor: "pointer" }}
+                        >
                           <div>
                             <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text)" }}>{w.workout_name}</div>
-                            <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{new Date(w.session_date).toLocaleDateString()}</div>
+                            <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 2 }}>{new Date(w.session_date).toLocaleDateString()}</div>
                           </div>
-                          <div style={{ fontSize: 12, fontWeight: 800, color: "var(--aura-cyan)" }}>{fmt.int(w.volume)} kg</div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <span style={{ fontSize: 12, fontWeight: 800, color: "var(--aura-cyan)" }}>{fmt.int(w.volume)} kg</span>
+                            <ChevronRight size={14} color="var(--text-secondary)" />
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -778,6 +1330,10 @@ export default function MobileCoachingZone() {
       </div>
     );
   }
+
+  // Split coaches into Active/Pending vs available for directory
+  const activeOrPending = coaches.filter(c => c.status === 'active' || c.status === 'pending');
+  const browseCoaches = coaches.filter(c => !c.status || c.status === 'declined');
 
   // ── Main Page Layout ────────────────────────────────────────────
   return (
@@ -885,12 +1441,12 @@ export default function MobileCoachingZone() {
                         {a.avatar_url ? (
                           <img src={resolveBackendUrl(a.avatar_url)} alt={a.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                         ) : (
-                          a.name.charAt(0).toUpperCase()
+                          (a.name || a.email || 'A').charAt(0).toUpperCase()
                         )}
                       </div>
                       
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 14, fontWeight: 800, color: "var(--color-text)" }}>{a.name}</div>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: "var(--color-text)" }}>{a.name || a.email.split('@')[0]}</div>
                         <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{a.email}</div>
                       </div>
 
@@ -898,11 +1454,28 @@ export default function MobileCoachingZone() {
                     </div>
 
                     {a.status === 'pending' ? (
-                      <div style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(245,158,11,0.08)", color: "#f59e0b", padding: "6px 10px", borderRadius: 8, fontSize: 11, fontWeight: 700 }}>
-                        <AlertCircle size={12} /> Invitation Pending
-                      </div>
+                      a.initiated_by === 'athlete' ? (
+                        <div style={{ display: "flex", gap: 8 }}>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleResponse(a.relationship_id, 'accept'); }} 
+                            style={{ flex: 1, background: "var(--aura-cyan)", color: "#000", border: "none", borderRadius: 8, padding: "6px 0", fontWeight: 800, fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, cursor: "pointer" }}
+                          >
+                            <Check size={12} /> Accept Request
+                          </button>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleResponse(a.relationship_id, 'decline'); }} 
+                            style={{ flex: 1, background: "rgba(255,255,255,0.05)", color: "#fff", border: "1px solid var(--color-border)", borderRadius: 8, padding: "6px 0", fontWeight: 800, fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, cursor: "pointer" }}
+                          >
+                            <X size={12} /> Decline
+                          </button>
+                        </div>
+                      ) : (
+                        <div style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(245,158,11,0.08)", color: "#f59e0b", padding: "6px 10px", borderRadius: 8, fontSize: 11, fontWeight: 700 }}>
+                          <AlertCircle size={12} /> Invitation Pending (Waiting for Athlete)
+                        </div>
+                      )
                     ) : (
-                      <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid rgba(255,255,255,0.04)", paddingTop: 10, fontSize: 11 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.04)", paddingTop: 10, fontSize: 11 }}>
                         <div style={{ display: "flex", gap: 16 }}>
                           <div>
                             <span style={{ color: "var(--text-secondary)", fontWeight: 700, marginRight: 4 }}>Sessions:</span>
@@ -915,6 +1488,27 @@ export default function MobileCoachingZone() {
                             </span>
                           </div>
                         </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleKickAthlete(a.relationship_id, a.name);
+                          }}
+                          style={{
+                            background: "rgba(239, 68, 68, 0.1)",
+                            color: "#EF4444",
+                            border: "none",
+                            padding: "4px 8px",
+                            borderRadius: "6px",
+                            fontSize: "10px",
+                            fontWeight: "800",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 2
+                          }}
+                        >
+                          <X size={10} /> Kick
+                        </button>
                       </div>
                     )}
                   </div>
@@ -928,76 +1522,272 @@ export default function MobileCoachingZone() {
       {/* TAB 2: MY COACH (Athlete View or Coach View Coach Assigned) */}
       {activeTab === "my-coach" && (
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text)", marginBottom: 4, display: "flex", alignItems: "center", gap: 6 }}>
-            <Users size={16} color="var(--text-secondary)" /> Your Assigned Coach
-          </h3>
+          {/* Active / Pending Coach Relationships */}
+          <div>
+            <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text)", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+              <Users size={16} color="var(--text-secondary)" /> Your Assigned Coach
+            </h3>
 
-          {coaches.length === 0 ? (
-            <div style={{ textAlign: "center", padding: 40, border: "1.5px dashed rgba(255,255,255,0.05)", borderRadius: 16, color: "var(--text-secondary)" }}>
-              <Users size={32} style={{ opacity: 0.2, marginBottom: 8, margin: "0 auto" }} />
-              <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text)" }}>No Coach Linked</div>
-              <p style={{ fontSize: 12, margin: "4px 0 0" }}>When a coach invites you, it will appear here.</p>
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {coaches.map(c => (
-                <div key={c.relationship_id} className="mobile-card" style={{ padding: 16 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-                    <div style={{ 
-                      width: 44, height: 44, borderRadius: 12, background: "var(--color-surface-h)",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 16, fontWeight: 800, color: "var(--aura-cyan)", overflow: "hidden"
-                    }}>
-                      {c.coach_avatar ? (
-                        <img src={resolveBackendUrl(c.coach_avatar)} alt={c.coach_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            {activeOrPending.length === 0 ? (
+              <div style={{ textAlign: "center", padding: 32, border: "1.5px dashed rgba(255,255,255,0.05)", borderRadius: 16, color: "var(--text-secondary)", marginBottom: 12 }}>
+                <Users size={32} style={{ opacity: 0.2, marginBottom: 8, margin: "0 auto" }} />
+                <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text)" }}>No Coach Linked</div>
+                <p style={{ fontSize: 12, margin: "4px 0 0" }}>Browse the list below to hire a coach.</p>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
+                {activeOrPending.map(c => (
+                  <div key={c.relationship_id} className="mobile-card" style={{ padding: 16 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+                      <div style={{ 
+                        width: 44, height: 44, borderRadius: 12, background: "var(--color-surface-h)",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: 16, fontWeight: 800, color: "var(--aura-cyan)", overflow: "hidden"
+                      }}>
+                        {c.coach_avatar ? (
+                          <img src={resolveBackendUrl(c.coach_avatar)} alt={c.coach_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        ) : (
+                          (c.coach_name || c.coach_email || 'C').charAt(0).toUpperCase()
+                        )}
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 800, fontSize: 15, color: "var(--color-text)" }}>{c.coach_name || c.coach_email.split('@')[0]}</div>
+                        <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{c.coach_email}</div>
+                      </div>
+                    </div>
+
+                    {c.status === 'pending' ? (
+                      c.initiated_by === 'coach' ? (
+                        <div style={{ display: "flex", gap: 8 }}>
+                          <button 
+                            onClick={() => handleResponse(c.relationship_id, 'accept')} 
+                            style={{ flex: 1, background: "var(--aura-cyan)", color: "var(--color-bg)", border: "none", borderRadius: 10, padding: "10px 0", fontWeight: 800, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, cursor: "pointer" }}
+                          >
+                            <Check size={14} /> Accept Invite
+                          </button>
+                          <button 
+                            onClick={() => handleResponse(c.relationship_id, 'decline')} 
+                            style={{ flex: 1, background: "var(--color-surface-h)", color: "var(--color-text)", border: "1px solid var(--color-border)", borderRadius: 10, padding: "10px 0", fontWeight: 800, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, cursor: "pointer" }}
+                          >
+                            <X size={14} /> Decline
+                          </button>
+                        </div>
                       ) : (
-                        c.coach_name.charAt(0).toUpperCase()
-                      )}
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 800, fontSize: 15, color: "var(--color-text)" }}>{c.coach_name}</div>
-                      <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{c.coach_email}</div>
-                    </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 4, background: "rgba(245,158,11,0.08)", color: "#f59e0b", padding: "8px 12px", borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
+                          <AlertCircle size={14} /> Request Pending (Waiting for Coach Approval)
+                        </div>
+                      )
+                    ) : (
+                      <div style={{ display: "flex", gap: 8, borderTop: "1px solid rgba(255,255,255,0.04)", paddingTop: 12 }}>
+                        <button 
+                          onClick={() => setChattingWith({
+                            id: c.coach_id,
+                            name: c.coach_name,
+                            avatar: c.coach_avatar
+                          })}
+                          style={{ flex: 1, background: "var(--aura-cyan)", color: "var(--color-bg)", border: "none", borderRadius: 10, padding: "10px 0", fontWeight: 800, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, cursor: "pointer" }}
+                        >
+                          <MessageSquare size={14} /> Chat with Coach
+                        </button>
+                        <div style={{ flex: 1, background: "rgba(34,197,94,0.08)", color: "#22c55e", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, fontSize: 12, fontWeight: 700 }}>
+                          <Check size={14} /> Active Coach
+                        </div>
+                      </div>
+                    )}
                   </div>
+                ))}
+              </div>
+            )}
+          </div>
 
-                  {c.status === 'pending' ? (
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <button 
-                        onClick={() => handleResponse(c.relationship_id, 'accept')} 
-                        style={{ flex: 1, background: "var(--aura-cyan)", color: "var(--color-bg)", border: "none", borderRadius: 10, padding: "10px 0", fontWeight: 800, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}
-                      >
-                        <Check size={14} /> Accept
-                      </button>
-                      <button 
-                        onClick={() => handleResponse(c.relationship_id, 'decline')} 
-                        style={{ flex: 1, background: "var(--color-surface-h)", color: "var(--color-text)", border: "1px solid var(--color-border)", borderRadius: 10, padding: "10px 0", fontWeight: 800, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}
-                      >
-                        <X size={14} /> Decline
-                      </button>
+          {/* Gym Map Explorer */}
+          <div className="mobile-card" style={{ padding: 18, marginBottom: 16, border: "1px solid var(--color-border)", borderRadius: 20 }}>
+            <h3 style={{ fontSize: 14, fontWeight: 800, color: "var(--color-text)", marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+              <MapPin size={18} color="var(--aura-cyan)" style={{ filter: "drop-shadow(0 0 3px var(--aura-cyan))" }} /> Gym Map Explorer
+            </h3>
+            <p style={{ fontSize: 11, color: "var(--text-secondary)", margin: "0 0 12px", lineHeight: 1.4 }}>
+              Select your region or drag the gold marker to find nearest gyms and their active coaches.
+            </p>
+            
+            {/* Region Selector */}
+            <div style={{ display: "flex", gap: 8, overflowX: "auto", paddingBottom: 8, marginBottom: 12 }}>
+              {Object.entries(REGIONS).map(([key, reg]) => {
+                const isSelected = selectedRegion === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => {
+                      setSelectedRegion(key);
+                      setUserLoc({ lat: reg.lat, lng: reg.lng });
+                    }}
+                    style={{
+                      background: isSelected ? "var(--aura-cyan)" : "var(--color-surface-h)",
+                      color: isSelected ? "#000" : "var(--color-text)",
+                      border: isSelected ? "1px solid var(--aura-cyan)" : "1px solid var(--color-border)",
+                      padding: "6px 14px", 
+                      borderRadius: 10, 
+                      fontSize: 11, 
+                      fontWeight: 800, 
+                      cursor: "pointer", 
+                      whiteSpace: "nowrap"
+                    }}
+                  >
+                    {reg.name}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Map Container */}
+            <div 
+              id="leaflet-coaches-map" 
+              style={{ 
+                height: 340, 
+                borderRadius: 16, 
+                border: "1px solid var(--color-border)",
+                background: "#111", 
+                overflow: "hidden", 
+                marginBottom: 16
+              }} 
+            />
+
+            {/* Nearest Gyms & Coaches List */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <h4 style={{ fontSize: 11, fontWeight: 900, margin: "0 0 4px", color: "var(--text-secondary)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                GYMS NEAR YOU
+              </h4>
+              
+              {nearestGyms.slice(0, 4).map(g => (
+                <div key={g.id} style={{ background: "rgba(255,255,255,0.01)", border: "1px solid var(--color-border)", borderRadius: 16, padding: 14 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: "var(--color-text)" }}>{g.name}</div>
+                      <div style={{ fontSize: 10, color: "var(--text-secondary)", marginTop: 2 }}>{g.address}</div>
+                    </div>
+                    <span className="glass-pill" style={{ fontSize: 9, padding: "2px 8px", background: "var(--color-surface-h)", color: "var(--aura-cyan)", fontWeight: 800 }}>
+                      {g.distance.toFixed(1)} km
+                    </span>
+                  </div>
+                  
+                  {g.coaches && g.coaches.length > 0 ? (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 10, borderTop: "1px solid rgba(255,255,255,0.04)", paddingTop: 10 }}>
+                      {g.coaches.map(c => {
+                        const match = coaches.find(curr => curr.coach_id === c.coach_id);
+                        const isHired = match?.status === 'active';
+                        const isPending = match?.status === 'pending';
+
+                        return (
+                          <div key={c.coach_id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                              <div style={{ width: 32, height: 32, borderRadius: 8, background: "var(--color-surface-h)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: "var(--aura-cyan)", overflow: "hidden", border: "1px solid var(--color-border)" }}>
+                                {c.avatar_url ? (
+                                  <img src={resolveBackendUrl(c.avatar_url)} alt={c.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                ) : (
+                                  (c.name || c.email || 'C').charAt(0).toUpperCase()
+                                )}
+                              </div>
+                              <div>
+                                <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text)" }}>{c.name || c.email.split('@')[0]}</div>
+                                <div style={{ fontSize: 9, color: "var(--text-secondary)" }}>{c.experience?.toUpperCase()} • {c.goal?.toUpperCase()}</div>
+                              </div>
+                            </div>
+                            
+                            {isHired ? (
+                              <div style={{ background: "rgba(34, 197, 94, 0.08)", color: "#22c55e", fontSize: 10, fontWeight: 800, padding: "3px 8px", borderRadius: 6 }}>
+                                Active
+                              </div>
+                            ) : isPending ? (
+                              <div style={{ background: "rgba(245, 158, 11, 0.08)", color: "#f59e0b", fontSize: 10, fontWeight: 800, padding: "3px 8px", borderRadius: 6 }}>
+                                Pending
+                              </div>
+                            ) : (
+                              <button 
+                                onClick={() => handleHireCoach(c.coach_id)}
+                                className="btn-primary" 
+                                style={{ padding: "4px 10px", borderRadius: 8, fontSize: 10, fontWeight: 800 }}
+                              >
+                                Hire
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   ) : (
-                    <div style={{ display: "flex", gap: 8, borderTop: "1px solid rgba(255,255,255,0.04)", paddingTop: 12 }}>
-                      <button 
-                        onClick={() => setChattingWith({
-                          id: c.coach_id,
-                          name: c.coach_name,
-                          avatar: c.coach_avatar
-                        })}
-                        style={{ flex: 1, background: "var(--aura-cyan)", color: "var(--color-bg)", border: "none", borderRadius: 10, padding: "10px 0", fontWeight: 800, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}
-                      >
-                        <MessageSquare size={14} /> Chat with Coach
-                      </button>
-                      <div style={{ flex: 1, background: "rgba(34,197,94,0.08)", color: "#22c55e", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, fontSize: 12, fontWeight: 700 }}>
-                        <Check size={14} /> Active Coach
-                      </div>
+                    <div style={{ fontSize: 10, color: "var(--text-secondary)", fontStyle: "italic", marginTop: 8 }}>
+                      No resident coaches registered here.
                     </div>
                   )}
                 </div>
               ))}
             </div>
-          )}
+          </div>
+
+          {/* Directory of Coaches */}
+          <div>
+            <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text)", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
+              <Search size={16} color="var(--text-secondary)" /> Browse & Hire Coaches
+            </h3>
+
+            {browseCoaches.length === 0 ? (
+              <div style={{ textAlign: "center", padding: 24, border: "1.5px dashed rgba(255,255,255,0.05)", borderRadius: 16, color: "var(--text-secondary)" }}>
+                No other coaches available.
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {browseCoaches.map(c => (
+                  <div key={c.coach_id} className="mobile-card" style={{ padding: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <div style={{ 
+                        width: 38, height: 38, borderRadius: 10, background: "var(--color-surface-h)",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: 14, fontWeight: 800, color: "var(--aura-cyan)", overflow: "hidden"
+                      }}>
+                        {c.coach_avatar ? (
+                          <img src={resolveBackendUrl(c.coach_avatar)} alt={c.coach_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        ) : (
+                          (c.coach_name || c.coach_email || 'C').charAt(0).toUpperCase()
+                        )}
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 800, fontSize: 14, color: "var(--color-text)" }}>{c.coach_name || c.coach_email.split('@')[0]}</div>
+                        <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{c.coach_email}</div>
+                      </div>
+                    </div>
+
+                    <button 
+                      onClick={() => handleHireCoach(c.coach_id)}
+                      style={{ 
+                        background: "rgba(var(--aura-cyan-rgb), 0.1)", 
+                        border: "1px solid var(--aura-cyan)", 
+                        color: "var(--aura-cyan)", 
+                        borderRadius: 8, 
+                        padding: "6px 12px", 
+                        fontWeight: 800, 
+                        fontSize: 11, 
+                        cursor: "pointer" 
+                      }}
+                    >
+                      Hire
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
+  );
+}
+
+// Simple internal icon component for missing Lucide icon
+function TrendingUpIcon({ size = 16, color = "currentColor" }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trending-up">
+      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+      <polyline points="16 7 22 7 22 13" />
+    </svg>
   );
 }
