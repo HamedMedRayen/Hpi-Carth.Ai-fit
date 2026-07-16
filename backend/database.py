@@ -369,6 +369,7 @@ CREATE TABLE IF NOT EXISTS coach_relationships (
     coach_id    BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     athlete_id  BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     status      TEXT DEFAULT 'pending',
+    initiated_by TEXT DEFAULT 'coach',
     created_at  TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(coach_id, athlete_id)
 );
@@ -579,6 +580,81 @@ def _do_init_db() -> None:
                 cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT")
                 cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'athlete'")
                 
+                # --- COACH RELATIONSHIPS MIGRATIONS ---
+                cur.execute("ALTER TABLE coach_relationships ADD COLUMN IF NOT EXISTS initiated_by TEXT DEFAULT 'coach'")
+                
+                # --- GYMS & MAP MIGRATIONS ---
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS gyms (
+                        id BIGSERIAL PRIMARY KEY,
+                        name TEXT NOT NULL,
+                        address TEXT,
+                        latitude DOUBLE PRECISION NOT NULL,
+                        longitude DOUBLE PRECISION NOT NULL,
+                        created_at TIMESTAMPTZ DEFAULT NOW()
+                    )
+                """)
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS coach_gyms (
+                        id BIGSERIAL PRIMARY KEY,
+                        coach_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+                        gym_id BIGINT REFERENCES gyms(id) ON DELETE CASCADE,
+                        UNIQUE(coach_id, gym_id)
+                    )
+                """)
+                
+                # Seed Gyms
+                cur.execute("SELECT COUNT(*) as count FROM gyms")
+                if cur.fetchone()["count"] == 0:
+                    gyms_data = [
+                        ("California Gym (Lac 2)", "Les Berges du Lac 2, Tunis", 36.8475, 10.2652),
+                        ("California Gym (Ben Arous)", "Avenue de France, Ben Arous", 36.7533, 10.2223),
+                        ("California Gym (Ennasr)", "Avenue Hédi Nouira, Ennasr 2", 36.8576, 10.1704),
+                        ("Oxygen Gym (Megrine)", "Rue de la Gare, Megrine, Ben Arous", 36.7441, 10.2285),
+                        ("Giga Fit (Lac 1)", "Les Berges du Lac 1, Tunis", 36.8378, 10.2392),
+                        ("Titanium Gym (La Marsa)", "La Marsa, Tunis", 36.8858, 10.3228),
+                        ("Pro Fitness (Sousse)", "Route Touristique, Sousse", 35.8256, 10.6369),
+                        ("Gym Box (El Manar)", "El Manar 2, Tunis", 36.8329, 10.1492),
+                        ("California Gym (Sfax)", "Route de Teniour, Sfax", 34.7406, 10.7603),
+                        ("The Fit Loft (La Soukra)", "Avenue de l'UMA, La Soukra", 36.8647, 10.2238)
+                    ]
+                    for g_name, addr, lat, lng in gyms_data:
+                        cur.execute(
+                            "INSERT INTO gyms (name, address, latitude, longitude) VALUES (%s, %s, %s, %s)",
+                            (g_name, addr, lat, lng)
+                        )
+                    
+                    # Fetch all coaches
+                    cur.execute("SELECT id, email FROM users WHERE role = 'coach'")
+                    coaches = cur.fetchall()
+                    
+                    # Map coaches to gyms
+                    mappings = {
+                        "youssef.mansour@hpi.fit": ["California Gym (Ben Arous)", "Oxygen Gym (Megrine)"],
+                        "fatima.alharbi@hpi.fit": ["California Gym (Ennasr)", "The Fit Loft (La Soukra)"],
+                        "tarek.kabbani@hpi.fit": ["California Gym (Lac 2)", "Giga Fit (Lac 1)"],
+                        "layla.haddad@hpi.fit": ["Titanium Gym (La Marsa)", "Gym Box (El Manar)"],
+                        "karim.nour@hpi.fit": ["California Gym (Ben Arous)", "Oxygen Gym (Megrine)"],
+                        "hamza.zein@hpi.fit": ["Pro Fitness (Sousse)"],
+                        "amira.fakhoury@hpi.fit": ["California Gym (Sfax)"],
+                        "rami.halabi@hpi.fit": ["Giga Fit (Lac 1)", "The Fit Loft (La Soukra)"],
+                        "yasmin.shahin@hpi.fit": ["Titanium Gym (La Marsa)", "Gym Box (El Manar)"],
+                        "omar.farooq@hpi.fit": ["California Gym (Ben Arous)", "California Gym (Lac 2)"]
+                    }
+                    
+                    for row in coaches:
+                        c_id = row["id"]
+                        c_email = row["email"]
+                        if c_email in mappings:
+                            for gym_name in mappings[c_email]:
+                                cur.execute("SELECT id FROM gyms WHERE name = %s", (gym_name,))
+                                g_row = cur.fetchone()
+                                if g_row:
+                                    cur.execute(
+                                        "INSERT INTO coach_gyms (coach_id, gym_id) VALUES (%s, %s) ON CONFLICT DO NOTHING",
+                                        (c_id, g_row["id"])
+                                    )
+
                 # --- USER CHALLENGES MIGRATIONS ---
                 cur.execute("CREATE TABLE IF NOT EXISTS user_challenges (id BIGSERIAL PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE, challenge_id TEXT NOT NULL, status TEXT DEFAULT 'active', progress_days JSONB DEFAULT '[]', started_at TIMESTAMPTZ DEFAULT NOW(), completed_at TIMESTAMPTZ)")
                 cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_user_challenges_active_user ON user_challenges(user_id) WHERE status = 'active'")
@@ -620,10 +696,6 @@ def _do_init_db() -> None:
                     )
                 """)
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_food_items_name ON food_items(name)")
-                try:
-                    cur.execute("ALTER TABLE food_items ADD CONSTRAINT food_items_name_key UNIQUE (name)")
-                except Exception:
-                    conn.rollback() # Ignore if already exists
                 
                 cur.execute("CREATE TABLE IF NOT EXISTS recipes (id BIGSERIAL PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE, name TEXT NOT NULL, description TEXT, servings REAL DEFAULT 1.0, created_at TIMESTAMPTZ DEFAULT NOW())")
                 cur.execute("CREATE TABLE IF NOT EXISTS recipe_ingredients (id BIGSERIAL PRIMARY KEY, recipe_id BIGINT NOT NULL REFERENCES recipes(id) ON DELETE CASCADE, food_id BIGINT REFERENCES food_items(id) ON DELETE CASCADE, amount REAL NOT NULL, unit TEXT DEFAULT 'g')")
@@ -633,7 +705,17 @@ def _do_init_db() -> None:
                 print("[DB] Migration: all exercise, auth, and chat columns added/verified.", flush=True)
             except Exception as e:
                 conn.rollback()
+                import traceback
+                traceback.print_exc()
                 print(f"[DB] Migration warning: {str(e)[:80]}", flush=True)
+
+        # Add food items unique constraint in an isolated transaction block
+        with conn.cursor() as cur:
+            try:
+                cur.execute("ALTER TABLE food_items ADD CONSTRAINT food_items_name_key UNIQUE (name)")
+                conn.commit()
+            except Exception:
+                conn.rollback()
         
         # Create unique index on external_id for upsert support
         with conn.cursor() as cur:
