@@ -262,8 +262,6 @@ export default function MobileCoachingZone() {
     );
   };
 
-  const toast = useToast();
-
   // Invite states
   const [inviteIdentifier, setInviteIdentifier] = useState("");
   const [inviteLoading, setInviteLoading] = useState(false);
