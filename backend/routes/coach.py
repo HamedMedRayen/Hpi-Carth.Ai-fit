@@ -28,6 +28,9 @@ class SuggestWorkoutReq(BaseModel):
     program_note: Optional[str] = None
     workouts: list
 
+class HireReq(BaseModel):
+    coach_id: int
+
 @router.post("/invite")
 def invite_athlete(payload: InviteReq, coach_id: int = Depends(get_current_user_id), db=Depends(get_db)):
     with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
@@ -65,23 +68,77 @@ def invite_athlete(payload: InviteReq, coach_id: int = Depends(get_current_user_
                 raise HTTPException(status_code=400, detail="Athlete is already connected")
             # Re-invite if declined or pending
             cur.execute("""
-                UPDATE coach_relationships SET status = 'pending', created_at = NOW()
+                UPDATE coach_relationships SET status = 'pending', initiated_by = 'coach', created_at = NOW()
                 WHERE id = %s RETURNING id
             """, (existing['id'],))
         else:
             cur.execute("""
-                INSERT INTO coach_relationships (coach_id, athlete_id, status)
-                VALUES (%s, %s, 'pending')
+                INSERT INTO coach_relationships (coach_id, athlete_id, status, initiated_by)
+                VALUES (%s, %s, 'pending', 'coach')
                 RETURNING id
             """, (coach_id, athlete_id))
         
     return {"success": True, "message": f"Invite sent to {athlete['name']}"}
 
+@router.get("/coaches")
+def get_all_coaches(current_user_id: int = Depends(get_current_user_id), db=Depends(get_db)):
+    """List all coaches and the current user's relationship status with them."""
+    with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute("""
+            SELECT u.id as coach_id, u.name as coach_name, u.email as coach_email, 
+                   u.avatar_url as coach_avatar, u.experience, u.goal, u.age, u.sex,
+                   r.id as relationship_id, r.status, r.initiated_by
+            FROM users u
+            LEFT JOIN coach_relationships r 
+              ON r.coach_id = u.id AND r.athlete_id = %s
+            WHERE u.role = 'coach'
+            ORDER BY u.name ASC
+        """, (current_user_id,))
+        return cur.fetchall()
+
+@router.post("/hire")
+def hire_coach(payload: HireReq, athlete_id: int = Depends(get_current_user_id), db=Depends(get_db)):
+    """Send a hire request from an athlete to a coach."""
+    with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        # Verify target is a coach
+        cur.execute("SELECT role, name FROM users WHERE id = %s", (payload.coach_id,))
+        coach = cur.fetchone()
+        if not coach or coach['role'] != 'coach':
+            raise HTTPException(status_code=400, detail="User is not a coach")
+            
+        if payload.coach_id == athlete_id:
+            raise HTTPException(status_code=400, detail="Cannot hire yourself")
+            
+        # Check existing relationship
+        cur.execute("""
+            SELECT id, status FROM coach_relationships 
+            WHERE coach_id = %s AND athlete_id = %s
+        """, (payload.coach_id, athlete_id))
+        existing = cur.fetchone()
+        
+        if existing:
+            if existing['status'] == 'active':
+                raise HTTPException(status_code=400, detail="You are already connected to this coach")
+            # Re-invite/hire
+            cur.execute("""
+                UPDATE coach_relationships 
+                SET status = 'pending', initiated_by = 'athlete', created_at = NOW()
+                WHERE id = %s RETURNING id
+            """, (existing['id'],))
+        else:
+            cur.execute("""
+                INSERT INTO coach_relationships (coach_id, athlete_id, status, initiated_by)
+                VALUES (%s, %s, 'pending', 'athlete')
+                RETURNING id
+            """, (payload.coach_id, athlete_id))
+            
+    return {"success": True, "message": f"Hire request sent to {coach['name']}"}
+
 @router.get("/athletes")
 def get_my_athletes(coach_id: int = Depends(get_current_user_id), db=Depends(get_db)):
     with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute("""
-            SELECT r.id as relationship_id, r.status, u.id as athlete_id, u.name, u.email,
+            SELECT r.id as relationship_id, r.status, r.initiated_by, u.id as athlete_id, u.name, u.email,
                    u.bodyweight, u.experience, u.goal, u.avatar_url,
                    (SELECT COUNT(*) FROM workouts WHERE user_id = u.id) as total_sessions,
                    (SELECT MAX(session_date) FROM workouts WHERE user_id = u.id) as last_session,
@@ -187,6 +244,60 @@ def get_athlete_stats(athlete_id: int, coach_id: int = Depends(get_current_user_
             ORDER BY logged_at DESC LIMIT 1
         """, (athlete_id,))
         latest_fatigue = cur.fetchone()
+
+        # Get sleep logs (last 7 logs)
+        cur.execute("""
+            SELECT date::text as date, hours, quality, notes
+            FROM sleep_logs
+            WHERE user_id = %s
+            ORDER BY date DESC
+            LIMIT 7
+        """, (athlete_id,))
+        recent_sleep = cur.fetchall()
+
+        # Get weight logs (last 10 logs)
+        cur.execute("""
+            SELECT weight_kg, logged_at::text as logged_at
+            FROM bodyweight_logs
+            WHERE user_id = %s
+            ORDER BY logged_at DESC
+            LIMIT 10
+        """, (athlete_id,))
+        recent_weights = cur.fetchall()
+
+        # Get nutrition logs (last 7 entries)
+        cur.execute("""
+            SELECT date::text as date, 
+                   COALESCE(SUM(calories), 0) as calories,
+                   COALESCE(SUM(protein_g), 0) as protein,
+                   COALESCE(SUM(carbs_g), 0) as carbs,
+                   COALESCE(SUM(fat_g), 0) as fat
+            FROM nutrition_logs
+            WHERE user_id = %s AND date >= CURRENT_DATE - INTERVAL '7 days'
+            GROUP BY date
+            ORDER BY date DESC
+        """, (athlete_id,))
+        recent_nutrition = cur.fetchall()
+
+        # Get target nutrition
+        cur.execute("""
+            SELECT final_calories, final_protein, final_carbs, final_fat, goal, pace, diet_style
+            FROM nutrition_targets
+            WHERE user_id = %s
+            ORDER BY created_at DESC
+            LIMIT 1
+        """, (athlete_id,))
+        nutrition_target = cur.fetchone()
+
+        # Get personal records
+        cur.execute("""
+            SELECT pr.weight_kg, pr.reps, pr.one_rm_est, pr.achieved_date::text as achieved_date, e.name as exercise_name
+            FROM personal_records pr
+            JOIN exercises e ON pr.exercise_id = e.id
+            WHERE pr.user_id = %s
+            ORDER BY pr.one_rm_est DESC
+        """, (athlete_id,))
+        personal_records = cur.fetchall()
         
         return {
             "profile": profile,
@@ -197,6 +308,11 @@ def get_athlete_stats(athlete_id: int, coach_id: int = Depends(get_current_user_
             "weekly_sessions": weekly_sessions,
             "active_injuries": active_injuries,
             "latest_fatigue": latest_fatigue,
+            "recent_sleep": recent_sleep,
+            "recent_weights": recent_weights,
+            "recent_nutrition": recent_nutrition,
+            "nutrition_target": nutrition_target,
+            "personal_records": personal_records,
         }
 
 @router.get("/my-coach")
@@ -204,7 +320,7 @@ def get_my_coach(athlete_id: int = Depends(get_current_user_id), db=Depends(get_
     with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         # Get pending and active
         cur.execute("""
-            SELECT r.id as relationship_id, r.status, u.id as coach_id, u.name as coach_name, 
+            SELECT r.id as relationship_id, r.status, r.initiated_by, u.id as coach_id, u.name as coach_name, 
                    u.email as coach_email, u.avatar_url as coach_avatar
             FROM coach_relationships r
             JOIN users u ON r.coach_id = u.id
@@ -213,14 +329,14 @@ def get_my_coach(athlete_id: int = Depends(get_current_user_id), db=Depends(get_
         return cur.fetchall()
 
 @router.post("/respond")
-def respond_invite(payload: RespondReq, athlete_id: int = Depends(get_current_user_id), db=Depends(get_db)):
+def respond_invite(payload: RespondReq, user_id: int = Depends(get_current_user_id), db=Depends(get_db)):
     with db.cursor() as cur:
         status = 'active' if payload.action == 'accept' else 'declined'
         cur.execute("""
             UPDATE coach_relationships 
             SET status = %s 
-            WHERE id = %s AND athlete_id = %s
-        """, (status, payload.relationship_id, athlete_id))
+            WHERE id = %s AND (athlete_id = %s OR coach_id = %s)
+        """, (status, payload.relationship_id, user_id, user_id))
     return {"success": True, "status": status}
 
 @router.post("/remove")
@@ -287,3 +403,57 @@ def suggest_workout(athlete_id: int, payload: SuggestWorkoutReq, coach_id: int =
         ))
         
     return {"success": True}
+
+
+# ── Gyms & Coach Locations Endpoints ─────────────────────────────────
+
+class GymCoachRead(BaseModel):
+    coach_id: int
+    name: str
+    email: str
+    avatar_url: Optional[str] = None
+    experience: Optional[str] = None
+    goal: Optional[str] = None
+    age: Optional[int] = None
+    sex: Optional[str] = None
+
+class GymRead(BaseModel):
+    id: int
+    name: str
+    address: Optional[str] = None
+    latitude: float
+    longitude: float
+    coaches: List[GymCoachRead] = []
+
+class SelectGymsReq(BaseModel):
+    gym_ids: List[int]
+
+@router.get("/gyms", response_model=List[GymRead])
+def get_gyms(db=Depends(get_db)):
+    with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        # Fetch all gyms
+        cur.execute("SELECT id, name, address, latitude, longitude FROM gyms ORDER BY name ASC")
+        gyms = cur.fetchall()
+        
+        # For each gym, get associated coaches
+        for gym in gyms:
+            cur.execute("""
+                SELECT u.id as coach_id, u.name, u.email, u.avatar_url, u.experience, u.goal, u.age, u.sex
+                FROM coach_gyms cg
+                JOIN users u ON cg.coach_id = u.id
+                WHERE cg.gym_id = %s
+            """, (gym["id"],))
+            gym["coaches"] = cur.fetchall()
+        return gyms
+
+@router.post("/gyms/select")
+def select_gyms(payload: SelectGymsReq, coach_id: int = Depends(get_current_user_id), db=Depends(get_db)):
+    with db.cursor() as cur:
+        # Delete old relations
+        cur.execute("DELETE FROM coach_gyms WHERE coach_id = %s", (coach_id,))
+        # Insert new relations
+        for gym_id in payload.gym_ids:
+            cur.execute("INSERT INTO coach_gyms (coach_id, gym_id) VALUES (%s, %s) ON CONFLICT DO NOTHING", (coach_id, gym_id))
+    db.commit()
+    return {"success": True}
+
