@@ -191,6 +191,12 @@ export const api = {
   getMyCoach: () => req("/coach/my-coach"),
   respondInvite: (relationship_id, action) => req("/coach/respond", { method: "POST", body: JSON.stringify({ relationship_id, action }) }),
   removeRelationship: (relationship_id) => req("/coach/remove", { method: "POST", body: JSON.stringify({ relationship_id }) }),
+  getAllCoaches: () => req("/coach/coaches"),
+  hireCoach: (coachId) => req("/coach/hire", { method: "POST", body: JSON.stringify({ coach_id: coachId }) }),
+  getSessionNotes: (sessionId) => req(`/coach/notes/session/${sessionId}`),
+  addSessionNote: (athleteId, sessionId, note) => req("/coach/notes", { method: "POST", body: JSON.stringify({ athlete_id: athleteId, session_id: sessionId, note }) }),
+  getGyms: () => req("/coach/gyms"),
+  selectCoachGyms: (gymIds) => req("/coach/gyms/select", { method: "POST", body: JSON.stringify({ gym_ids: gymIds }) }),
 
   // Notifications
   getNotifications: () => req("/notifications"),
