@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../components/layout/Header";
 import GlassCard from "../components/layout/GlassCard";
 import WorkoutCard from "../components/cards/WorkoutCard";
@@ -95,7 +95,16 @@ function WorkoutDetail({ id, onBack, onDeleted }) {
   const { workout, loading } = useWorkoutDetail(id);
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [coachNotes, setCoachNotes] = useState([]);
   const toast = useToast();
+
+  useEffect(() => {
+    if (id) {
+      api.getSessionNotes(id)
+        .then(res => setCoachNotes(res || []))
+        .catch(e => console.error(e));
+    }
+  }, [id]);
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -162,6 +171,23 @@ function WorkoutDetail({ id, onBack, onDeleted }) {
           <div className="glass p-5">
             <div className="section-label" style={{ marginBottom: 6 }}>Notes</div>
             <p style={{ fontSize: 13, color: "var(--color-text-2)", margin: 0 }}>{workout.notes}</p>
+          </div>
+        )}
+
+        {coachNotes && coachNotes.length > 0 && (
+          <div className="glass p-5">
+            <div className="section-label" style={{ marginBottom: 6, color: "var(--aura-accent)" }}>Coach Feedback</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {coachNotes.map(n => (
+                <div key={n.id} style={{ background: "rgba(255,255,255,0.02)", borderRadius: 10, padding: 10, border: "1px solid rgba(255,255,255,0.04)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: "var(--color-text-3)", fontWeight: 700, marginBottom: 4 }}>
+                    <span>{n.coach_name || "Coach"}</span>
+                    <span>{new Date(n.created_at).toLocaleDateString()}</span>
+                  </div>
+                  <p style={{ fontSize: 12, color: "var(--color-text-2)", margin: 0, lineHeight: 1.4 }}>{n.note}</p>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

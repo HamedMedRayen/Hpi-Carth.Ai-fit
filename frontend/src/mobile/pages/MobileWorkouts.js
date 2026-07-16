@@ -57,6 +57,7 @@ export default function MobileWorkouts() {
   const [detailedWorkout, setDetailedWorkout] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [deletingWorkout, setDeletingWorkout] = useState(false);
+  const [coachNotes, setCoachNotes] = useState([]);
 
   // Timer Ref
   const workoutTimerRef = useRef(null);
@@ -336,12 +337,17 @@ export default function MobileWorkouts() {
     setExpandedWorkoutId(workoutId);
     setLoadingDetail(true);
     try {
-      const res = await api.getWorkout(workoutId);
+      const [res, notes] = await Promise.all([
+        api.getWorkout(workoutId),
+        api.getSessionNotes(workoutId).catch(() => [])
+      ]);
       setDetailedWorkout(res || null);
+      setCoachNotes(notes || []);
     } catch (e) {
       console.error(e);
       toast.error("Failed to load workout details");
       setDetailedWorkout(null);
+      setCoachNotes([]);
     } finally {
       setLoadingDetail(false);
     }
@@ -824,6 +830,24 @@ export default function MobileWorkouts() {
                 <div className="mobile-card" style={{ padding: 14 }}>
                   <h4 style={{ fontSize: 11, fontWeight: 800, color: "var(--text-secondary)", margin: "0 0 6px", textTransform: "uppercase" }}>Notes</h4>
                   <p style={{ fontSize: 12, color: "var(--color-text)", margin: 0, lineHeight: 1.4 }}>{detailedWorkout.notes}</p>
+                </div>
+              )}
+
+              {/* Coach Feedback */}
+              {coachNotes && coachNotes.length > 0 && (
+                <div className="mobile-card" style={{ padding: 14 }}>
+                  <h4 style={{ fontSize: 11, fontWeight: 800, color: "var(--aura-cyan)", margin: "0 0 6px", textTransform: "uppercase" }}>Coach Feedback</h4>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {coachNotes.map(n => (
+                      <div key={n.id} style={{ background: "rgba(255,255,255,0.03)", borderRadius: 10, padding: 10, border: "1px solid rgba(255,255,255,0.04)" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: 9, color: "var(--text-secondary)", fontWeight: 700, marginBottom: 4 }}>
+                          <span>{n.coach_name || "Coach"}</span>
+                          <span>{new Date(n.created_at).toLocaleDateString()}</span>
+                        </div>
+                        <p style={{ fontSize: 12, color: "var(--color-text)", margin: 0, lineHeight: 1.4 }}>{n.note}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 

@@ -104,7 +104,15 @@ def get_workout(workout_id: int, current_user_id: int = Depends(get_current_user
     if not workout:
         raise HTTPException(status_code=404, detail=f"Workout {workout_id} not found.")
     if workout["user_id"] != current_user_id:
-        raise HTTPException(status_code=403, detail="Forbidden")
+        # Allow access if requesting user is the athlete's active coach
+        db = repo.db
+        with db.cursor() as cur:
+            cur.execute("""
+                SELECT 1 FROM coach_relationships 
+                WHERE coach_id = %s AND athlete_id = %s AND status = 'active'
+            """, (current_user_id, workout["user_id"]))
+            if not cur.fetchone():
+                raise HTTPException(status_code=403, detail="Forbidden")
     return workout
 
 
