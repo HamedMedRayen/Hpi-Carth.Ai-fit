@@ -12,3 +12,7 @@ numpy
 groq
 slowapi==0.1.9
 google-auth==2.37.0
+transformers
+torch
+librosa
+soundfile
