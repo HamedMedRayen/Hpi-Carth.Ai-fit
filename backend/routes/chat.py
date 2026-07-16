@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import List, Literal
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, File, UploadFile
 from pydantic import BaseModel
 from database import get_db
 from routes.auth import get_current_user_id
@@ -137,3 +137,47 @@ async def chat(
     except Exception as e:
         log.error(f"Groq API error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"AI service error: {str(e)}")
+
+# Lazy-loaded pipeline
+audio_pipeline = None
+
+def get_audio_pipeline():
+    global audio_pipeline
+    if audio_pipeline is None:
+        import torch
+        from transformers import pipeline
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        log.info(f"Loading Whisper model on {device}...")
+        audio_pipeline = pipeline("automatic-speech-recognition", model="TuniSpeech-AI/whisper-tunisian-dialect", device=device)
+    return audio_pipeline
+
+# ── POST /audio ────────────────────────────────────────────────
+@router.post("/audio")
+async def transcribe_audio(
+    file: UploadFile = File(...),
+    user_id: int = Depends(get_current_user_id)
+):
+    import tempfile
+    import os
+    
+    try:
+        # Save uploaded file to a temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+            tmp.write(await file.read())
+            tmp_path = tmp.name
+
+        pipe = get_audio_pipeline()
+        
+        # Transcribe
+        result = pipe(tmp_path)
+        
+        # Clean up
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+        
+        text = result.get("text", "")
+        return {"text": text.strip()}
+
+    except Exception as e:
+        log.error(f"Error processing audio locally: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal error during audio processing.")
