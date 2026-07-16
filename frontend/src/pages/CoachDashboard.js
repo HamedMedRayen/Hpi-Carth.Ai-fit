@@ -455,7 +455,7 @@ export default function CoachDashboard() {
             <button 
               onClick={() => setShowSuggestModal(true)}
               className="btn-primary" 
-              style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700 }}
+              style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700, width: "auto" }}
             >
               <Dumbbell size={16} /> Suggest Workout
             </button>
@@ -859,7 +859,8 @@ export default function CoachDashboard() {
                                   borderRadius: 8, 
                                   fontSize: 12, 
                                   fontWeight: 700, 
-                                  height: 36 
+                                  height: 36,
+                                  width: "auto"
                                 }}
                               >
                                 <Check size={14} /> Accept Request
@@ -981,7 +982,7 @@ export default function CoachDashboard() {
                         c.initiated_by === 'coach' ? (
                           <div style={{ display: "flex", gap: 12 }}>
                             <button onClick={() => handleResponse(c.relationship_id, 'accept')} className="btn-primary" style={{
-                              display: "flex", alignItems: "center", gap: 6, padding: "10px 20px", borderRadius: 12, fontWeight: 700, fontSize: 13, height: 36
+                              display: "flex", alignItems: "center", gap: 6, padding: "10px 20px", borderRadius: 12, fontWeight: 700, fontSize: 13, height: 36, width: "auto"
                             }}>
                               <Check size={16} /> Accept Invite
                             </button>
@@ -1269,7 +1270,7 @@ export default function CoachDashboard() {
                                         {c.name || c.email.split('@')[0]}
                                       </div>
                                       <div style={{ fontSize: 10, color: "var(--color-text-3)", marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                                        {EXP_LABELS[c.experience] || c.experience} • {GOAL_LABELS[c.goal] || c.goal}
+                                        {(EXP_LABELS[c.experience?.toLowerCase()] || c.experience || 'TRAINER').toUpperCase()} • {(GOAL_LABELS[c.goal?.toLowerCase()] || c.goal || 'FITNESS').toUpperCase()}
                                       </div>
                                     </div>
                                   </div>
@@ -1311,7 +1312,7 @@ export default function CoachDashboard() {
                                         handleHireCoach(c.coach_id);
                                       }}
                                       className="btn-primary" 
-                                      style={{ padding: "6px 14px", borderRadius: 10, fontSize: 11, fontWeight: 800, flexShrink: 0 }}
+                                      style={{ padding: "6px 14px", borderRadius: 10, fontSize: 11, fontWeight: 800, flexShrink: 0, width: "auto" }}
                                     >
                                       Hire
                                     </button>
@@ -1377,7 +1378,7 @@ export default function CoachDashboard() {
                           handleHireCoach(c.coach_id);
                         }}
                         className="btn-primary" 
-                        style={{ padding: "6px 16px", borderRadius: 10, fontSize: 12, fontWeight: 700 }}
+                        style={{ padding: "6px 16px", borderRadius: 10, fontSize: 12, fontWeight: 700, width: "auto" }}
                       >
                         Hire
                       </button>
@@ -1483,13 +1484,13 @@ export default function CoachDashboard() {
               <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 12 }}>
                 <span style={{ fontSize: 10, color: "var(--color-text-3)", fontWeight: 700, textTransform: "uppercase" }}>Specialty</span>
                 <div style={{ fontSize: 13, fontWeight: 800, color: "var(--aura-cyan)", marginTop: 4 }}>
-                  {GOAL_LABELS[selectedCoachForInfo.goal] || selectedCoachForInfo.goal || "General Fitness"}
+                  {(GOAL_LABELS[selectedCoachForInfo.goal?.toLowerCase()] || selectedCoachForInfo.goal || "General Fitness").toUpperCase()}
                 </div>
               </div>
               <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 12 }}>
                 <span style={{ fontSize: 10, color: "var(--color-text-3)", fontWeight: 700, textTransform: "uppercase" }}>Level</span>
                 <div style={{ fontSize: 13, fontWeight: 800, color: "var(--aura-accent)", marginTop: 4 }}>
-                  {EXP_LABELS[selectedCoachForInfo.experience] || selectedCoachForInfo.experience || "Certified Trainer"}
+                  {(EXP_LABELS[selectedCoachForInfo.experience?.toLowerCase()] || selectedCoachForInfo.experience || "Certified Trainer").toUpperCase()}
                 </div>
               </div>
               <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 12 }}>
@@ -1549,7 +1550,7 @@ export default function CoachDashboard() {
                         setSelectedCoachForInfo(null);
                       }}
                       className="btn-primary" 
-                      style={{ padding: "10px 24px", borderRadius: 12, fontSize: 13, fontWeight: 800 }}
+                      style={{ padding: "10px 24px", borderRadius: 12, fontSize: 13, fontWeight: 800, width: "auto" }}
                     >
                       Hire Coach
                     </button>

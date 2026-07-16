@@ -9,6 +9,26 @@ import { resolveBackendUrl } from "../../utils/config";
 import { useToast } from "../../components/Toast";
 import { fmt } from "../../utils/formatters";
 
+const GOAL_LABELS = {
+  muscle_gain: "Muscle Gain & Hypertrophy",
+  fat_loss: "Fat Loss & Conditioning",
+  powerlifting: "Powerlifting & Strength",
+  general_fitness: "General Fitness & Health",
+  bodybuilding: "Classic Bodybuilding",
+  athletics: "Athletics & Performance",
+  cardio_endurance: "Cardio & Endurance",
+  strength_training: "Strength Training",
+  flexibility: "Flexibility & Mobility",
+  olympic_weightlifting: "Olympic Weightlifting"
+};
+
+const EXP_LABELS = {
+  beginner: "Certified Instructor",
+  intermediate: "Advanced Trainer",
+  advanced: "Elite Coach",
+  elite: "Master Coach & Expert"
+};
+
 export default function MobileCoachingZone() {
   const [role, setRole] = useState("athlete");
   const [activeTab, setActiveTab] = useState("my-coach"); // 'roster' | 'my-coach'
@@ -1678,34 +1698,36 @@ export default function MobileCoachingZone() {
                         const isPending = match?.status === 'pending';
 
                         return (
-                          <div key={c.coach_id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                              <div style={{ width: 32, height: 32, borderRadius: 8, background: "var(--color-surface-h)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: "var(--aura-cyan)", overflow: "hidden", border: "1px solid var(--color-border)" }}>
+                          <div key={c.coach_id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
+                              <div style={{ width: 32, height: 32, borderRadius: 8, background: "var(--color-surface-h)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 800, color: "var(--aura-cyan)", overflow: "hidden", border: "1px solid var(--color-border)", flexShrink: 0 }}>
                                 {c.avatar_url ? (
                                   <img src={resolveBackendUrl(c.avatar_url)} alt={c.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                                 ) : (
                                   (c.name || c.email || 'C').charAt(0).toUpperCase()
                                 )}
                               </div>
-                              <div>
-                                <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text)" }}>{c.name || c.email.split('@')[0]}</div>
-                                <div style={{ fontSize: 9, color: "var(--text-secondary)" }}>{c.experience?.toUpperCase()} • {c.goal?.toUpperCase()}</div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{c.name || c.email.split('@')[0]}</div>
+                                <div style={{ fontSize: 9, color: "var(--text-secondary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                  {(EXP_LABELS[c.experience?.toLowerCase()] || c.experience || 'TRAINER').toUpperCase()} • {(GOAL_LABELS[c.goal?.toLowerCase()] || c.goal || 'FITNESS').toUpperCase()}
+                                </div>
                               </div>
                             </div>
                             
                             {isHired ? (
-                              <div style={{ background: "rgba(34, 197, 94, 0.08)", color: "#22c55e", fontSize: 10, fontWeight: 800, padding: "3px 8px", borderRadius: 6 }}>
+                              <div style={{ background: "rgba(34, 197, 94, 0.08)", color: "#22c55e", fontSize: 10, fontWeight: 800, padding: "3px 8px", borderRadius: 6, flexShrink: 0 }}>
                                 Active
                               </div>
                             ) : isPending ? (
-                              <div style={{ background: "rgba(245, 158, 11, 0.08)", color: "#f59e0b", fontSize: 10, fontWeight: 800, padding: "3px 8px", borderRadius: 6 }}>
+                              <div style={{ background: "rgba(245, 158, 11, 0.08)", color: "#f59e0b", fontSize: 10, fontWeight: 800, padding: "3px 8px", borderRadius: 6, flexShrink: 0 }}>
                                 Pending
                               </div>
                             ) : (
                               <button 
                                 onClick={() => handleHireCoach(c.coach_id)}
                                 className="btn-primary" 
-                                style={{ padding: "4px 10px", borderRadius: 8, fontSize: 10, fontWeight: 800 }}
+                                style={{ padding: "4px 10px", borderRadius: 8, fontSize: 10, fontWeight: 800, flexShrink: 0, width: "auto" }}
                               >
                                 Hire
                               </button>
