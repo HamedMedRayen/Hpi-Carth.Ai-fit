@@ -720,12 +720,13 @@ export default function CoachDashboard() {
             My Coach
           </button>
         </div>
-
         {loading ? (
           <div style={{ textAlign: "center", color: "var(--color-text-3)", padding: 40 }}>Loading...</div>
-        ) : activeTab === "roster" ? (
-          selectedAthlete ? renderAthleteDetail() : (
-            <>
+        ) : (
+          <>
+            <div style={{ display: activeTab === "roster" ? "block" : "none" }}>
+              {selectedAthlete ? renderAthleteDetail() : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
               {/* Roster Top Options Grid */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 20, alignItems: "start" }}>
                 {/* Invite Section */}
@@ -931,14 +932,12 @@ export default function CoachDashboard() {
                           </div>
                         )}
                       </div>
-                    ))}
                   </div>
                 )}
               </div>
-            </>
-          )
-        ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            </div>
+
+            <div style={{ display: activeTab === "my-coach" ? "flex" : "none", flexDirection: "column", gap: 24 }}>
             {/* Active Coaches */}
             <div>
               <h2 style={{ fontSize: 14, fontWeight: 800, margin: "0 0 16px", display: "flex", alignItems: "center", gap: 8, color: "var(--color-text)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
@@ -1385,9 +1384,8 @@ export default function CoachDashboard() {
                     </div>
                   ))}
                 </div>
-              )}
             </div>
-          </div>
+          </>
         )}
 
       </div>
