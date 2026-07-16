@@ -11,7 +11,7 @@ export function useAuthProvider() {
 
   useEffect(() => {
     if (token.get()) {
-      api.me().then(res => {
+      authApi.me().then(res => {
         const userData = { 
           user_id: res.user_id, 
           nickname: res.nickname, 
