@@ -209,12 +209,10 @@ export default function CoachDashboard() {
       attribution: '&copy; OpenStreetMap'
     }).addTo(map);
 
-    // Force map invalidateSize after rendering
-    const timer = setTimeout(() => {
-      if (mapRef.current) {
-        mapRef.current.invalidateSize();
-      }
-    }, 250);
+    // Force map invalidateSize after rendering multiple times during layout transitions
+    const timer1 = setTimeout(() => { if (mapRef.current) mapRef.current.invalidateSize(); }, 100);
+    const timer2 = setTimeout(() => { if (mapRef.current) mapRef.current.invalidateSize(); }, 400);
+    const timer3 = setTimeout(() => { if (mapRef.current) mapRef.current.invalidateSize(); }, 800);
 
     const userIcon = L.divIcon({
       className: 'user-marker-icon',
@@ -262,7 +260,9 @@ export default function CoachDashboard() {
     });
 
     return () => {
-      clearTimeout(timer);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
       if (mapRef.current) {
         try {
           mapRef.current.remove();
@@ -1052,7 +1052,7 @@ export default function CoachDashboard() {
                 </div>
               </div>
               
-              <div style={{ display: "grid", gridTemplateColumns: "1.9fr 1.1fr", gap: 24 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1.7fr 1.3fr", gap: 24 }}>
                 {/* Map Area */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {/* Region & Specialty Selectors */}
@@ -1122,6 +1122,7 @@ export default function CoachDashboard() {
                     id="leaflet-coaches-map" 
                     style={{ 
                       height: 560, 
+                      width: "100%",
                       borderRadius: 20, 
                       border: "1px solid var(--border-card)",
                       boxShadow: "inset 0 0 20px rgba(0,0,0,0.8)",
@@ -1235,12 +1236,13 @@ export default function CoachDashboard() {
                                     cursor: "pointer",
                                     padding: "6px 8px",
                                     borderRadius: "12px",
-                                    transition: "background 0.2s"
+                                    transition: "background 0.2s",
+                                    gap: 12
                                   }}
                                   onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}
                                   onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                                 >
-                                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
                                     <div style={{ 
                                       width: 36, 
                                       height: 36, 
@@ -1253,7 +1255,8 @@ export default function CoachDashboard() {
                                       fontWeight: 900, 
                                       color: "var(--aura-cyan)", 
                                       overflow: "hidden",
-                                      border: "1px solid var(--border-card)"
+                                      border: "1px solid var(--border-card)",
+                                      flexShrink: 0
                                     }}>
                                       {c.avatar_url ? (
                                         <img src={c.avatar_url} alt={c.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -1261,9 +1264,13 @@ export default function CoachDashboard() {
                                         (c.name || c.email || 'C').charAt(0).toUpperCase()
                                       )}
                                     </div>
-                                    <div>
-                                      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text)" }}>{c.name || c.email.split('@')[0]}</div>
-                                      <div style={{ fontSize: 10, color: "var(--color-text-3)", marginTop: 1 }}>{c.experience?.toUpperCase()} • {c.goal?.toUpperCase()}</div>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                        {c.name || c.email.split('@')[0]}
+                                      </div>
+                                      <div style={{ fontSize: 10, color: "var(--color-text-3)", marginTop: 1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                        {EXP_LABELS[c.experience] || c.experience} • {GOAL_LABELS[c.goal] || c.goal}
+                                      </div>
                                     </div>
                                   </div>
                                   
@@ -1277,7 +1284,8 @@ export default function CoachDashboard() {
                                       borderRadius: 8,
                                       display: "flex",
                                       alignItems: "center",
-                                      gap: 4
+                                      gap: 4,
+                                      flexShrink: 0
                                     }}>
                                       <Check size={12} /> Active
                                     </div>
@@ -1291,7 +1299,8 @@ export default function CoachDashboard() {
                                       borderRadius: 8,
                                       display: "flex",
                                       alignItems: "center",
-                                      gap: 4
+                                      gap: 4,
+                                      flexShrink: 0
                                     }}>
                                       <AlertCircle size={12} /> Pending
                                     </div>
@@ -1302,7 +1311,7 @@ export default function CoachDashboard() {
                                         handleHireCoach(c.coach_id);
                                       }}
                                       className="btn-primary" 
-                                      style={{ padding: "6px 14px", borderRadius: 10, fontSize: 11, fontWeight: 800 }}
+                                      style={{ padding: "6px 14px", borderRadius: 10, fontSize: 11, fontWeight: 800, flexShrink: 0 }}
                                     >
                                       Hire
                                     </button>
