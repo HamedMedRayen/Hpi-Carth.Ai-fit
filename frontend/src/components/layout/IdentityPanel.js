@@ -7,7 +7,7 @@ import StatRing from "../StatRing";
 import {
   Moon, Sun, Leaf, Flame, Contrast, LogOut, Zap,
   ChevronRight, Trophy, Settings,
-  LayoutDashboard, Sword, Dna, MessageCircle
+  LayoutDashboard, Sword, Dna, MessageCircle, Users
 } from "lucide-react";
 import OrbThemeSwitcher from "../OrbThemeSwitcher";
 
@@ -27,6 +27,7 @@ const RoseIcon = ({ size = 16 }) => (
 /* ── 3-Pillar Navigation ─────────────────────────────── */
 const NAV_SECTIONS = [
   { id: 'command', label: 'Command', path: '/', end: true, Icon: LayoutDashboard },
+  { id: 'coaching', label: 'Coach Zone', path: '/coach', end: false, Icon: Users },
   { id: 'performance', label: 'Performance', path: '/workouts', end: false, Icon: Sword },
   { id: 'biometrics', label: 'Biometrics', path: '/measurements', end: false, Icon: Dna },
 ];
@@ -36,7 +37,9 @@ const SUB_NAV = {
   command: [
     { label: 'Dashboard', path: '/' },
     { label: 'AI Recommend', path: '/recommend' },
-    { label: 'Coach Zone', path: '/coach' },
+  ],
+  coaching: [
+    { label: 'Coach Zone', path: '/coach' }
   ],
   performance: [
     { label: 'Sessions', path: '/workouts' },
@@ -103,6 +106,7 @@ export default function IdentityPanel() {
   const activeSection = useMemo(() => {
     const p = location.pathname;
     if (p === '/' || p.startsWith('/recommend')) return 'command';
+    if (p.startsWith('/coach')) return 'coaching';
     if (['/workouts', '/log', '/exercises', '/challenges'].some(s => p.startsWith(s))) return 'performance';
     if (['/measurements', '/photos', '/fatigue-check', '/nutrition', '/sleep', '/injuries'].some(s => p.startsWith(s))) return 'biometrics';
     return 'command';
@@ -230,7 +234,7 @@ export default function IdentityPanel() {
                   <div>
                     <div style={{ fontSize: 14, fontWeight: isActive ? 700 : 500 }}>{label}</div>
                     <div style={{ fontSize: 10, opacity: 0.5, fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                      {id === 'command' ? 'Dashboard · AI' : id === 'performance' ? 'Train · Log · Atlas' : 'Body · Health'}
+                      {id === 'command' ? 'Dashboard · AI' : id === 'coaching' ? 'Coaching · Gyms' : id === 'performance' ? 'Train · Log · Atlas' : 'Body · Health'}
                     </div>
                   </div>
                 </div>

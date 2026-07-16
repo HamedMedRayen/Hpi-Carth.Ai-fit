@@ -36,7 +36,8 @@ export default function SubNav() {
 
   const activeSection = useMemo(() => {
     const p = location.pathname;
-    if (p === '/' || ['/coach', '/recommend'].some(s => p.startsWith(s))) return 'command';
+    if (p === '/' || p.startsWith('/recommend')) return 'command';
+    if (p.startsWith('/coach')) return 'coaching';
     if (['/workouts', '/log', '/exercises', '/challenges'].some(s => p.startsWith(s))) return 'performance';
     if (['/measurements', '/photos', '/fatigue-check', '/nutrition', '/sleep', '/injuries'].some(s => p.startsWith(s))) return 'biometrics';
     return 'command';
@@ -47,6 +48,7 @@ export default function SubNav() {
 
   const sectionColors = {
     command:     'var(--aura-accent)',
+    coaching:    'var(--aura-cyan)',
     performance: 'var(--aura-accent)',
     biometrics:  'var(--aura-accent)',
   };
