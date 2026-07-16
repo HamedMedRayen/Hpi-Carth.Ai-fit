@@ -9,6 +9,24 @@ export function useAuthProvider() {
   const [user, setUser] = useState(token.user());
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (token.get()) {
+      api.me().then(res => {
+        const userData = { 
+          user_id: res.user_id, 
+          nickname: res.nickname, 
+          role: res.role, 
+          avatar_url: res.avatar_url,
+          profile: res.profile 
+        };
+        token.setUser(userData);
+        setUser(userData);
+      }).catch(err => {
+        console.error("Failed to load user profile on boot:", err);
+      });
+    }
+  }, []);
+
   const login = useCallback(async (nickname, password, navigate) => {
     try {
       const res = await authApi.login(nickname, password);

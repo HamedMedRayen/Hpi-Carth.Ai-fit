@@ -1,7 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
 from typing import List, Optional
 from pydantic import BaseModel
 import psycopg2.extras
+import os
+import uuid
+import shutil
+import json
 
 from database import get_db
 from routes.auth import get_current_user_id
@@ -91,7 +95,7 @@ def get_all_coaches(current_user_id: int = Depends(get_current_user_id), db=Depe
             FROM users u
             LEFT JOIN coach_relationships r 
               ON r.coach_id = u.id AND r.athlete_id = %s
-            WHERE u.role = 'coach'
+            WHERE u.role = 'coach' AND u.approved = TRUE
             ORDER BY u.name ASC
         """, (current_user_id,))
         return cur.fetchall()
@@ -441,7 +445,7 @@ def get_gyms(db=Depends(get_db)):
                 SELECT u.id as coach_id, u.name, u.email, u.avatar_url, u.experience, u.goal, u.age, u.sex
                 FROM coach_gyms cg
                 JOIN users u ON cg.coach_id = u.id
-                WHERE cg.gym_id = %s
+                WHERE cg.gym_id = %s AND u.approved = TRUE
             """, (gym["id"],))
             gym["coaches"] = cur.fetchall()
         return gyms
@@ -456,4 +460,58 @@ def select_gyms(payload: SelectGymsReq, coach_id: int = Depends(get_current_user
             cur.execute("INSERT INTO coach_gyms (coach_id, gym_id) VALUES (%s, %s) ON CONFLICT DO NOTHING", (coach_id, gym_id))
     db.commit()
     return {"success": True}
+
+
+@router.post("/onboarding")
+async def coach_onboarding(
+    specialty: str = Form(...),
+    experience: str = Form(...),
+    age: int = Form(...),
+    sex: str = Form(...),
+    bio: str = Form(None),
+    cv_file: UploadFile = File(...),
+    current_user_id: int = Depends(get_current_user_id),
+    db=Depends(get_db)
+):
+    """Submit CV and profile info for coach onboarding. Status set to approved = FALSE."""
+    # 1. Validate file extension/type (accept PDF, DOCX, Images)
+    ext = os.path.splitext(cv_file.filename)[1].lower()
+    if ext not in [".pdf", ".docx", ".doc", ".png", ".jpg", ".jpeg"]:
+        raise HTTPException(status_code=400, detail="CV must be a PDF, Word Document, or Image")
+
+    # 2. Ensure uploads directory exists
+    uploads_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "uploads")
+    os.makedirs(uploads_dir, exist_ok=True)
+
+    # 3. Create unique filename
+    filename = f"cv_{current_user_id}_{uuid.uuid4().hex}{ext}"
+    file_path = os.path.join(uploads_dir, filename)
+
+    # 4. Save file
+    try:
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(cv_file.file, buffer)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Could not save CV file: {str(e)}")
+
+    # 5. Get base URL and form url path
+    from database import BASE_URL
+    cv_url = f"{BASE_URL}/api/uploads/{filename}"
+
+    # 6. Update database fields
+    with db.cursor() as cur:
+        # Check if user is a coach
+        cur.execute("SELECT role FROM users WHERE id = %s", (current_user_id,))
+        usr = cur.fetchone()
+        if not usr or usr[0] != 'coach':
+            raise HTTPException(status_code=400, detail="Only users with the 'coach' role can submit onboarding.")
+
+        cur.execute("""
+            UPDATE users 
+            SET goal = %s, experience = %s, age = %s, sex = %s, bio = %s, cv_url = %s, approved = FALSE, updated_at = NOW()
+            WHERE id = %s
+        """, (specialty, experience, age, sex, bio, cv_url, current_user_id))
+    
+    db.commit()
+    return {"success": True, "message": "Onboarding submitted successfully. An administrator will review your application."}
 

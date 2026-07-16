@@ -579,6 +579,9 @@ def _do_init_db() -> None:
                 # --- USER PROFILE MIGRATIONS ---
                 cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT")
                 cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'athlete'")
+                cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS cv_url TEXT")
+                cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS approved BOOLEAN DEFAULT FALSE")
+                cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT")
                 
                 # --- COACH RELATIONSHIPS MIGRATIONS ---
                 cur.execute("ALTER TABLE coach_relationships ADD COLUMN IF NOT EXISTS initiated_by TEXT DEFAULT 'coach'")

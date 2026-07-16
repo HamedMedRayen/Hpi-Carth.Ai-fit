@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Users, UserPlus, Check, X, Search, Activity, ChevronRight, Dumbbell, TrendingUp, Calendar, AlertCircle, MessageSquare, Award, Heart, MapPin, Navigation } from "lucide-react";
+import { Users, UserPlus, Check, X, Search, Activity, ChevronRight, Dumbbell, TrendingUp, Calendar, AlertCircle, MessageSquare, Award, Heart, MapPin, Navigation, ShieldAlert, FileText } from "lucide-react";
 import Header from "../components/layout/Header";
 import { api } from "../utils/api";
 import { fmt } from "../utils/formatters";
@@ -55,6 +55,231 @@ export default function CoachDashboard() {
   const [coaches, setCoaches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState("athlete");
+
+  // Onboarding States
+  const [onboardSpecialty, setOnboardSpecialty] = useState("muscle_gain");
+  const [onboardExperience, setOnboardExperience] = useState("beginner");
+  const [onboardAge, setOnboardAge] = useState(25);
+  const [onboardSex, setOnboardSex] = useState("M");
+  const [onboardBio, setOnboardBio] = useState("");
+  const [onboardCVFile, setOnboardCVFile] = useState(null);
+  const [onboardError, setOnboardError] = useState(null);
+  const [onboardSubmitting, setOnboardSubmitting] = useState(false);
+
+  const handleOnboardSubmit = async (e) => {
+    e.preventDefault();
+    if (!onboardCVFile) {
+      setOnboardError("Please upload your CV document.");
+      return;
+    }
+    setOnboardError(null);
+    setOnboardSubmitting(true);
+
+    const fd = new FormData();
+    fd.append("specialty", onboardSpecialty);
+    fd.append("experience", onboardExperience);
+    fd.append("age", onboardAge);
+    fd.append("sex", onboardSex);
+    fd.append("bio", onboardBio);
+    fd.append("cv_file", onboardCVFile);
+
+    try {
+      await api.submitCoachOnboarding(fd);
+      window.location.reload(); 
+    } catch (err) {
+      setOnboardError(err.message || "Failed to submit onboarding.");
+    } finally {
+      setOnboardSubmitting(false);
+    }
+  };
+
+  const renderCoachOnboarding = () => {
+    const hasSubmitted = user && user.profile && user.profile.cv_url;
+
+    if (hasSubmitted) {
+      return (
+        <div style={{
+          background: "var(--bg-glass)", border: "1px solid var(--border-card)", borderRadius: 28,
+          padding: 40, maxWidth: 600, margin: "40px auto", textAlign: "center",
+          boxShadow: "0 20px 40px rgba(0,0,0,0.4)", backdropFilter: "blur(16px)"
+        }}>
+          <div style={{
+            background: "rgba(245, 158, 11, 0.08)", border: "1px solid rgba(245, 158, 11, 0.2)",
+            width: 80, height: 80, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+            margin: "0 auto 24px", color: "#f59e0b"
+          }}>
+            <ShieldAlert size={42} />
+          </div>
+          <h2 style={{ fontSize: 24, fontWeight: 900, color: "#fff", margin: "0 0 12px" }}>Application Under Review</h2>
+          <p style={{ fontSize: 14, color: "var(--color-text-2)", lineHeight: 1.6, margin: "0 0 24px" }}>
+            Thank you for submitting your CV and qualifications. Our administrative team is currently verifying your details. You will be notified and granted access to the Athlete Roster and Gym Map as soon as your account is approved.
+          </p>
+          <div style={{
+            background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16,
+            padding: 20, textAlign: "left", display: "flex", flexDirection: "column", gap: 10
+          }}>
+            <div style={{ fontSize: 12, color: "var(--color-text-3)", textTransform: "uppercase", fontWeight: 700, borderBottom: "1px solid rgba(255,255,255,0.04)", paddingBottom: 6 }}>Submitted Profile Info:</div>
+            <div style={{ fontSize: 13, color: "var(--color-text)" }}>
+              <strong>Specialty:</strong> {GOAL_LABELS[user.profile.goal?.toLowerCase()] || user.profile.goal?.toUpperCase()}
+            </div>
+            <div style={{ fontSize: 13, color: "var(--color-text)" }}>
+              <strong>Experience:</strong> {EXP_LABELS[user.profile.experience?.toLowerCase()] || user.profile.experience?.toUpperCase()}
+            </div>
+            <div style={{ fontSize: 13, color: "var(--color-text)" }}>
+              <strong>Age / Sex:</strong> {user.profile.age} years / {user.profile.sex === 'M' ? 'Male' : 'Female'}
+            </div>
+            {user.profile.bio && (
+              <div style={{ fontSize: 13, color: "var(--color-text)" }}>
+                <strong>Bio:</strong> {user.profile.bio}
+              </div>
+            )}
+            <div style={{ fontSize: 13, color: "var(--color-text)", wordBreak: "break-all" }}>
+              <strong>CV Document:</strong> <a href={user.profile.cv_url} target="_blank" rel="noreferrer" style={{ color: "var(--aura-cyan)", textDecoration: "none", fontWeight: 700 }}>View Uploaded CV</a>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div style={{
+        background: "var(--bg-glass)", border: "1px solid var(--border-card)", borderRadius: 28,
+        padding: 40, maxWidth: 640, margin: "40px auto",
+        boxShadow: "0 20px 40px rgba(0,0,0,0.4)", backdropFilter: "blur(16px)"
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24, borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: 20 }}>
+          <div style={{
+            background: "rgba(6, 182, 212, 0.08)", border: "1px solid rgba(6, 182, 212, 0.2)",
+            width: 54, height: 54, borderRadius: 16, display: "flex", alignItems: "center", justifyContent: "center",
+            color: "var(--aura-cyan)"
+          }}>
+            <FileText size={28} />
+          </div>
+          <div>
+            <h2 style={{ fontSize: 20, fontWeight: 900, color: "#fff", margin: 0 }}>Coach Verification</h2>
+            <p style={{ fontSize: 12, color: "var(--color-text-3)", margin: "4px 0 0" }}>
+              Submit your credentials to be listed as a resident trainer.
+            </p>
+          </div>
+        </div>
+
+        <form onSubmit={handleOnboardSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          {onboardError && (
+            <div style={{
+              background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.15)",
+              color: "#EF4444", fontSize: 13, padding: "12px 16px", borderRadius: 12, fontWeight: 600
+            }}>
+              {onboardError}
+            </div>
+          )}
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: "var(--color-text-2)" }}>Primary Specialty</label>
+              <select
+                value={onboardSpecialty}
+                onChange={e => setOnboardSpecialty(e.target.value)}
+                style={{
+                  background: "rgba(255,255,255,0.03)", color: "#fff", border: "1px solid var(--border-card)",
+                  borderRadius: 12, padding: "10px 14px", fontSize: 13, outline: "none", cursor: "pointer"
+                }}
+              >
+                {Object.entries(GOAL_LABELS).map(([key, val]) => (
+                  <option key={key} value={key} style={{ background: "#111" }}>{val}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: "var(--color-text-2)" }}>Experience Level</label>
+              <select
+                value={onboardExperience}
+                onChange={e => setOnboardExperience(e.target.value)}
+                style={{
+                  background: "rgba(255,255,255,0.03)", color: "#fff", border: "1px solid var(--border-card)",
+                  borderRadius: 12, padding: "10px 14px", fontSize: 13, outline: "none", cursor: "pointer"
+                }}
+              >
+                {Object.entries(EXP_LABELS).map(([key, val]) => (
+                  <option key={key} value={key} style={{ background: "#111" }}>{val}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: "var(--color-text-2)" }}>Age (Years)</label>
+              <input
+                type="number"
+                min="18"
+                max="100"
+                value={onboardAge}
+                onChange={e => setOnboardAge(parseInt(e.target.value))}
+                style={{
+                  background: "rgba(255,255,255,0.03)", color: "#fff", border: "1px solid var(--border-card)",
+                  borderRadius: 12, padding: "10px 14px", fontSize: 13, outline: "none"
+                }}
+                required
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: "var(--color-text-2)" }}>Sex</label>
+              <select
+                value={onboardSex}
+                onChange={e => setOnboardSex(e.target.value)}
+                style={{
+                  background: "rgba(255,255,255,0.03)", color: "#fff", border: "1px solid var(--border-card)",
+                  borderRadius: 12, padding: "10px 14px", fontSize: 13, outline: "none", cursor: "pointer"
+                }}
+              >
+                <option value="M" style={{ background: "#111" }}>Male</option>
+                <option value="F" style={{ background: "#111" }}>Female</option>
+              </select>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 12, fontWeight: 700, color: "var(--color-text-2)" }}>Training Bio / Philosophy</label>
+            <textarea
+              value={onboardBio}
+              onChange={e => setOnboardBio(e.target.value)}
+              placeholder="Tell athletes about your certifications, experience, and fitness philosophy..."
+              style={{
+                background: "rgba(255,255,255,0.03)", color: "#fff", border: "1px solid var(--border-card)",
+                borderRadius: 12, padding: "12px 14px", fontSize: 13, minHeight: 80, outline: "none", resize: "none"
+              }}
+              required
+            />
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 12, fontWeight: 700, color: "var(--color-text-2)" }}>Upload CV Document (PDF, Word, or Image)</label>
+            <input
+              type="file"
+              accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+              onChange={e => setOnboardCVFile(e.target.files[0])}
+              style={{
+                background: "rgba(255,255,255,0.01)", color: "#fff", border: "1px dashed var(--border-card)",
+                borderRadius: 12, padding: "16px", fontSize: 13, outline: "none", cursor: "pointer"
+              }}
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={onboardSubmitting}
+            className="btn-primary"
+            style={{ padding: "12px 24px", borderRadius: 12, fontSize: 14, fontWeight: 800, marginTop: 10, width: "auto" }}
+          >
+            {onboardSubmitting ? "Submitting Application..." : "Submit Verification Profile"}
+          </button>
+        </form>
+      </div>
+    );
+  };
 
   // Invite state
   const [inviteIdentifier, setInviteIdentifier] = useState("");
@@ -701,29 +926,32 @@ export default function CoachDashboard() {
 
       <div className="page-inner" style={{ maxWidth: 1000, margin: "0 auto", display: "flex", flexDirection: "column", gap: 24 }}>
 
-        {/* Tab Selector */}
-        <div style={{ display: "flex", gap: 8, background: "var(--bg-card)", padding: 6, borderRadius: 16, border: "1px solid var(--border-card)", width: "fit-content" }}>
-          {role === 'coach' && (
-            <button onClick={() => { setActiveTab("roster"); setSelectedAthlete(null); }} style={{
-              background: activeTab === "roster" ? "var(--aura-accent)" : "transparent",
-              color: activeTab === "roster" ? "#000" : "var(--color-text)",
-              border: "none", padding: "8px 24px", borderRadius: 12, fontWeight: 700, fontSize: 13, cursor: "pointer", transition: "all 0.2s"
-            }}>
-              Athlete Roster
-            </button>
-          )}
-          <button onClick={() => { setActiveTab("my-coach"); setSelectedAthlete(null); }} style={{
-            background: activeTab === "my-coach" ? "var(--aura-accent)" : "transparent",
-            color: activeTab === "my-coach" ? "#000" : "var(--color-text)",
-            border: "none", padding: "8px 24px", borderRadius: 12, fontWeight: 700, fontSize: 13, cursor: "pointer", transition: "all 0.2s"
-          }}>
-            My Coach
-          </button>
-        </div>
         {loading ? (
           <div style={{ textAlign: "center", color: "var(--color-text-3)", padding: 40 }}>Loading...</div>
+        ) : role === 'coach' && user && user.profile && !user.profile.approved ? (
+          renderCoachOnboarding()
         ) : (
           <>
+            {/* Tab Selector */}
+            <div style={{ display: "flex", gap: 8, background: "var(--bg-card)", padding: 6, borderRadius: 16, border: "1px solid var(--border-card)", width: "fit-content", marginBottom: 20 }}>
+              {role === 'coach' && (
+                <button onClick={() => { setActiveTab("roster"); setSelectedAthlete(null); }} style={{
+                  background: activeTab === "roster" ? "var(--aura-accent)" : "transparent",
+                  color: activeTab === "roster" ? "#000" : "var(--color-text)",
+                  border: "none", padding: "8px 24px", borderRadius: 12, fontWeight: 700, fontSize: 13, cursor: "pointer", transition: "all 0.2s"
+                }}>
+                  Athlete Roster
+                </button>
+              )}
+              <button onClick={() => { setActiveTab("my-coach"); setSelectedAthlete(null); }} style={{
+                background: activeTab === "my-coach" ? "var(--aura-accent)" : "transparent",
+                color: activeTab === "my-coach" ? "#000" : "var(--color-text)",
+                border: "none", padding: "8px 24px", borderRadius: 12, fontWeight: 700, fontSize: 13, cursor: "pointer", transition: "all 0.2s"
+              }}>
+                My Coach
+              </button>
+            </div>
+
             <div style={{ display: activeTab === "roster" ? "block" : "none" }}>
               {selectedAthlete ? renderAthleteDetail() : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
