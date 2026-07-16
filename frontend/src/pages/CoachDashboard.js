@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Users, UserPlus, Check, X, Search, Activity, ChevronRight, Dumbbell, TrendingUp, Calendar, AlertCircle, MessageSquare } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Users, UserPlus, Check, X, Search, Activity, ChevronRight, Dumbbell, TrendingUp, Calendar, AlertCircle, MessageSquare, Award, Heart, MapPin, Navigation } from "lucide-react";
 import Header from "../components/layout/Header";
 import { api } from "../utils/api";
 import { fmt } from "../utils/formatters";
@@ -7,9 +7,50 @@ import SuggestWorkoutModal from "../components/SuggestWorkoutModal";
 import CoachChatModal from "../components/CoachChatModal";
 import { useAuth } from "../utils/auth";
 
+const GOAL_LABELS = {
+  muscle_gain: "Muscle Gain & Hypertrophy",
+  fat_loss: "Fat Loss & Conditioning",
+  powerlifting: "Powerlifting & Strength",
+  general_fitness: "General Fitness & Health",
+  bodybuilding: "Classic Bodybuilding",
+  athletics: "Athletics & Performance",
+  cardio_endurance: "Cardio & Endurance",
+  strength_training: "Strength Training",
+  flexibility: "Flexibility & Mobility",
+  olympic_weightlifting: "Olympic Weightlifting"
+};
+
+const EXP_LABELS = {
+  beginner: "Certified Instructor",
+  intermediate: "Advanced Trainer",
+  advanced: "Elite Coach",
+  elite: "Master Coach & Expert"
+};
+
+const getCoachBio = (c) => {
+  if (!c) return "";
+  const goalText = {
+    muscle_gain: "building lean muscle mass, optimizing hypertrophy protocols, and improving mechanical lifting efficiency",
+    fat_loss: "metabolic conditioning, body recomposition, and creating sustainable fat-loss nutrition plans",
+    powerlifting: "strength progression, absolute power output, and mastering squat, bench, and deadlift technique",
+    bodybuilding: "sculpting aesthetic symmetry, targeted muscle development, and competition coaching",
+    general_fitness: "functional fitness, cardiovascular health, and creating active wellness habits"
+  }[c.goal] || "functional training and athletic conditioning";
+
+  const expText = {
+    elite: "As a master-level elite coach with over 8 years of personal training experience",
+    advanced: "With advanced coaching certifications and years of active athlete preparation",
+    intermediate: "As an advanced certified coach and passionate fitness professional"
+  }[c.experience] || "As a certified personal trainer";
+
+  return `${expText}, I specialize in ${goalText}. I design personalized training systems that adapt to your daily fatigue, injuries, and lifestyle goals. My training philosophy is built on scientific programming, progress metrics, and strict form execution to ensure safe, results-oriented training.`;
+};
+
 export default function CoachDashboard() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("roster"); // 'roster' | 'my-coach'
+  const [selectedCoachForInfo, setSelectedCoachForInfo] = useState(null);
+  const [selectedGoal, setSelectedGoal] = useState("all");
   const [athletes, setAthletes] = useState([]);
   const [coaches, setCoaches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,6 +67,79 @@ export default function CoachDashboard() {
   const [showSuggestModal, setShowSuggestModal] = useState(false);
   const [chatRecipient, setChatRecipient] = useState(null);
 
+  // Clicked Workout Detail
+  const [selectedWorkoutDetail, setSelectedWorkoutDetail] = useState(null);
+  const [loadingWorkoutDetail, setLoadingWorkoutDetail] = useState(false);
+  const [sessionNotes, setSessionNotes] = useState([]);
+  const [newSessionNote, setNewSessionNote] = useState("");
+  const [submittingNote, setSubmittingNote] = useState(false);
+
+  // Gym Map Explorer states
+  const [gyms, setGyms] = useState([]);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [userLoc, setUserLoc] = useState({ lat: 36.8065, lng: 10.1815 });
+  const [nearestGyms, setNearestGyms] = useState([]);
+  const [selectedRegion, setSelectedRegion] = useState("all");
+  const [coachSelectedGyms, setCoachSelectedGyms] = useState([]);
+
+  const REGIONS = {
+    all: { name: "All Tunisia", lat: 36.8065, lng: 10.1815 },
+    tunis: { name: "Tunis", lat: 36.8065, lng: 10.1815 },
+    ben_arous: { name: "Ben Arous", lat: 36.7533, lng: 10.2223 },
+    ariana: { name: "Ariana", lat: 36.8625, lng: 10.1956 },
+    sousse: { name: "Sousse", lat: 35.8256, lng: 10.6369 },
+    sfax: { name: "Sfax", lat: 34.7406, lng: 10.7603 }
+  };
+
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
+  // Load Leaflet dynamically
+  useEffect(() => {
+    if (window.L) {
+      setMapLoaded(true);
+      return;
+    }
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+    document.head.appendChild(link);
+
+    const style = document.createElement("style");
+    style.innerHTML = `
+      #leaflet-coaches-map .leaflet-tile-container {
+        filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+      }
+      #leaflet-coaches-map {
+        background: #111 !important;
+      }
+      .leaflet-popup-content-wrapper {
+        background: var(--color-bg) !important;
+        color: var(--color-text) !important;
+        border: 1px solid var(--border-card);
+      }
+      .leaflet-popup-tip {
+        background: var(--color-bg) !important;
+      }
+    `;
+    document.head.appendChild(style);
+
+    const script = document.createElement("script");
+    script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+    script.async = true;
+    script.onload = () => setMapLoaded(true);
+    document.body.appendChild(script);
+  }, []);
+
   useEffect(() => {
     fetchData();
     api.getCoachRole().then(res => {
@@ -35,14 +149,153 @@ export default function CoachDashboard() {
     });
   }, []);
 
+  const loadGyms = async () => {
+    try {
+      const res = await api.getGyms();
+      setGyms(res || []);
+      if (role === 'coach') {
+        const selected = res
+          .filter(g => g.coaches?.some(c => c.coach_id === user?.user_id))
+          .map(g => g.id);
+        setCoachSelectedGyms(selected);
+      }
+    } catch (e) {
+      console.error("Error loading gyms:", e);
+    }
+  };
+
+  useEffect(() => {
+    loadGyms();
+  }, [role, user]);
+
+  useEffect(() => {
+    if (!userLoc || !gyms.length) return;
+    const computed = gyms.map(g => {
+      const dist = calculateDistance(userLoc.lat, userLoc.lng, g.latitude, g.longitude);
+      return { ...g, distance: dist };
+    })
+    .filter(g => {
+      if (selectedGoal === "all") return true;
+      return g.coaches?.some(c => c.goal === selectedGoal);
+    })
+    .sort((a, b) => a.distance - b.distance);
+    setNearestGyms(computed);
+  }, [userLoc, gyms, selectedGoal]);
+
+  const mapRef = useRef(null);
+
+  useEffect(() => {
+    if (!mapLoaded || !gyms.length || activeTab !== 'my-coach') return;
+    
+    const container = window.L.DomUtil.get("leaflet-coaches-map");
+    if (!container) return;
+    
+    const L = window.L;
+    
+    // Clean up previous map instance if it exists
+    if (mapRef.current) {
+      try {
+        mapRef.current.remove();
+      } catch (err) {
+        console.error("Error removing old map:", err);
+      }
+      mapRef.current = null;
+    }
+    
+    const map = L.map("leaflet-coaches-map").setView([userLoc.lat, userLoc.lng], selectedRegion === 'all' ? 10 : 12);
+    mapRef.current = map;
+    
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    // Force map invalidateSize after rendering
+    const timer = setTimeout(() => {
+      if (mapRef.current) {
+        mapRef.current.invalidateSize();
+      }
+    }, 250);
+
+    const userIcon = L.divIcon({
+      className: 'user-marker-icon',
+      html: `<div style="background: var(--aura-accent); border: 2px solid #000; width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 10px var(--aura-accent);"></div>`,
+      iconSize: [14, 14],
+      iconAnchor: [7, 7]
+    });
+    
+    const userMarker = L.marker([userLoc.lat, userLoc.lng], { icon: userIcon, draggable: true }).addTo(map);
+    userMarker.on('dragend', (e) => {
+      const position = e.target.getLatLng();
+      setUserLoc({ lat: position.lat, lng: position.lng });
+    });
+
+    const filteredGyms = gyms.filter(g => {
+      if (selectedGoal === "all") return true;
+      return g.coaches?.some(c => c.goal === selectedGoal);
+    });
+
+    filteredGyms.forEach(g => {
+      const gymIcon = L.divIcon({
+        className: 'gym-marker-icon',
+        html: `<div style="background: var(--aura-cyan); border: 2px solid #000; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 8px var(--aura-cyan); color: #000; font-size: 10px; font-weight: 800;">G</div>`,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8]
+      });
+
+      const marker = L.marker([g.latitude, g.longitude], { icon: gymIcon }).addTo(map);
+      
+      const coachCountText = selectedGoal === "all" 
+        ? `${g.coaches?.length || 0} Coaches` 
+        : `${g.coaches?.filter(c => c.goal === selectedGoal).length || 0} specialized`;
+
+      marker.bindPopup(`
+        <div style="color: #fff; font-family: sans-serif; font-size: 12px; padding: 4px;">
+          <strong style="font-size: 13px; color: var(--aura-cyan);">${g.name}</strong><br/>
+          <span style="color: #ccc;">${g.address || ""}</span><br/>
+          <strong style="color: var(--aura-accent);">${coachCountText}</strong>
+        </div>
+      `);
+      
+      marker.on('click', () => {
+        setUserLoc({ lat: g.latitude, lng: g.longitude });
+      });
+    });
+
+    return () => {
+      clearTimeout(timer);
+      if (mapRef.current) {
+        try {
+          mapRef.current.remove();
+        } catch (err) {
+          console.error("Error cleaning up map:", err);
+        }
+        mapRef.current = null;
+      }
+    };
+  }, [mapLoaded, gyms, selectedRegion, activeTab, selectedGoal]);
+
+  const handleToggleGym = async (gymId) => {
+    const updated = coachSelectedGyms.includes(gymId)
+      ? coachSelectedGyms.filter(id => id !== gymId)
+      : [...coachSelectedGyms, gymId];
+    
+    setCoachSelectedGyms(updated);
+    try {
+      await api.selectCoachGyms(updated);
+      loadGyms();
+    } catch (e) {
+      console.error("Failed to save gym selection", e);
+    }
+  };
+
   const fetchData = async () => {
     try {
-      const [aths, cochs] = await Promise.all([
+      const [aths, coachesList] = await Promise.all([
         api.getMyAthletes().catch(() => []),
-        api.getMyCoach().catch(() => [])
+        api.getAllCoaches().catch(() => [])
       ]);
       setAthletes(aths || []);
-      setCoaches(cochs || []);
+      setCoaches(coachesList || []);
     } catch (e) {
       console.error(e);
     } finally {
@@ -66,12 +319,35 @@ export default function CoachDashboard() {
     setTimeout(() => setInviteStatus(null), 3000);
   };
 
+  const handleHireCoach = async (coachId) => {
+    try {
+      const res = await api.hireCoach(coachId);
+      setInviteStatus({ type: "success", msg: res.message || "Request sent!" });
+      fetchData();
+    } catch (e) {
+      setInviteStatus({ type: "error", msg: e.message || "Failed to hire coach" });
+    }
+    setTimeout(() => setInviteStatus(null), 3000);
+  };
+
   const handleResponse = async (relationshipId, action) => {
     try {
       await api.respondInvite(relationshipId, action);
       fetchData();
     } catch (e) {
       console.error(e);
+    }
+  };
+
+  const handleKickAthlete = async (relationshipId, name) => {
+    if (!window.confirm(`Are you sure you want to remove ${name} from your roster?`)) return;
+    try {
+      await api.removeRelationship(relationshipId);
+      setSelectedAthlete(null);
+      fetchData();
+    } catch (e) {
+      console.error("Failed to remove athlete:", e);
+      alert(e.message || "Failed to remove athlete");
     }
   };
 
@@ -89,8 +365,63 @@ export default function CoachDashboard() {
     }
   };
 
+  const loadWorkoutDetail = async (workoutId) => {
+    setLoadingWorkoutDetail(true);
+    try {
+      const detail = await api.getWorkout(workoutId);
+      setSelectedWorkoutDetail(detail);
+      const notes = await api.getSessionNotes(workoutId).catch(() => []);
+      setSessionNotes(notes || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingWorkoutDetail(false);
+    }
+  };
+
+  const handleAddSessionNote = async (e) => {
+    e.preventDefault();
+    if (!newSessionNote.trim() || !selectedWorkoutDetail) return;
+    setSubmittingNote(true);
+    try {
+      const added = await api.addSessionNote(
+        selectedAthlete.athlete_id,
+        selectedWorkoutDetail.id,
+        newSessionNote
+      );
+      setSessionNotes([...sessionNotes, added]);
+      setNewSessionNote("");
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmittingNote(false);
+    }
+  };
+
   const renderAthleteDetail = () => {
     if (!selectedAthlete) return null;
+
+    const avgSleep = athleteStats?.recent_sleep?.length 
+      ? (athleteStats.recent_sleep.reduce((acc, s) => acc + s.hours, 0) / athleteStats.recent_sleep.length).toFixed(1)
+      : null;
+    const avgQuality = athleteStats?.recent_sleep?.length
+      ? (athleteStats.recent_sleep.reduce((acc, s) => acc + s.quality, 0) / athleteStats.recent_sleep.length).toFixed(1)
+      : null;
+
+    const avgCal = athleteStats?.recent_nutrition?.length
+      ? Math.round(athleteStats.recent_nutrition.reduce((acc, n) => acc + n.calories, 0) / athleteStats.recent_nutrition.length)
+      : 0;
+    const avgProt = athleteStats?.recent_nutrition?.length
+      ? Math.round(athleteStats.recent_nutrition.reduce((acc, n) => acc + n.protein, 0) / athleteStats.recent_nutrition.length)
+      : 0;
+    const avgCarb = athleteStats?.recent_nutrition?.length
+      ? Math.round(athleteStats.recent_nutrition.reduce((acc, n) => acc + n.carbs, 0) / athleteStats.recent_nutrition.length)
+      : 0;
+    const avgFat = athleteStats?.recent_nutrition?.length
+      ? Math.round(athleteStats.recent_nutrition.reduce((acc, n) => acc + n.fat, 0) / athleteStats.recent_nutrition.length)
+      : 0;
+    
+    const nutritionTarget = athleteStats?.nutrition_target;
 
     return (
       <div style={{
@@ -108,11 +439,11 @@ export default function CoachDashboard() {
               {selectedAthlete.avatar_url ? (
                 <img src={selectedAthlete.avatar_url} alt={selectedAthlete.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               ) : (
-                selectedAthlete.name.charAt(0).toUpperCase()
+                (selectedAthlete.name || selectedAthlete.email || 'A').charAt(0).toUpperCase()
               )}
             </div>
             <div>
-              <h2 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: "var(--color-text)" }}>{selectedAthlete.name}</h2>
+              <h2 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: "var(--color-text)" }}>{selectedAthlete.name || selectedAthlete.email.split('@')[0]}</h2>
               <div style={{ fontSize: 13, color: "var(--color-text-3)", marginTop: 4 }}>{selectedAthlete.email}</div>
               <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                 <span className="glass-pill" style={{ fontSize: 10, padding: "2px 8px" }}>{selectedAthlete.experience?.toUpperCase()}</span>
@@ -136,6 +467,24 @@ export default function CoachDashboard() {
               <MessageSquare size={16} /> Chat
             </button>
             <button 
+              onClick={() => handleKickAthlete(selectedAthlete.relationship_id, selectedAthlete.name)}
+              style={{
+                background: "rgba(239, 68, 68, 0.1)",
+                color: "#EF4444",
+                border: "1px solid rgba(239, 68, 68, 0.15)",
+                padding: "8px 16px",
+                borderRadius: 12,
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 6
+              }}
+            >
+              <X size={14} /> Kick Athlete
+            </button>
+            <button 
               onClick={() => setSelectedAthlete(null)}
               style={{ background: "rgba(255,255,255,0.05)", border: "none", color: "var(--color-text)", padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700, cursor: "pointer" }}
             >
@@ -147,7 +496,8 @@ export default function CoachDashboard() {
         {loadingStats ? (
           <div style={{ padding: 40, textAlign: "center", color: "var(--color-text-3)" }}>Loading stats...</div>
         ) : athleteStats ? (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 16 }}>
+            {/* TRAINING SUMMARY */}
             <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 20 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--aura-accent)", marginBottom: 12 }}>
                 <Activity size={18} /> <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.05em" }}>TRAINING SUMMARY</span>
@@ -166,19 +516,26 @@ export default function CoachDashboard() {
               </div>
             </div>
 
+            {/* RECENT WORKOUTS (CLICKABLE) */}
             <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 20 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--aura-accent2)", marginBottom: 12 }}>
                 <Calendar size={18} /> <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.05em" }}>RECENT WORKOUTS</span>
               </div>
               {athleteStats.recent_workouts?.length > 0 ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {athleteStats.recent_workouts.slice(0, 3).map(w => (
-                    <div key={w.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 8, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                  {athleteStats.recent_workouts.map(w => (
+                    <div 
+                      key={w.id} 
+                      onClick={() => loadWorkoutDetail(w.id)}
+                      style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 8, borderBottom: "1px solid rgba(255,255,255,0.05)", cursor: "pointer" }}
+                      onMouseEnter={e => e.currentTarget.style.opacity = 0.8}
+                      onMouseLeave={e => e.currentTarget.style.opacity = 1}
+                    >
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 600 }}>{w.workout_name}</div>
                         <div style={{ fontSize: 11, color: "var(--color-text-3)" }}>{new Date(w.session_date).toLocaleDateString()}</div>
                       </div>
-                      <div style={{ fontSize: 12, fontWeight: 700 }}>{fmt.int(w.volume)} kg</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "var(--aura-accent2)" }}>{fmt.int(w.volume)} kg</div>
                     </div>
                   ))}
                 </div>
@@ -187,6 +544,7 @@ export default function CoachDashboard() {
               )}
             </div>
 
+            {/* WELLNESS & FATIGUE */}
             <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 20 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--aura-accent3)", marginBottom: 12 }}>
                 <AlertCircle size={18} /> <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.05em" }}>WELLNESS & FATIGUE</span>
@@ -213,6 +571,118 @@ export default function CoachDashboard() {
                 <div style={{ fontSize: 13, color: "#22C55E", fontWeight: 600 }}>No active injuries reported.</div>
               )}
             </div>
+
+            {/* NUTRITION & TARGET COMPLIANCE */}
+            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 20 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#22c55e", marginBottom: 12 }}>
+                <Heart size={18} /> <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.05em" }}>NUTRITION TARGET COMPLIANCE</span>
+              </div>
+              {nutritionTarget ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <div style={{ fontSize: 12, color: "var(--color-text-3)" }}>
+                    Goal: <span style={{ color: "#fff", fontWeight: 700 }}>{nutritionTarget.goal}</span>
+                  </div>
+                  
+                  {/* Calories Progress */}
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 4 }}>
+                      <span>Calories (7-day avg)</span>
+                      <span>{avgCal} / {Math.round(nutritionTarget.final_calories)} kcal</span>
+                    </div>
+                    <div style={{ height: 6, background: "rgba(255,255,255,0.05)", borderRadius: 3, overflow: "hidden" }}>
+                      <div style={{ height: "100%", width: `${Math.min((avgCal / nutritionTarget.final_calories) * 100, 100)}%`, background: "var(--aura-accent)", borderRadius: 3 }} />
+                    </div>
+                  </div>
+
+                  {/* Protein Progress */}
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 4 }}>
+                      <span>Protein</span>
+                      <span>{avgProt}g / {Math.round(nutritionTarget.final_protein)}g</span>
+                    </div>
+                    <div style={{ height: 6, background: "rgba(255,255,255,0.05)", borderRadius: 3, overflow: "hidden" }}>
+                      <div style={{ height: "100%", width: `${Math.min((avgProt / nutritionTarget.final_protein) * 100, 100)}%`, background: "#f59e0b", borderRadius: 3 }} />
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>No active nutrition target macros.</div>
+              )}
+            </div>
+
+            {/* SLEEP & RECOVERY */}
+            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 20 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--aura-accent)", marginBottom: 12 }}>
+                <Activity size={18} /> <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.05em" }}>SLEEP & RECOVERY</span>
+              </div>
+              {avgSleep ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <div style={{ display: "flex", gap: 20 }}>
+                    <div>
+                      <span style={{ fontSize: 11, color: "var(--color-text-3)" }}>Sleep Avg</span>
+                      <div style={{ fontSize: 16, fontWeight: 800 }}>{avgSleep} hrs</div>
+                    </div>
+                    <div>
+                      <span style={{ fontSize: 11, color: "var(--color-text-3)" }}>Quality Avg</span>
+                      <div style={{ fontSize: 16, fontWeight: 800 }}>{avgQuality}/5 ★</div>
+                    </div>
+                  </div>
+                  
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 8, borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 8 }}>
+                    {athleteStats.recent_sleep.slice(0, 2).map((s, i) => (
+                      <div key={i} style={{ fontSize: 11, color: "var(--color-text-3)" }}>
+                        {new Date(s.date).toLocaleDateString([], { month: 'short', day: 'numeric' })}: {s.hours}h ({s.quality}/5)
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>No recent sleep logs.</div>
+              )}
+            </div>
+
+            {/* BODYWEIGHT HISTORY */}
+            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 20 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--aura-accent2)", marginBottom: 12 }}>
+                <TrendingUpIcon size={18} /> <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.05em" }}>WEIGHT LOGS</span>
+              </div>
+              {athleteStats.recent_weights?.length > 0 ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {athleteStats.recent_weights.slice(0, 4).map((w, idx) => (
+                    <div key={idx} style={{ display: "flex", justifyContent: "space-between", fontSize: 12, borderBottom: "1px solid rgba(255,255,255,0.02)", paddingBottom: 4 }}>
+                      <span>{new Date(w.logged_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}</span>
+                      <span style={{ fontWeight: 800 }}>{w.weight_kg} kg</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>No weight logs found.</div>
+              )}
+            </div>
+
+            {/* PERSONAL RECORDS (PRs) */}
+            <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 20, gridColumn: "span 2" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--aura-accent)", marginBottom: 12 }}>
+                <Award size={18} /> <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.05em" }}>BEST LIFTS (PRs)</span>
+              </div>
+              {athleteStats.personal_records?.length > 0 ? (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  {athleteStats.personal_records.slice(0, 6).map((pr, idx) => (
+                    <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 6, borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 700 }}>{pr.exercise_name}</div>
+                        <div style={{ fontSize: 11, color: "var(--color-text-3)" }}>{pr.weight_kg} kg × {pr.reps} reps</div>
+                      </div>
+                      <div style={{ fontSize: 12, fontWeight: 800, color: "var(--aura-accent)" }}>
+                        {Math.round(pr.one_rm_est)} kg <span style={{ fontSize: 9, fontWeight: 600, color: "var(--color-text-3)" }}>1RM</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>No personal records established.</div>
+              )}
+            </div>
           </div>
         ) : (
           <div style={{ padding: 40, textAlign: "center", color: "var(--color-text-3)" }}>No stats available for this athlete.</div>
@@ -221,6 +691,9 @@ export default function CoachDashboard() {
       </div>
     );
   };
+
+  const activeOrPending = coaches.filter(c => c.status === 'active' || c.status === 'pending');
+  const browseCoaches = coaches.filter(c => !c.status || c.status === 'declined');
 
   return (
     <div style={{ minHeight: "100vh", paddingBottom: 100, background: "var(--color-bg)" }}>
@@ -253,38 +726,64 @@ export default function CoachDashboard() {
         ) : activeTab === "roster" ? (
           selectedAthlete ? renderAthleteDetail() : (
             <>
-              {/* Invite Section */}
-              <div style={{ background: "var(--bg-glass)", padding: 24, borderRadius: 24, border: "1px solid var(--border-card)" }}>
-                <h2 style={{ fontSize: 14, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, marginBottom: 16, color: "var(--color-text)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                  <UserPlus size={18} color="var(--aura-accent)" /> Invite Athlete
-                </h2>
-                <form onSubmit={handleInvite} style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                  <div style={{ flex: 1, minWidth: 200, position: "relative" }}>
-                    <Search size={16} color="var(--color-text-3)" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)" }} />
-                    <input
-                      type="text"
-                      className="themed-input"
-                      value={inviteIdentifier}
-                      onChange={e => setInviteIdentifier(e.target.value)}
-                      placeholder="Athlete's email or nickname"
-                      style={{ width: "100%", paddingLeft: 40, height: 48, borderRadius: 14 }}
-                      required
-                    />
+              {/* Roster Top Options Grid */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 20, alignItems: "start" }}>
+                {/* Invite Section */}
+                <div style={{ background: "var(--bg-glass)", padding: 24, borderRadius: 24, border: "1px solid var(--border-card)", height: "100%" }}>
+                  <h2 style={{ fontSize: 14, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, marginBottom: 16, color: "var(--color-text)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                    <UserPlus size={18} color="var(--aura-accent)" /> Invite Athlete
+                  </h2>
+                  <form onSubmit={handleInvite} style={{ display: "flex", gap: 12, flexDirection: "column" }}>
+                    <div style={{ position: "relative" }}>
+                      <Search size={16} color="var(--color-text-3)" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)" }} />
+                      <input
+                        type="text"
+                        className="themed-input"
+                        value={inviteIdentifier}
+                        onChange={e => setInviteIdentifier(e.target.value)}
+                        placeholder="Athlete's email or nickname"
+                        style={{ width: "100%", paddingLeft: 40, height: 48, borderRadius: 14 }}
+                        required
+                      />
+                    </div>
+                    <button type="submit" className="btn-primary" style={{ borderRadius: 14, fontWeight: 700, height: 48 }}>
+                      Send Invite
+                    </button>
+                  </form>
+                  {inviteStatus && (
+                    <div style={{
+                      marginTop: 16, fontSize: 13, padding: "12px 16px", borderRadius: 12, fontWeight: 600,
+                      background: inviteStatus.type === "error" ? "rgba(239, 68, 68, 0.1)" : "rgba(34, 197, 94, 0.1)",
+                      color: inviteStatus.type === "error" ? "#EF4444" : "#22C55E",
+                      border: `1px solid ${inviteStatus.type === "error" ? "rgba(239, 68, 68, 0.2)" : "rgba(34, 197, 94, 0.2)"}`
+                    }}>
+                      {inviteStatus.msg}
+                    </div>
+                  )}
+                </div>
+
+                {/* Manage Gym Locations */}
+                <div style={{ background: "var(--bg-glass)", padding: 24, borderRadius: 24, border: "1px solid var(--border-card)", height: "100%" }}>
+                  <h2 style={{ fontSize: 14, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, marginBottom: 16, color: "var(--color-text)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                    <Activity size={18} color="var(--aura-cyan)" /> Manage Gym Locations
+                  </h2>
+                  <p style={{ fontSize: 12, color: "var(--color-text-3)", margin: "0 0 16px" }}>
+                    Select the gyms in Tunisia where you actively train/coach clients.
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 150, overflowY: "auto", paddingRight: 8 }}>
+                    {gyms.map(g => (
+                      <label key={g.id} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, cursor: "pointer", color: "var(--color-text)" }}>
+                        <input
+                          type="checkbox"
+                          checked={coachSelectedGyms.includes(g.id)}
+                          onChange={() => handleToggleGym(g.id)}
+                          style={{ accentColor: "var(--aura-cyan)" }}
+                        />
+                        <span>{g.name} <span style={{ fontSize: 11, color: "var(--color-text-3)" }}>({g.address})</span></span>
+                      </label>
+                    ))}
                   </div>
-                  <button type="submit" className="btn-primary" style={{ padding: "0 32px", borderRadius: 14, fontWeight: 700, height: 48 }}>
-                    Send Invite
-                  </button>
-                </form>
-                {inviteStatus && (
-                  <div style={{
-                    marginTop: 16, fontSize: 13, padding: "12px 16px", borderRadius: 12, fontWeight: 600,
-                    background: inviteStatus.type === "error" ? "rgba(239, 68, 68, 0.1)" : "rgba(34, 197, 94, 0.1)",
-                    color: inviteStatus.type === "error" ? "#EF4444" : "#22C55E",
-                    border: `1px solid ${inviteStatus.type === "error" ? "rgba(239, 68, 68, 0.2)" : "rgba(34, 197, 94, 0.2)"}`
-                  }}>
-                    {inviteStatus.msg}
-                  </div>
-                )}
+                </div>
               </div>
 
               {/* Athlete List */}
@@ -335,19 +834,63 @@ export default function CoachDashboard() {
                             {a.avatar_url ? (
                               <img src={a.avatar_url} alt={a.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                             ) : (
-                              a.name.charAt(0).toUpperCase()
+                              (a.name || a.email || 'A').charAt(0).toUpperCase()
                             )}
                           </div>
                           <div>
-                            <div style={{ fontWeight: 800, fontSize: 16, color: "var(--color-text)" }}>{a.name}</div>
+                            <div style={{ fontWeight: 800, fontSize: 16, color: "var(--color-text)" }}>{a.name || a.email.split('@')[0]}</div>
                             <div style={{ fontSize: 12, color: "var(--color-text-3)", marginTop: 2 }}>{a.email}</div>
                           </div>
                         </div>
 
                         {a.status === 'pending' ? (
-                          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(234, 179, 8, 0.1)", color: "#EAB308", padding: "8px 12px", borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
-                            <AlertCircle size={14} /> Invite Pending
-                          </div>
+                          a.initiated_by === 'athlete' ? (
+                            <div style={{ display: "flex", gap: 8 }}>
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); handleResponse(a.relationship_id, 'accept'); }} 
+                                className="btn-primary" 
+                                style={{ 
+                                  flex: 1, 
+                                  display: "flex", 
+                                  alignItems: "center", 
+                                  justifyContent: "center", 
+                                  gap: 6, 
+                                  padding: "6px 0", 
+                                  borderRadius: 8, 
+                                  fontSize: 12, 
+                                  fontWeight: 700, 
+                                  height: 36 
+                                }}
+                              >
+                                <Check size={14} /> Accept Request
+                              </button>
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); handleResponse(a.relationship_id, 'decline'); }} 
+                                style={{ 
+                                  flex: 1, 
+                                  display: "flex", 
+                                  alignItems: "center", 
+                                  justifyContent: "center", 
+                                  gap: 6, 
+                                  padding: "6px 0", 
+                                  background: "rgba(255,255,255,0.05)", 
+                                  border: "1px solid var(--border-card)", 
+                                  color: "#fff", 
+                                  borderRadius: 8, 
+                                  fontSize: 12, 
+                                  fontWeight: 700, 
+                                  height: 36, 
+                                  cursor: "pointer" 
+                                }}
+                              >
+                                <X size={14} /> Decline
+                              </button>
+                            </div>
+                          ) : (
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(234, 179, 8, 0.1)", color: "#EAB308", padding: "8px 12px", borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
+                              <AlertCircle size={14} /> Invite Pending (Waiting for Athlete)
+                            </div>
+                          )
                         ) : (
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 16 }}>
                             <div style={{ display: "flex", gap: 24 }}>
@@ -360,7 +903,30 @@ export default function CoachDashboard() {
                                 <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text)" }}>{a.last_session ? new Date(a.last_session).toLocaleDateString() : "Never"}</div>
                               </div>
                             </div>
-                            <ChevronRight size={20} color="var(--color-text-3)" />
+                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleKickAthlete(a.relationship_id, a.name);
+                                }}
+                                style={{
+                                  background: "rgba(239, 68, 68, 0.1)",
+                                  color: "#EF4444",
+                                  border: "none",
+                                  padding: "6px 12px",
+                                  borderRadius: "8px",
+                                  fontSize: "11px",
+                                  fontWeight: "700",
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: 4
+                                }}
+                              >
+                                <X size={12} /> Kick
+                              </button>
+                              <ChevronRight size={20} color="var(--color-text-3)" />
+                            </div>
                           </div>
                         )}
                       </div>
@@ -371,76 +937,446 @@ export default function CoachDashboard() {
             </>
           )
         ) : (
-          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <h2 style={{ fontSize: 14, fontWeight: 800, margin: 0, display: "flex", alignItems: "center", gap: 8, color: "var(--color-text)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-              <Users size={18} color="var(--color-text-3)" /> Your Coach
-            </h2>
-            
-            {coaches.length === 0 ? (
-              <div style={{ textAlign: "center", padding: 60, background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px dashed var(--border-card)", color: "var(--color-text-3)" }}>
-                <div style={{ background: "rgba(255,255,255,0.05)", width: 64, height: 64, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-                  <Users size={32} opacity={0.5} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            {/* Active Coaches */}
+            <div>
+              <h2 style={{ fontSize: 14, fontWeight: 800, margin: "0 0 16px", display: "flex", alignItems: "center", gap: 8, color: "var(--color-text)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                <Users size={18} color="var(--color-text-3)" /> Your Coach
+              </h2>
+              
+              {activeOrPending.length === 0 ? (
+                <div style={{ textAlign: "center", padding: 60, background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px dashed var(--border-card)", color: "var(--color-text-3)" }}>
+                  <div style={{ background: "rgba(255,255,255,0.05)", width: 64, height: 64, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+                    <Users size={32} opacity={0.5} />
+                  </div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "var(--color-text)", marginBottom: 4 }}>No Coach Assigned</div>
+                  <div style={{ fontSize: 14 }}>Browse the list below to hire a coach.</div>
                 </div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: "var(--color-text)", marginBottom: 4 }}>No Coach Assigned</div>
-                <div style={{ fontSize: 14 }}>When a coach invites you, it will appear here.</div>
-              </div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                {coaches.map(c => (
-                  <div key={c.relationship_id} style={{ 
-                    background: "var(--bg-glass)", border: "1px solid var(--border-card)", borderRadius: 20, 
-                    padding: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16
-                  }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                      <div style={{ 
-                        width: 56, height: 56, borderRadius: 16, background: "var(--bg-card)",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        fontSize: 20, fontWeight: 800, color: "var(--aura-accent)", overflow: "hidden"
-                      }}>
-                        {c.coach_avatar ? (
-                          <img src={c.coach_avatar} alt={c.coach_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                        ) : (
-                          c.coach_name.charAt(0).toUpperCase()
-                        )}
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 800, fontSize: 18, color: "var(--color-text)" }}>{c.coach_name}</div>
-                        <div style={{ fontSize: 13, color: "var(--color-text-3)", marginTop: 2 }}>{c.coach_email}</div>
-                      </div>
-                    </div>
-
-                    {c.status === 'pending' ? (
-                      <div style={{ display: "flex", gap: 12 }}>
-                        <button onClick={() => handleResponse(c.relationship_id, 'accept')} className="btn-primary" style={{
-                          display: "flex", alignItems: "center", gap: 6, padding: "10px 20px", borderRadius: 12, fontWeight: 700, fontSize: 13
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  {activeOrPending.map(c => (
+                    <div key={c.relationship_id} style={{ 
+                      background: "var(--bg-glass)", border: "1px solid var(--border-card)", borderRadius: 20, 
+                      padding: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16
+                    }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                        <div style={{ 
+                          width: 56, height: 56, borderRadius: 16, background: "var(--bg-card)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: 20, fontWeight: 800, color: "var(--aura-accent)", overflow: "hidden"
                         }}>
-                          <Check size={16} /> Accept
-                        </button>
-                        <button onClick={() => handleResponse(c.relationship_id, 'decline')} style={{
-                          display: "flex", alignItems: "center", gap: 6, padding: "10px 20px", borderRadius: 12,
-                          background: "transparent", color: "var(--color-text)", border: "1px solid var(--border-card)", fontWeight: 700, fontSize: 13, cursor: "pointer"
-                        }}>
-                          <X size={16} /> Decline
-                        </button>
-                      </div>
-                    ) : (
-                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <button 
-                          onClick={() => setChatRecipient({ ...c, id: c.coach_id, name: c.coach_name, avatar_url: c.coach_avatar })}
-                          className="btn-secondary" 
-                          style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700 }}
-                        >
-                          <MessageSquare size={16} /> Chat
-                        </button>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(34, 197, 94, 0.1)", color: "#22C55E", padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700 }}>
-                          <Check size={16} /> Active Coach
+                          {c.coach_avatar ? (
+                            <img src={c.coach_avatar} alt={c.coach_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          ) : (
+                            (c.coach_name || c.coach_email || 'C').charAt(0).toUpperCase()
+                          )}
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 800, fontSize: 18, color: "var(--color-text)" }}>{c.coach_name || c.coach_email.split('@')[0]}</div>
+                          <div style={{ fontSize: 13, color: "var(--color-text-3)", marginTop: 2 }}>{c.coach_email}</div>
                         </div>
                       </div>
-                    )}
-                  </div>
-                ))}
+
+                      {c.status === 'pending' ? (
+                        c.initiated_by === 'coach' ? (
+                          <div style={{ display: "flex", gap: 12 }}>
+                            <button onClick={() => handleResponse(c.relationship_id, 'accept')} className="btn-primary" style={{
+                              display: "flex", alignItems: "center", gap: 6, padding: "10px 20px", borderRadius: 12, fontWeight: 700, fontSize: 13, height: 36
+                            }}>
+                              <Check size={16} /> Accept Invite
+                            </button>
+                            <button onClick={() => handleResponse(c.relationship_id, 'decline')} style={{
+                              display: "flex", alignItems: "center", gap: 6, padding: "10px 20px", borderRadius: 12,
+                              background: "transparent", color: "var(--color-text)", border: "1px solid var(--border-card)", fontWeight: 700, fontSize: 13, cursor: "pointer", height: 36
+                            }}>
+                              <X size={16} /> Decline
+                            </button>
+                          </div>
+                        ) : (
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(234, 179, 8, 0.1)", color: "#EAB308", padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700 }}>
+                            <AlertCircle size={16} /> Request Pending (Waiting for Coach Approval)
+                          </div>
+                        )
+                      ) : (
+                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                          <button 
+                            onClick={() => setChatRecipient({ ...c, id: c.coach_id, name: c.coach_name, avatar_url: c.coach_avatar })}
+                            className="btn-secondary" 
+                            style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700 }}
+                          >
+                            <MessageSquare size={16} /> Chat
+                          </button>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(34, 197, 94, 0.1)", color: "#22C55E", padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700 }}>
+                            <Check size={16} /> Active Coach
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Gym Map Explorer Section */}
+            <div style={{ 
+              background: "var(--bg-glass)", 
+              border: "1px solid var(--border-card)", 
+              borderRadius: 28, 
+              padding: 28,
+              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.2)",
+              backdropFilter: "blur(16px)"
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, flexWrap: "wrap", gap: 12 }}>
+                <div>
+                  <h2 style={{ fontSize: 16, fontWeight: 900, margin: 0, display: "flex", alignItems: "center", gap: 10, color: "var(--color-text)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                    <MapPin size={20} color="var(--aura-cyan)" style={{ filter: "drop-shadow(0 0 4px var(--aura-cyan))" }} /> Gym & Coach Finder
+                  </h2>
+                  <p style={{ fontSize: 12, color: "var(--color-text-3)", margin: "4px 0 0" }}>
+                    Discover top fitness facilities in Tunisia and connect with their certified resident coaches.
+                  </p>
+                </div>
+                
+                <div style={{ 
+                  background: "rgba(255, 255, 255, 0.02)", 
+                  border: "1px solid var(--border-card)", 
+                  borderRadius: 12, 
+                  padding: "6px 12px", 
+                  fontSize: 11, 
+                  color: "var(--color-text-3)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6
+                }}>
+                  <Navigation size={12} color="var(--aura-accent)" /> 
+                  Location: <span style={{ color: "#fff", fontWeight: 700 }}>{userLoc.lat.toFixed(4)}°N, {userLoc.lng.toFixed(4)}°E</span>
+                </div>
               </div>
-            )}
+              
+              <div style={{ display: "grid", gridTemplateColumns: "1.9fr 1.1fr", gap: 24 }}>
+                {/* Map Area */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {/* Region & Specialty Selectors */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, overflowX: "auto", paddingBottom: 6 }}>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {Object.entries(REGIONS).map(([key, reg]) => {
+                        const isSelected = selectedRegion === key;
+                        return (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => {
+                              setSelectedRegion(key);
+                              setUserLoc({ lat: reg.lat, lng: reg.lng });
+                            }}
+                            style={{
+                              background: isSelected ? "var(--aura-cyan)" : "rgba(255,255,255,0.03)",
+                              color: isSelected ? "#000" : "var(--color-text-2)",
+                              border: isSelected ? "1px solid var(--aura-cyan)" : "1px solid var(--border-card)",
+                              padding: "8px 18px", 
+                              borderRadius: 12, 
+                              fontSize: 12, 
+                              fontWeight: 800, 
+                              cursor: "pointer", 
+                              whiteSpace: "nowrap",
+                              transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                              boxShadow: isSelected ? "0 0 12px rgba(6, 182, 212, 0.3)" : "none"
+                            }}
+                            onMouseEnter={e => {
+                              if (!isSelected) e.currentTarget.style.background = "rgba(255,255,255,0.08)";
+                            }}
+                            onMouseLeave={e => {
+                              if (!isSelected) e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+                            }}
+                          >
+                            {reg.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <select
+                      value={selectedGoal}
+                      onChange={(e) => setSelectedGoal(e.target.value)}
+                      style={{
+                        background: "rgba(255,255,255,0.03)",
+                        color: "var(--color-text)",
+                        border: "1px solid var(--border-card)",
+                        padding: "8px 16px",
+                        borderRadius: 12,
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        outline: "none",
+                        minWidth: 160
+                      }}
+                    >
+                      <option value="all" style={{ background: "#111" }}>All Specialties</option>
+                      {Object.entries(GOAL_LABELS).map(([key, label]) => (
+                        <option key={key} value={key} style={{ background: "#111" }}>{label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Leaflet Map Widget */}
+                  <div 
+                    id="leaflet-coaches-map" 
+                    style={{ 
+                      height: 560, 
+                      borderRadius: 20, 
+                      border: "1px solid var(--border-card)",
+                      boxShadow: "inset 0 0 20px rgba(0,0,0,0.8)",
+                      background: "#111", 
+                      overflow: "hidden"
+                    }} 
+                  />
+                </div>
+
+                {/* Sidebar Directory */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  <h4 style={{ fontSize: 11, fontWeight: 900, margin: "0 0 4px", color: "var(--color-text-3)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
+                    Gym Directory ({nearestGyms.length} Facilities)
+                  </h4>
+                  
+                  <div style={{ 
+                    display: "flex", 
+                    flexDirection: "column", 
+                    gap: 14, 
+                    maxHeight: 560, 
+                    overflowY: "auto", 
+                    paddingRight: 10
+                  }}>
+                    {nearestGyms.map(g => (
+                      <div 
+                        key={g.id} 
+                        style={{ 
+                          background: "linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%)", 
+                          border: "1px solid var(--border-card)", 
+                          borderRadius: 20, 
+                          padding: 16,
+                          transition: "all 0.2s"
+                        }}
+                        onMouseEnter={e => {
+                          e.currentTarget.style.borderColor = "var(--border-focus)";
+                          e.currentTarget.style.background = "linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.02) 100%)";
+                        }}
+                        onMouseLeave={e => {
+                          e.currentTarget.style.borderColor = "var(--border-card)";
+                          e.currentTarget.style.background = "linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%)";
+                        }}
+                      >
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                          <div>
+                            <div style={{ fontSize: 15, fontWeight: 800, color: "var(--color-text)" }}>{g.name}</div>
+                            <div style={{ fontSize: 11, color: "var(--color-text-3)", marginTop: 2 }}>{g.address}</div>
+                          </div>
+                          
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+                            <div style={{ 
+                              background: "rgba(6, 182, 212, 0.08)", 
+                              color: "var(--aura-cyan)", 
+                              fontSize: 10, 
+                              fontWeight: 800, 
+                              padding: "4px 10px", 
+                              borderRadius: 8,
+                              border: "1px solid rgba(6, 182, 212, 0.15)",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 4
+                            }}>
+                              <Navigation size={10} /> {g.distance.toFixed(1)} km
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(`https://www.google.com/maps/dir/?api=1&destination=${g.latitude},${g.longitude}`, "_blank");
+                              }}
+                              style={{
+                                background: "rgba(255,255,255,0.03)",
+                                color: "var(--color-text-2)",
+                                border: "1px solid var(--border-card)",
+                                padding: "4px 8px",
+                                borderRadius: 6,
+                                fontSize: 9,
+                                fontWeight: 700,
+                                cursor: "pointer",
+                                transition: "all 0.2s"
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.08)"}
+                              onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}
+                            >
+                              Directions
+                            </button>
+                          </div>
+                        </div>
+                        
+                        {g.coaches && g.coaches.length > 0 ? (
+                          <div style={{ 
+                            display: "flex", 
+                            flexDirection: "column", 
+                            gap: 12, 
+                            marginTop: 12, 
+                            borderTop: "1px solid rgba(255,255,255,0.04)", 
+                            paddingTop: 12 
+                          }}>
+                            {g.coaches.map(c => {
+                              // Find if athlete has existing coach connection/status in coaches list
+                              const match = coaches.find(curr => curr.coach_id === c.coach_id);
+                              const isHired = match?.status === 'active';
+                              const isPending = match?.status === 'pending';
+
+                              return (
+                                <div 
+                                  key={c.coach_id} 
+                                  onClick={() => setSelectedCoachForInfo(c)}
+                                  style={{ 
+                                    display: "flex", 
+                                    justifyContent: "space-between", 
+                                    alignItems: "center",
+                                    cursor: "pointer",
+                                    padding: "6px 8px",
+                                    borderRadius: "12px",
+                                    transition: "background 0.2s"
+                                  }}
+                                  onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.03)"}
+                                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                                >
+                                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                                    <div style={{ 
+                                      width: 36, 
+                                      height: 36, 
+                                      borderRadius: 10, 
+                                      background: "var(--color-surface-h)", 
+                                      display: "flex", 
+                                      alignItems: "center", 
+                                      justifyContent: "center", 
+                                      fontSize: 14, 
+                                      fontWeight: 900, 
+                                      color: "var(--aura-cyan)", 
+                                      overflow: "hidden",
+                                      border: "1px solid var(--border-card)"
+                                    }}>
+                                      {c.avatar_url ? (
+                                        <img src={c.avatar_url} alt={c.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                      ) : (
+                                        (c.name || c.email || 'C').charAt(0).toUpperCase()
+                                      )}
+                                    </div>
+                                    <div>
+                                      <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text)" }}>{c.name || c.email.split('@')[0]}</div>
+                                      <div style={{ fontSize: 10, color: "var(--color-text-3)", marginTop: 1 }}>{c.experience?.toUpperCase()} • {c.goal?.toUpperCase()}</div>
+                                    </div>
+                                  </div>
+                                  
+                                  {isHired ? (
+                                    <div style={{ 
+                                      background: "rgba(34, 197, 94, 0.08)", 
+                                      color: "#22c55e", 
+                                      fontSize: 11, 
+                                      fontWeight: 800, 
+                                      padding: "4px 10px", 
+                                      borderRadius: 8,
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 4
+                                    }}>
+                                      <Check size={12} /> Active
+                                    </div>
+                                  ) : isPending ? (
+                                    <div style={{ 
+                                      background: "rgba(245, 158, 11, 0.08)", 
+                                      color: "#f59e0b", 
+                                      fontSize: 11, 
+                                      fontWeight: 800, 
+                                      padding: "4px 10px", 
+                                      borderRadius: 8,
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: 4
+                                    }}>
+                                      <AlertCircle size={12} /> Pending
+                                    </div>
+                                  ) : (
+                                    <button 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleHireCoach(c.coach_id);
+                                      }}
+                                      className="btn-primary" 
+                                      style={{ padding: "6px 14px", borderRadius: 10, fontSize: 11, fontWeight: 800 }}
+                                    >
+                                      Hire
+                                    </button>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <div style={{ fontSize: 11, color: "var(--color-text-3)", fontStyle: "italic", marginTop: 8 }}>
+                            No resident coaches registered here.
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Coach Directory */}
+            <div>
+              <h2 style={{ fontSize: 14, fontWeight: 800, margin: "0 0 16px", display: "flex", alignItems: "center", gap: 8, color: "var(--color-text)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                <Search size={18} color="var(--color-text-3)" /> Browse & Hire Coaches
+              </h2>
+
+              {browseCoaches.length === 0 ? (
+                <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>No other coaches listed.</div>
+              ) : (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
+                  {browseCoaches.map(c => (
+                    <div key={c.coach_id} 
+                      onClick={() => setSelectedCoachForInfo(c)}
+                      style={{ 
+                        background: "var(--bg-glass)", border: "1px solid var(--border-card)", borderRadius: 20, 
+                        padding: 20, display: "flex", justifyContent: "space-between", alignItems: "center",
+                        cursor: "pointer", transition: "border-color 0.2s"
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.borderColor = "var(--aura-accent)"}
+                      onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border-card)"}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <div style={{ 
+                          width: 44, height: 44, borderRadius: 12, background: "var(--bg-card)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: 16, fontWeight: 800, color: "var(--aura-accent)", overflow: "hidden"
+                        }}>
+                          {c.coach_avatar ? (
+                            <img src={c.coach_avatar} alt={c.coach_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          ) : (
+                            (c.coach_name || c.coach_email || 'C').charAt(0).toUpperCase()
+                          )}
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 800, fontSize: 15, color: "var(--color-text)" }}>{c.coach_name || c.coach_email.split('@')[0]}</div>
+                          <div style={{ fontSize: 12, color: "var(--color-text-3)" }}>{c.coach_email}</div>
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleHireCoach(c.coach_id);
+                        }}
+                        className="btn-primary" 
+                        style={{ padding: "6px 16px", borderRadius: 10, fontSize: 12, fontWeight: 700 }}
+                      >
+                        Hire
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -462,6 +1398,285 @@ export default function CoachDashboard() {
           onClose={() => setChatRecipient(null)} 
         />
       )}
+
+      {selectedCoachForInfo && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          background: "rgba(0,0,0,0.85)", zIndex: 1000, display: "flex",
+          alignItems: "center", justifyContent: "center", padding: 20,
+          backdropFilter: "blur(8px)"
+        }}>
+          <div style={{
+            background: "var(--color-bg)", border: "1px solid var(--border-card)",
+            borderRadius: 28, padding: 30, maxWidth: 480, width: "100%",
+            display: "flex", flexDirection: "column", gap: 24, position: "relative",
+            boxShadow: "0 20px 40px rgba(0,0,0,0.4)"
+          }}>
+            <button 
+              onClick={() => setSelectedCoachForInfo(null)}
+              style={{
+                position: "absolute", top: 20, right: 20,
+                background: "rgba(255,255,255,0.05)", border: "none", color: "#fff",
+                width: 32, height: 32, borderRadius: "50%", cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16
+              }}
+            >
+              ×
+            </button>
+
+            {/* Profile Header */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 12, marginTop: 10 }}>
+              <div style={{ 
+                width: 96, height: 96, borderRadius: "50%", background: "var(--bg-card)",
+                border: "3px solid var(--aura-cyan)", overflow: "hidden",
+                boxShadow: "0 0 20px rgba(6, 182, 212, 0.3)"
+              }}>
+                {selectedCoachForInfo.coach_avatar || selectedCoachForInfo.avatar_url ? (
+                  <img src={selectedCoachForInfo.coach_avatar || selectedCoachForInfo.avatar_url} alt={selectedCoachForInfo.coach_name || selectedCoachForInfo.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, fontWeight: 900, color: "var(--aura-cyan)" }}>
+                    {(selectedCoachForInfo.coach_name || selectedCoachForInfo.name || "C").charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 22, fontWeight: 900, color: "#fff" }}>{selectedCoachForInfo.coach_name || selectedCoachForInfo.name}</h3>
+                <span style={{ fontSize: 13, color: "var(--color-text-3)" }}>{selectedCoachForInfo.coach_email || selectedCoachForInfo.email}</span>
+              </div>
+            </div>
+
+            {/* Rating & Bio Section */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, textAlign: "center", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.04)", borderBottom: "1px solid rgba(255,255,255,0.04)", padding: "16px 0" }}>
+              {(() => {
+                const id = selectedCoachForInfo.coach_id || selectedCoachForInfo.id || 1;
+                const rating = (4.5 + (id % 6) * 0.1).toFixed(1);
+                const reviews = 12 + (id % 7) * 4;
+                return (
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#f59e0b" }}>
+                    <div style={{ display: "flex" }}>
+                      {[...Array(5)].map((_, i) => (
+                        <span key={i} style={{ color: i < Math.floor(rating) ? "#f59e0b" : "rgba(255,255,255,0.15)" }}>★</span>
+                      ))}
+                    </div>
+                    <span style={{ fontWeight: 800, color: "#fff" }}>{rating}</span>
+                    <span style={{ color: "var(--color-text-3)", fontSize: 11 }}>({reviews} reviews)</span>
+                  </div>
+                );
+              })()}
+              
+              <p style={{ margin: 0, fontSize: 13, lineHeight: 1.6, color: "var(--color-text-2)", padding: "0 10px" }}>
+                {getCoachBio(selectedCoachForInfo)}
+              </p>
+            </div>
+
+            {/* Coach Details Grid */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 12 }}>
+                <span style={{ fontSize: 10, color: "var(--color-text-3)", fontWeight: 700, textTransform: "uppercase" }}>Specialty</span>
+                <div style={{ fontSize: 13, fontWeight: 800, color: "var(--aura-cyan)", marginTop: 4 }}>
+                  {GOAL_LABELS[selectedCoachForInfo.goal] || selectedCoachForInfo.goal || "General Fitness"}
+                </div>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 12 }}>
+                <span style={{ fontSize: 10, color: "var(--color-text-3)", fontWeight: 700, textTransform: "uppercase" }}>Level</span>
+                <div style={{ fontSize: 13, fontWeight: 800, color: "var(--aura-accent)", marginTop: 4 }}>
+                  {EXP_LABELS[selectedCoachForInfo.experience] || selectedCoachForInfo.experience || "Certified Trainer"}
+                </div>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 12 }}>
+                <span style={{ fontSize: 10, color: "var(--color-text-3)", fontWeight: 700, textTransform: "uppercase" }}>Age</span>
+                <div style={{ fontSize: 13, fontWeight: 800, color: "#fff", marginTop: 4 }}>
+                  {selectedCoachForInfo.age || 30} years old
+                </div>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 12 }}>
+                <span style={{ fontSize: 10, color: "var(--color-text-3)", fontWeight: 700, textTransform: "uppercase" }}>Gender</span>
+                <div style={{ fontSize: 13, fontWeight: 800, color: "#fff", marginTop: 4 }}>
+                  {selectedCoachForInfo.sex === 'F' ? "Female" : "Male"}
+                </div>
+              </div>
+            </div>
+
+            {/* Registered Gyms list */}
+            <div>
+              <span style={{ fontSize: 11, color: "var(--color-text-3)", fontWeight: 700, textTransform: "uppercase", display: "block", marginBottom: 8 }}>Registered Training Centers</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {gyms.filter(g => g.coaches?.some(c => c.coach_id === (selectedCoachForInfo.coach_id || selectedCoachForInfo.id))).map(g => (
+                  <div key={g.id} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#ccc" }}>
+                    <MapPin size={12} color="var(--aura-cyan)" /> 
+                    <span>{g.name} <span style={{ color: "var(--color-text-3)" }}>({g.address})</span></span>
+                  </div>
+                ))}
+                {gyms.filter(g => g.coaches?.some(c => c.coach_id === (selectedCoachForInfo.coach_id || selectedCoachForInfo.id))).length === 0 && (
+                  <div style={{ fontSize: 12, color: "var(--color-text-3)", fontStyle: "italic" }}>No registered gym locations listed.</div>
+                )}
+              </div>
+            </div>
+
+            {/* Action footer */}
+            <div style={{ borderTop: "1px solid var(--border-card)", paddingTop: 20, display: "flex", justifyContent: "flex-end" }}>
+              {(() => {
+                const match = coaches.find(curr => curr.coach_id === (selectedCoachForInfo.coach_id || selectedCoachForInfo.id));
+                const isHired = match?.status === 'active';
+                const isPending = match?.status === 'pending';
+
+                if (isHired) {
+                  return (
+                    <div style={{ background: "rgba(34, 197, 94, 0.08)", color: "#22c55e", fontSize: 13, fontWeight: 800, padding: "8px 16px", borderRadius: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                      <Check size={14} /> Active Personal Coach
+                    </div>
+                  );
+                } else if (isPending) {
+                  return (
+                    <div style={{ background: "rgba(245, 158, 11, 0.08)", color: "#f59e0b", fontSize: 13, fontWeight: 800, padding: "8px 16px", borderRadius: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                      <AlertCircle size={14} /> Request Pending Approval
+                    </div>
+                  );
+                } else {
+                  return (
+                    <button 
+                      onClick={() => {
+                        handleHireCoach(selectedCoachForInfo.coach_id || selectedCoachForInfo.id);
+                        setSelectedCoachForInfo(null);
+                      }}
+                      className="btn-primary" 
+                      style={{ padding: "10px 24px", borderRadius: 12, fontSize: 13, fontWeight: 800 }}
+                    >
+                      Hire Coach
+                    </button>
+                  );
+                }
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedWorkoutDetail && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          background: "rgba(0,0,0,0.85)", zIndex: 1000, display: "flex",
+          alignItems: "center", justifyContent: "center", padding: 20
+        }}>
+          <div style={{
+            background: "var(--color-bg)", border: "1px solid var(--border-card)",
+            borderRadius: 24, padding: 30, maxWidth: 600, width: "100%", maxHeight: "90vh",
+            overflowY: "auto", display: "flex", flexDirection: "column", gap: 20
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 20, color: "var(--color-text)", fontWeight: 800 }}>{selectedWorkoutDetail.workout_name}</h3>
+                <span style={{ fontSize: 12, color: "var(--color-text-3)" }}>{new Date(selectedWorkoutDetail.session_date).toLocaleDateString()} • {Math.round(selectedWorkoutDetail.duration_sec / 60)} mins</span>
+              </div>
+              <button 
+                onClick={() => { setSelectedWorkoutDetail(null); setSessionNotes([]); }}
+                style={{ background: "rgba(255,255,255,0.05)", border: "none", color: "#fff", width: 36, height: 36, borderRadius: "50%", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 12, padding: 12, textAlign: "center", border: "1px solid var(--border-card)" }}>
+                <span style={{ fontSize: 11, color: "var(--color-text-3)" }}>TOTAL VOLUME</span>
+                <div style={{ fontSize: 18, fontWeight: 800, marginTop: 4, color: "var(--aura-accent)" }}>{selectedWorkoutDetail.total_volume} kg</div>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 12, padding: 12, textAlign: "center", border: "1px solid var(--border-card)" }}>
+                <span style={{ fontSize: 11, color: "var(--color-text-3)" }}>TOTAL SETS</span>
+                <div style={{ fontSize: 18, fontWeight: 800, marginTop: 4, color: "var(--aura-accent)" }}>{selectedWorkoutDetail.total_sets} sets</div>
+              </div>
+            </div>
+
+            {selectedWorkoutDetail.notes && (
+              <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 12, padding: 16, border: "1px solid var(--border-card)" }}>
+                <span style={{ fontSize: 11, color: "var(--color-text-3)", fontWeight: 700 }}>Client Session Notes:</span>
+                <p style={{ margin: "6px 0 0", fontSize: 13, color: "var(--color-text)", lineHeight: 1.4 }}>{selectedWorkoutDetail.notes}</p>
+              </div>
+            )}
+
+            <div>
+              <h4 style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 800 }}>Exercises & Sets</h4>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {Object.entries(selectedWorkoutDetail.sets.reduce((groups, s) => {
+                  const name = s.exercise_name || "Unknown";
+                  if (!groups[name]) groups[name] = [];
+                  groups[name].push(s);
+                  return groups;
+                }, {})).map(([name, exSets]) => (
+                  <div key={name} style={{ background: "rgba(255,255,255,0.01)", border: "1px solid var(--border-card)", borderRadius: 12, padding: 16 }}>
+                    <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 10, color: "var(--color-text)" }}>{name}</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {exSets.map((s, idx) => (
+                        <div key={s.id || idx} style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--color-text-3)" }}>
+                          <span>Set {idx + 1} ({s.set_type || "normal"})</span>
+                          <span style={{ color: "var(--color-text)", fontWeight: 700 }}>
+                            {s.weight_kg} kg × {s.reps} reps {s.rpe ? `(RPE ${s.rpe})` : ""}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ borderTop: "1px solid var(--border-card)", paddingTop: 20 }}>
+              <h4 style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 800, color: "var(--aura-accent)", display: "flex", alignItems: "center", gap: 6 }}>
+                <MessageSquare size={16} /> Coach Feedback & Recommendations
+              </h4>
+              
+              {sessionNotes.length > 0 ? (
+                <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+                  {sessionNotes.map(n => (
+                    <div key={n.id} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 12, padding: 12 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--color-text-3)", marginBottom: 4 }}>
+                        <span>{n.coach_name || "Coach"}</span>
+                        <span>{new Date(n.created_at).toLocaleDateString()}</span>
+                      </div>
+                      <p style={{ margin: 0, fontSize: 13, color: "var(--color-text)", lineHeight: 1.4 }}>{n.note}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p style={{ fontSize: 13, color: "var(--color-text-3)", fontStyle: "italic", marginBottom: 16 }}>No feedback note left on this session yet.</p>
+              )}
+
+              {role === 'coach' && (
+                <form onSubmit={handleAddSessionNote} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <textarea 
+                    placeholder="Leave feedback or recommendations for this session..."
+                    value={newSessionNote}
+                    onChange={e => setNewSessionNote(e.target.value)}
+                    style={{
+                      width: "100%", background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)",
+                      borderRadius: 12, padding: 12, color: "var(--color-text)", fontSize: 13, minHeight: 70, resize: "none"
+                    }}
+                    required
+                  />
+                  <button 
+                    type="submit" 
+                    disabled={submittingNote || !newSessionNote.trim()}
+                    className="btn-primary" 
+                    style={{ alignSelf: "flex-end", padding: "8px 16px", borderRadius: 10, fontSize: 12, fontWeight: 700 }}
+                  >
+                    {submittingNote ? "Submitting..." : "Add Feedback"}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+// Simple internal icon component for missing Lucide icon
+function TrendingUpIcon({ size = 16, color = "currentColor" }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-trending-up">
+      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+      <polyline points="16 7 22 7 22 13" />
+    </svg>
   );
 }
