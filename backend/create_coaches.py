@@ -83,8 +83,8 @@ def main():
                 # 3. Create User Profile with Coach role
                 cur.execute(
                     """
-                    INSERT INTO users (auth_id, name, email, sex, age, experience, goal, role, avatar_url)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, 'coach', %s)
+                    INSERT INTO users (auth_id, name, email, sex, age, experience, goal, role, avatar_url, approved)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, 'coach', %s, TRUE)
                     """,
                     (auth_id, data["name"], data["email"], data["sex"], data["age"], data["experience"], data["goal"], avatar_url)
                 )

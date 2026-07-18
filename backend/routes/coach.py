@@ -82,6 +82,7 @@ def invite_athlete(payload: InviteReq, coach_id: int = Depends(get_current_user_
                 RETURNING id
             """, (coach_id, athlete_id))
         
+    db.commit()
     return {"success": True, "message": f"Invite sent to {athlete['name']}"}
 
 @router.get("/coaches")
@@ -136,6 +137,7 @@ def hire_coach(payload: HireReq, athlete_id: int = Depends(get_current_user_id),
                 RETURNING id
             """, (payload.coach_id, athlete_id))
             
+    db.commit()
     return {"success": True, "message": f"Hire request sent to {coach['name']}"}
 
 @router.get("/athletes")
@@ -341,6 +343,7 @@ def respond_invite(payload: RespondReq, user_id: int = Depends(get_current_user_
             SET status = %s 
             WHERE id = %s AND (athlete_id = %s OR coach_id = %s)
         """, (status, payload.relationship_id, user_id, user_id))
+    db.commit()
     return {"success": True, "status": status}
 
 @router.post("/remove")
@@ -350,6 +353,7 @@ def remove_relationship(payload: RemoveRelationshipReq, user_id: int = Depends(g
             DELETE FROM coach_relationships 
             WHERE id = %s AND (coach_id = %s OR athlete_id = %s)
         """, (payload.relationship_id, user_id, user_id))
+    db.commit()
     return {"success": True}
 
 @router.post("/notes")
@@ -360,7 +364,9 @@ def add_coach_note(payload: CoachNoteReq, coach_id: int = Depends(get_current_us
             VALUES (%s, %s, %s, %s)
             RETURNING id, note, created_at
         """, (coach_id, payload.athlete_id, payload.session_id, payload.note))
-        return cur.fetchone()
+        row = cur.fetchone()
+    db.commit()
+    return row
 
 @router.get("/notes/session/{session_id}")
 def get_session_notes(session_id: int, athlete_id: int = Depends(get_current_user_id), db=Depends(get_db)):
@@ -406,6 +412,7 @@ def suggest_workout(athlete_id: int, payload: SuggestWorkoutReq, coach_id: int =
             json.dumps({"program_name": payload.program_name, "program_note": payload.program_note, "workouts": payload.workouts})
         ))
         
+    db.commit()
     return {"success": True}
 
 
