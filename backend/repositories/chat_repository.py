@@ -82,3 +82,15 @@ class ChatRepository:
                 (user_id, user_id, user_id, user_id, user_id)
             )
             return cur.fetchall()
+
+    def clear_conversation(self, user_id1: int, user_id2: int):
+        with self.conn.cursor() as cur:
+            cur.execute(
+                """
+                DELETE FROM chat_messages
+                WHERE (sender_id = %s AND receiver_id = %s)
+                   OR (sender_id = %s AND receiver_id = %s)
+                """,
+                (user_id1, user_id2, user_id2, user_id1)
+            )
+

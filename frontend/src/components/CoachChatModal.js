@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { X, Send, User, MessageSquare } from "lucide-react";
+import { X, Send, User, MessageSquare, Trash2 } from "lucide-react";
 import { api } from "../utils/api";
 import { useAuth } from "../utils/auth";
 
@@ -50,6 +50,22 @@ export default function CoachChatModal({ recipient, onClose }) {
     }
   };
 
+  const handleClearChat = async () => {
+    const recipientId = recipient.id || recipient.athlete_id || recipient.coach_id;
+    if (!recipientId) return;
+
+    if (!window.confirm("Are you sure you want to clear this conversation? This will delete all messages for both you and the other user. This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      await api.clearConversation(recipientId);
+      setMessages([]);
+    } catch (e) {
+      console.error("Failed to clear conversation", e);
+    }
+  };
+
   if (!recipient) return null;
 
   const recipientName = recipient.name || recipient.coach_name || "User";
@@ -90,13 +106,28 @@ export default function CoachChatModal({ recipient, onClose }) {
               <div style={{ fontSize: 11, color: "#22C55E", fontWeight: 700 }}>Online</div>
             </div>
           </div>
-          <button onClick={onClose} style={{
-            background: "rgba(255,255,255,0.05)", border: "none", color: "var(--color-text)",
-            width: 32, height: 32, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
-            cursor: "pointer"
-          }}>
-            <X size={18} />
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <button 
+              onClick={handleClearChat} 
+              title="Clear Conversation"
+              style={{
+                background: "rgba(255,255,255,0.05)", border: "none", color: "var(--color-text)",
+                width: 32, height: 32, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer", transition: "all 0.2s"
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.color = "#EF4444"}
+              onMouseLeave={(e) => e.currentTarget.style.color = "var(--color-text)"}
+            >
+              <Trash2 size={18} />
+            </button>
+            <button onClick={onClose} style={{
+              background: "rgba(255,255,255,0.05)", border: "none", color: "var(--color-text)",
+              width: 32, height: 32, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: "pointer"
+            }}>
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         {/* Messages */}

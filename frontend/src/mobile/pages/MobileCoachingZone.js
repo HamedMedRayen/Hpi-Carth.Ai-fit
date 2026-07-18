@@ -638,6 +638,21 @@ export default function MobileCoachingZone() {
     }
   };
 
+  const handleClearChat = async () => {
+    if (!chattingWith?.id) return;
+    if (!window.confirm("Are you sure you want to clear this conversation? This will delete all messages for both you and the other user. This action cannot be undone.")) {
+      return;
+    }
+    try {
+      await api.clearConversation(chattingWith.id);
+      setMessages([]);
+      toast.success("Conversation cleared");
+    } catch (e) {
+      console.error("Failed to clear conversation", e);
+      toast.error("Failed to clear conversation");
+    }
+  };
+
   // ── Suggest Workout logic ───────────────────────────────────────
   useEffect(() => {
     if (exerciseSearchQuery.trim().length > 1) {
@@ -784,6 +799,17 @@ export default function MobileCoachingZone() {
             <h2 style={{ fontSize: 16, fontWeight: 800, color: "var(--color-text)", margin: 0 }}>{chattingWith.name || 'Chat'}</h2>
             <span style={{ fontSize: 11, color: "var(--aura-cyan)", fontWeight: 700 }}>Direct Chat</span>
           </div>
+          <button 
+            onClick={handleClearChat}
+            style={{ 
+              background: "none", border: "none", color: "var(--color-text)", 
+              cursor: "pointer", display: "flex", alignItems: "center", padding: 8,
+              marginLeft: "auto"
+            }}
+            title="Clear Conversation"
+          >
+            <Trash2 size={20} style={{ opacity: 0.7 }} />
+          </button>
         </div>
 
         {/* Messages list */}

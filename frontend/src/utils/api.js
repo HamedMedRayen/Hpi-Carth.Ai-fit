@@ -211,6 +211,8 @@ export const api = {
   sendMessage: (receiver_id, message) => req("/coach-chat/send", { method: "POST", body: JSON.stringify({ receiver_id, message }) }),
   getMessages: (other_user_id) => req(`/coach-chat/messages/${other_user_id}`),
   getConversations: () => req("/coach-chat/conversations"),
+  clearConversation: (other_user_id) => req(`/coach-chat/clear/${other_user_id}`, { method: "DELETE" }),
+
 
   // Nutrition
   searchFood: (q) => req(`/nutrition/food/search?q=${encodeURIComponent(q)}`),

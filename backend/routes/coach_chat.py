@@ -37,3 +37,14 @@ def get_conversations(
 ):
     repo = ChatRepository(db)
     return repo.get_conversations(user_id)
+
+@router.delete("/clear/{other_user_id}")
+def clear_conversation(
+    other_user_id: int,
+    user_id: int = Depends(get_current_user_id),
+    db=Depends(get_db)
+):
+    repo = ChatRepository(db)
+    repo.clear_conversation(user_id, other_user_id)
+    return {"status": "success", "message": "Conversation cleared successfully"}
+
