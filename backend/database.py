@@ -678,6 +678,21 @@ def _do_init_db() -> None:
                 cur.execute("CREATE TABLE IF NOT EXISTS water_logs (id BIGSERIAL PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE, amount_ml INT DEFAULT 0, date DATE NOT NULL DEFAULT CURRENT_DATE, logged_at TIMESTAMPTZ DEFAULT NOW(), UNIQUE(user_id, date))")
                 cur.execute("CREATE INDEX IF NOT EXISTS idx_water_logs_user ON water_logs(user_id, date DESC)")
 
+                # --- COACH CHECK-INS MIGRATIONS ---
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS coach_check_ins (
+                        id BIGSERIAL PRIMARY KEY,
+                        coach_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                        athlete_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                        adherence_rate INT DEFAULT 100,
+                        status_label TEXT DEFAULT 'on_track',
+                        feedback TEXT NOT NULL,
+                        focus_areas TEXT[] DEFAULT ARRAY[]::TEXT[],
+                        created_at TIMESTAMPTZ DEFAULT NOW()
+                    )
+                """)
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_coach_check_ins_athlete ON coach_check_ins(athlete_id, created_at DESC)")
+
                 # --- FOOD & RECIPES MIGRATIONS ---
                 cur.execute("""
                     CREATE TABLE IF NOT EXISTS food_items (
@@ -757,12 +772,12 @@ def _get_pool():
     global _pool
     if _pool is None or _pool.closed:
         _pool = psycopg2.pool.ThreadedConnectionPool(
-            minconn=2,
-            maxconn=10,
+            minconn=1,
+            maxconn=8,
             dsn=settings.DATABASE_URL,
             cursor_factory=psycopg2.extras.RealDictCursor,
         )
-        print("[DB] Connection pool created (2-10 connections)", flush=True)
+        print("[DB] Connection pool created (1-8 connections)", flush=True)
     return _pool
 
 

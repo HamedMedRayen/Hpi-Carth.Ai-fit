@@ -35,6 +35,20 @@ class SuggestWorkoutReq(BaseModel):
 class HireReq(BaseModel):
     coach_id: int
 
+class CoachNutritionTargetReq(BaseModel):
+    final_calories: float
+    final_protein: float
+    final_carbs: float
+    final_fat: float
+    goal: Optional[str] = "custom"
+
+class CoachCheckInReq(BaseModel):
+    adherence_rate: int
+    status_label: str
+    feedback: str
+    focus_areas: List[str]
+
+
 @router.post("/invite")
 def invite_athlete(payload: InviteReq, coach_id: int = Depends(get_current_user_id), db=Depends(get_db)):
     with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
@@ -304,6 +318,34 @@ def get_athlete_stats(athlete_id: int, coach_id: int = Depends(get_current_user_
             ORDER BY pr.one_rm_est DESC
         """, (athlete_id,))
         personal_records = cur.fetchall()
+
+        # Get progress photos
+        cur.execute("""
+            SELECT id, photo_url, weight, date::text as date, note
+            FROM progress_photos
+            WHERE user_id = %s
+            ORDER BY date DESC LIMIT 15
+        """, (athlete_id,))
+        progress_photos = cur.fetchall()
+
+        # Get body measurements
+        cur.execute("""
+            SELECT id, date::text as date, neck, shoulders, chest, waist, hips,
+                   left_arm, right_arm, left_thigh, right_thigh, left_calf, right_calf
+            FROM measurements
+            WHERE user_id = %s
+            ORDER BY date DESC LIMIT 15
+        """, (athlete_id,))
+        measurements = cur.fetchall()
+
+        # Get coach check-ins (last 10)
+        cur.execute("""
+            SELECT c.id, c.adherence_rate, c.status_label, c.feedback, c.focus_areas, c.created_at::text as date
+            FROM coach_check_ins c
+            WHERE c.athlete_id = %s
+            ORDER BY c.created_at DESC LIMIT 10
+        """, (athlete_id,))
+        check_ins = cur.fetchall()
         
         return {
             "profile": profile,
@@ -319,7 +361,11 @@ def get_athlete_stats(athlete_id: int, coach_id: int = Depends(get_current_user_
             "recent_nutrition": recent_nutrition,
             "nutrition_target": nutrition_target,
             "personal_records": personal_records,
+            "progress_photos": progress_photos,
+            "measurements": measurements,
+            "check_ins": check_ins,
         }
+
 
 @router.get("/my-coach")
 def get_my_coach(athlete_id: int = Depends(get_current_user_id), db=Depends(get_db)):
@@ -414,6 +460,96 @@ def suggest_workout(athlete_id: int, payload: SuggestWorkoutReq, coach_id: int =
         
     db.commit()
     return {"success": True}
+
+
+@router.post("/athletes/{athlete_id}/nutrition-target")
+def coach_assign_nutrition_target(athlete_id: int, payload: CoachNutritionTargetReq, coach_id: int = Depends(get_current_user_id), db=Depends(get_db)):
+    with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        # Verify active relationship
+        cur.execute("""
+            SELECT id FROM coach_relationships 
+            WHERE coach_id = %s AND athlete_id = %s AND status = 'active'
+        """, (coach_id, athlete_id))
+        if not cur.fetchone():
+            raise HTTPException(status_code=403, detail="No active relationship with this athlete")
+        
+        # Insert target nutrition
+        cur.execute("""
+            INSERT INTO nutrition_targets (
+                user_id, 
+                suggested_calories, suggested_protein, suggested_carbs, suggested_fat,
+                final_calories, final_protein, final_carbs, final_fat,
+                goal, pace, diet_style,
+                maintenance_calories, expected_weekly_change
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id
+        """, (
+            athlete_id,
+            payload.final_calories, payload.final_protein, payload.final_carbs, payload.final_fat,
+            payload.final_calories, payload.final_protein, payload.final_carbs, payload.final_fat,
+            payload.goal or "custom", "custom", "custom",
+            payload.final_calories, 0.0
+        ))
+        row = cur.fetchone()
+
+        # Insert notification
+        cur.execute("""
+            INSERT INTO notifications (user_id, sender_id, type, title, message)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (
+            athlete_id,
+            coach_id,
+            'nutrition_target_updated',
+            "Nutrition Plan Updated",
+            f"Your coach has assigned you a nutrition target: {int(payload.final_calories)} kcal."
+        ))
+
+    db.commit()
+    return {"success": True, "id": row["id"] if row else None}
+
+
+@router.post("/athletes/{athlete_id}/check-in")
+def coach_submit_check_in(athlete_id: int, payload: CoachCheckInReq, coach_id: int = Depends(get_current_user_id), db=Depends(get_db)):
+    with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        # Verify active relationship
+        cur.execute("""
+            SELECT id FROM coach_relationships 
+            WHERE coach_id = %s AND athlete_id = %s AND status = 'active'
+        """, (coach_id, athlete_id))
+        if not cur.fetchone():
+            raise HTTPException(status_code=403, detail="No active relationship with this athlete")
+        
+        # Insert check-in log
+        cur.execute("""
+            INSERT INTO coach_check_ins (
+                coach_id, athlete_id, adherence_rate, status_label, feedback, focus_areas
+            ) VALUES (%s, %s, %s, %s, %s, %s)
+            RETURNING id, created_at::text as created_at
+        """, (
+            coach_id,
+            athlete_id,
+            payload.adherence_rate,
+            payload.status_label,
+            payload.feedback,
+            payload.focus_areas
+        ))
+        row = cur.fetchone()
+
+        # Insert notification
+        cur.execute("""
+            INSERT INTO notifications (user_id, sender_id, type, title, message)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (
+            athlete_id,
+            coach_id,
+            'weekly_checkin_review',
+            "Weekly Review Submitted",
+            "Your coach has logged a review for your past training week. Check it out!"
+        ))
+
+    db.commit()
+    return {"success": True, "check_in": row}
+
 
 
 # ── Gyms & Coach Locations Endpoints ─────────────────────────────────
