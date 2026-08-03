@@ -253,51 +253,27 @@ export default function MobileNutrition() {
         </div>
       </div>
 
-      {/* ── AI Vision Camera Scanner Card Banner ── */}
-      <div 
-        onClick={() => setActiveModal('vision')}
-        style={{
-          background: "linear-gradient(135deg, rgba(0, 242, 254, 0.15) 0%, rgba(186, 85, 211, 0.15) 100%)",
-          border: "1px solid rgba(0, 242, 254, 0.3)",
-          borderRadius: 16,
-          padding: "16px 20px",
-          marginBottom: 20,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          cursor: "pointer",
-          boxShadow: "0 4px 20px rgba(0, 242, 254, 0.15)",
-          transition: "transform 0.2s ease"
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <div style={{
-            width: 44, height: 44, borderRadius: 12,
-            background: "linear-gradient(135deg, #00f2fe 0%, #ba55d3 100%)",
-            display: "flex", justifyContent: "center", alignItems: "center",
-            color: "#fff", boxShadow: "0 2px 10px rgba(0, 242, 254, 0.3)"
-          }}>
-            <Camera size={22} />
+      {/* ── Quick Actions Logging Grid ── */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
+        <button 
+          className="mobile-quick-action" 
+          onClick={() => setActiveModal('vision')} 
+          style={{ 
+            margin: 0, width: '100%', gridColumn: "span 2",
+            background: "linear-gradient(135deg, rgba(0, 242, 254, 0.2) 0%, rgba(186, 85, 211, 0.2) 100%)",
+            border: "1px solid rgba(0, 242, 254, 0.4)", padding: "14px 18px", borderRadius: 16,
+            display: "flex", alignItems: "center", gap: 12
+          }}
+        >
+          <div className="mobile-quick-action-icon" style={{ background: "linear-gradient(135deg, #00f2fe, #ba55d3)", color: "#fff", width: 40, height: 40, borderRadius: 12, display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <Camera size={20} />
           </div>
-          <div>
-            <div style={{ fontSize: 15, fontWeight: 800, color: "#fff", letterSpacing: "-0.3px" }}>
-              AI Vision Meal Scanner
-            </div>
-            <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 2 }}>
-              Snap photo for instant component & macro breakdown
-            </div>
+          <div style={{ display: "flex", flexDirection: "column", textAlign: "left" }}>
+            <span className="mobile-quick-action-label" style={{ fontSize: 14, fontWeight: 800, color: "#fff" }}>AI Vision Camera Scan</span>
+            <span className="mobile-quick-action-sub" style={{ color: "var(--aura-cyan)", fontSize: 11, fontWeight: 600 }}>Snap photo for instant macros & breakdown</span>
           </div>
-        </div>
-        <div style={{
-          background: "#00f2fe", color: "#000", fontWeight: 800, fontSize: 11,
-          padding: "6px 12px", borderRadius: 20, textTransform: "uppercase", letterSpacing: "0.5px"
-        }}>
-          SCAN
-        </div>
-      </div>
+        </button>
 
-      {/* ── 2x2 Quick Actions Logging Grid ── */}
-      <div className="mobile-grid-2x2" style={{ marginBottom: 24 }}>
         <button className="mobile-quick-action action-workout" onClick={() => setActiveModal('search')} style={{ margin: 0, width: '100%' }}>
           <div className="mobile-quick-action-icon">
             <Search size={18} />
