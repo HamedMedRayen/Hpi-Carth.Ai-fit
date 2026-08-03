@@ -25,8 +25,26 @@ export default function Nutrition() {
   const [todayWater, setTodayWater] = useState(0);
 
   // Modals state
-  const [activeModal, setActiveModal] = useState(null); // 'search', 'quick', 'recipe', 'custom'
+  const [activeModal, setActiveModal] = useState(null); // 'search', 'quick', 'recipe', 'custom', 'vision'
+  const [scanText, setScanText] = useState("");
+  const [scanningText, setScanningText] = useState(false);
   const toast = useToast();
+
+  const handleScanText = async () => {
+    if (!scanText.trim()) return;
+    setScanningText(true);
+    try {
+      await api.scanMeal(scanText.trim());
+      setScanText("");
+      if (toast?.success) toast.success("Meal analyzed & logged successfully!");
+      refreshData();
+    } catch (err) {
+      console.error("Text scan error:", err);
+      if (toast?.error) toast.error("Failed to analyze meal text.");
+    } finally {
+      setScanningText(false);
+    }
+  };
 
   // Settings / Macros
   const [showSettings, setShowSettings] = useState(false);
@@ -152,7 +170,7 @@ export default function Nutrition() {
       <div className="page-inner" style={{ maxWidth: 800 }}>
         
         {/* Top Actions Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 24 }}>
           <button onClick={() => setActiveModal('search')} className="action-card">
             <Search size={24} color="var(--aura-accent)" />
             <span>Search</span>
@@ -169,6 +187,17 @@ export default function Nutrition() {
             <Clipboard size={24} color="var(--aura-accent4)" />
             <span>Custom</span>
           </button>
+          <button 
+            onClick={() => setActiveModal('vision')} 
+            className="action-card" 
+            style={{ 
+              background: 'linear-gradient(135deg, rgba(0, 242, 254, 0.15) 0%, rgba(186, 85, 211, 0.2) 100%)',
+              border: '1px solid rgba(0, 242, 254, 0.4)'
+            }}
+          >
+            <Camera size={24} color="#00f2fe" />
+            <span style={{ color: '#00f2fe', fontWeight: 800 }}>Vision Scan</span>
+          </button>
         </div>
 
         {/* Summary Card */}
@@ -178,74 +207,87 @@ export default function Nutrition() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
               <h2 style={{ fontSize: 18, fontWeight: 700, margin: 0 }}>Daily Progress</h2>
               <button onClick={() => setShowSettings(!showSettings)} style={{ background: 'none', border: 'none', color: 'var(--aura-accent)', cursor: 'pointer' }}>
-                <Settings size={20} />
+                <Settings size={18} />
               </button>
             </div>
 
-            {showSettings && (
-               <div className="settings-panel" style={{ marginBottom: 24 }}>
-                  <NutritionCalculator onSaveSuccess={() => {
-                    fetchTargets();
-                    setShowSettings(false);
-                  }} />
-               </div>
-            )}
+            {/* Macro Rings Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20, textAlign: 'center' }}>
+              <MacroRing value={todayData.totals.calories} target={targets.calories} color="var(--aura-accent)" label="Calories" unit="kcal" />
+              <MacroRing value={todayData.totals.protein_g} target={targets.protein} color="var(--aura-accent2)" label="Protein" unit="g" />
+              <MacroRing value={todayData.totals.carbs_g} target={targets.carbs} color="var(--aura-accent3)" label="Carbs" unit="g" />
+              <MacroRing value={todayData.totals.fat_g} target={targets.fat} color="var(--aura-accent4)" label="Fat" unit="g" />
+            </div>
 
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 40, marginBottom: 32 }}>
-              <div style={{ position: 'relative', width: 140, height: 140 }}>
-                <svg viewBox="0 0 100 100" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%' }}>
-                  <circle cx="50" cy="50" r="45" fill="none" stroke="var(--color-ring-track)" strokeWidth="8" />
-                  <circle cx="50" cy="50" r="45" fill="none" stroke="var(--aura-accent)" strokeWidth="8" strokeDasharray={`${getPercentage(todayData.totals.calories, targets.calories) * 2.83} 283`} strokeLinecap="round" style={{ transition: 'stroke-dasharray 1s ease' }} />
-                </svg>
-                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ fontSize: 24, fontWeight: 900 }}>{todayData.totals.calories}</div>
-                  <div style={{ fontSize: 10, color: 'var(--color-text-3)', fontWeight: 700 }}>/ {targets.calories} kcal</div>
+            {/* Water Tracker */}
+            <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--color-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(0, 242, 254, 0.1)', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#00f2fe' }}>
+                  <Droplet size={20} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 13, color: 'var(--color-text-3)' }}>Water Intake</div>
+                  <div style={{ fontSize: 16, fontWeight: 700 }}>{todayWater} <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--color-text-3)' }}>/ {targets.water} ml</span></div>
                 </div>
               </div>
-
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <MacroRow label="Protein" current={todayData.totals.protein_g} target={targets.protein} color="var(--aura-accent2)" />
-                <MacroRow label="Carbs" current={todayData.totals.carbs_g} target={targets.carbs} color="var(--aura-accent3)" />
-                <MacroRow label="Fat" current={todayData.totals.fat_g} target={targets.fat} color="var(--aura-accent4)" />
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--aura-accent3)' }}>Water: {todayWater} / {targets.water} ml</span>
-                  <button onClick={() => addWater(250)} style={{ background: 'var(--aura-accent3)', color: '#000', border: 'none', borderRadius: 4, width: 24, height: 24, fontWeight: 800, cursor: 'pointer' }}>+</button>
-                </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => handleAddWater(250)} className="btn-secondary" style={{ padding: '6px 12px', fontSize: 12 }}>+250ml</button>
+                <button onClick={() => handleAddWater(500)} className="btn-secondary" style={{ padding: '6px 12px', fontSize: 12 }}>+500ml</button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* AI Assistant Section */}
-        <div className="card" style={{ padding: 24, marginBottom: 24, border: '1px solid rgba(255,255,255,0.1)' }}>
-          <h2 style={{ fontSize: 16, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-            <Brain size={18} color="var(--aura-accent)" /> AI Nutrition Assistant
+        {/* AI Assistant */}
+        <div className="card" style={{ padding: 24, marginBottom: 24, border: '1px solid rgba(0, 242, 254, 0.25)', background: 'rgba(13, 17, 23, 0.7)' }}>
+          <h2 style={{ fontSize: 16, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, color: '#fff' }}>
+            <Brain size={18} color="#00f2fe" /> AI Nutrition Assistant
           </h2>
           <div style={{ display: 'flex', gap: 12 }}>
             <input 
               type="text" 
               className="themed-input" 
-              placeholder="Describe a meal or ask for macros..." 
-              style={{ flex: 1 }}
-              onKeyDown={(e) => { if (e.key === 'Enter') { handleScan(e.target.value); e.target.value = ''; } }}
+              placeholder="Describe a meal (e.g. 2 eggs and avocado toast)..." 
+              style={{ flex: 1, background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.15)', color: '#fff' }}
+              value={scanText}
+              onChange={(e) => setScanText(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleScanText(); }}
             />
-            <button className="themed-input" style={{ width: 'auto', background: 'var(--aura-accent)', color: '#000', fontWeight: 600 }}>Ask AI</button>
+            <button 
+              onClick={handleScanText}
+              disabled={scanningText}
+              className="themed-input" 
+              style={{ 
+                width: 'auto', 
+                background: 'linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)', 
+                color: '#000', 
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                cursor: 'pointer',
+                border: 'none',
+                opacity: scanningText ? 0.7 : 1
+              }}
+            >
+              <Sparkles size={16} /> {scanningText ? "Analyzing..." : "Ask AI"}
+            </button>
             <button 
               onClick={() => setActiveModal('vision')} 
               className="themed-input" 
               style={{ 
                 width: 'auto', 
-                background: 'linear-gradient(135deg, #00f2fe 0%, #ba55d3 100%)', 
+                background: 'linear-gradient(135deg, rgba(0, 242, 254, 0.2) 0%, rgba(186, 85, 211, 0.3) 100%)', 
+                border: '1px solid rgba(0, 242, 254, 0.5)',
                 color: '#fff', 
                 fontWeight: 700, 
                 display: 'flex', 
                 alignItems: 'center', 
                 gap: 6,
-                cursor: 'pointer',
-                border: 'none'
+                cursor: 'pointer'
               }}
             >
-              <Camera size={16} /> Scan Photo
+              <Camera size={16} color="#00f2fe" /> AI Vision Scan
             </button>
           </div>
         </div>

@@ -315,10 +315,10 @@ export default function MobileNutrition() {
         </button>
       </div>
 
-      {/* ── AI Nutrition Scanner ── */}
-      <div className="mobile-card" style={{ padding: "16px 20px", marginBottom: 24 }}>
-        <h3 style={{ fontSize: 13, fontWeight: 800, color: "var(--text-primary)", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
-          <Brain size={15} color="var(--aura-pink)" /> AI Nutrition Assistant
+      {/* ── AI Nutrition Assistant ── */}
+      <div className="mobile-card" style={{ padding: "18px 20px", marginBottom: 24, border: "1px solid rgba(0, 242, 254, 0.25)", background: "rgba(13, 17, 23, 0.7)" }}>
+        <h3 style={{ fontSize: 14, fontWeight: 800, color: "#fff", margin: "0 0 12px", display: "flex", alignItems: "center", gap: 6 }}>
+          <Brain size={16} color="#00f2fe" /> AI Nutrition Assistant
         </h3>
         <div style={{ display: "flex", gap: 8 }}>
           <input 
@@ -327,11 +327,11 @@ export default function MobileNutrition() {
             placeholder="Describe your meal..."
             style={{ 
               flex: 1, 
-              background: "rgba(255,255,255,0.03)", 
-              border: "1px solid rgba(255,255,255,0.1)",
+              background: "rgba(255,255,255,0.05)", 
+              border: "1px solid rgba(255,255,255,0.15)",
               borderRadius: 12, 
               padding: "10px 14px", 
-              color: "var(--text-primary)", 
+              color: "#fff", 
               fontSize: 13,
               outline: "none"
             }}
@@ -341,31 +341,33 @@ export default function MobileNutrition() {
           />
           <button 
             onClick={handleScan}
+            disabled={scanningText}
             style={{ 
-              background: "var(--aura-cyan)", 
+              background: "linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)", 
               color: "#000", 
               border: "none", 
               borderRadius: 12, 
-              padding: "0 12px", 
-              fontWeight: 700, 
+              padding: "0 14px", 
+              fontWeight: 800, 
               fontSize: 12, 
               display: "flex", 
               alignItems: "center", 
               gap: 4,
-              cursor: "pointer"
+              cursor: "pointer",
+              opacity: scanningText ? 0.7 : 1
             }}
           >
-            <Sparkles size={13} /> Ask
+            <Sparkles size={14} /> {scanningText ? "Analyzing..." : "Ask AI"}
           </button>
           <button 
             onClick={() => setActiveModal('vision')}
             style={{ 
-              background: "linear-gradient(135deg, #00f2fe 0%, #ba55d3 100%)", 
+              background: "linear-gradient(135deg, rgba(0, 242, 254, 0.2) 0%, rgba(186, 85, 211, 0.3) 100%)", 
+              border: "1px solid rgba(0, 242, 254, 0.5)",
               color: "#fff", 
-              border: "none", 
               borderRadius: 12, 
-              padding: "0 12px", 
-              fontWeight: 700, 
+              padding: "0 14px", 
+              fontWeight: 800, 
               fontSize: 12, 
               display: "flex", 
               alignItems: "center", 
@@ -373,7 +375,7 @@ export default function MobileNutrition() {
               cursor: "pointer"
             }}
           >
-            <Camera size={13} /> Photo
+            <Camera size={14} color="#00f2fe" /> Photo Scan
           </button>
         </div>
       </div>
