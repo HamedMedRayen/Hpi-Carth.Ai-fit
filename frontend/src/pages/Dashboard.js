@@ -26,6 +26,7 @@ import RepsOverTimeWidget from "../components/widgets/RepsOverTimeWidget";
 import WeightRepsWidget from "../components/widgets/WeightRepsWidget";
 import ExerciseTrackerWidget from "../components/widgets/ExerciseTrackerWidget";
 import SleepWidget from "../components/widgets/SleepWidget";
+import BodyMapWidget from "../components/widgets/BodyMapWidget";
 
 const STAT_FMT = {
   kg: (val) => val >= 1000 ? `${(val / 1000).toFixed(1)}t` : `${Math.round(val)}kg`,
@@ -35,6 +36,7 @@ function renderWidget(w) {
   const id = typeof w === 'string' ? w : w.id;
   switch (id) {
     case 'workouts_per_week': return <WorkoutsPerWeekWidget />;
+    case 'body_map': return <BodyMapWidget />;
     case 'weight_over_time': return <WeightOverTimeWidget />;
     case 'reps_over_time': return <RepsOverTimeWidget />;
     case 'weight_reps_combined': return <WeightRepsWidget />;
@@ -191,18 +193,9 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {/* Activity Map */}
-          <div className="right-card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text-3)' }}>Activity</span>
-              <span style={{ fontSize: 10, color: 'var(--color-text-3)', fontWeight: 600 }}>LAST 6 MONTHS</span>
-            </div>
-            <ActivityMapWidget />
-          </div>
-
           {/* Custom Widgets Grid */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16 }}>
-            {widgets.filter(w => (typeof w === 'string' ? w : w.id) !== 'activity_map').map(w => {
+            {widgets.filter(w => (typeof w === 'string' ? w : w.id) !== 'body_map').map(w => {
               const key = typeof w === 'string' ? w : (w.instanceKey || w.id);
               const id = typeof w === 'string' ? w : w.id;
               return (
@@ -222,8 +215,17 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* ── RIGHT COLUMN: Inline AI Chat ── */}
-        <div style={{ position: 'sticky', top: 24 }}>
+        {/* ── RIGHT COLUMN: Fixed Side Body Map + Inline AI Chat ── */}
+        <div style={{ position: 'sticky', top: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div className="right-card" style={{ padding: 18 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Activity size={16} color="var(--aura-accent)" />
+                <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-text)' }}>Body Map</span>
+              </div>
+            </div>
+            <BodyMapWidget />
+          </div>
           <InlineHpiChat />
         </div>
       </div>

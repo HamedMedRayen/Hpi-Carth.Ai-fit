@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { MoreHorizontal } from 'lucide-react'
 import { WIDGET_REGISTRY, METRIC_LABELS } from '../config/widgets'
 

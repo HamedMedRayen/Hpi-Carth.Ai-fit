@@ -251,3 +251,67 @@ def create_custom_exercise(
         )
         row = cur.fetchone()
     return dict(row) if row else {}
+
+
+def get_exercise_by_id_or_name(conn: psycopg2.extensions.connection, id_or_name: Any) -> Optional[Dict[str, Any]]:
+    """
+    Simple lookup tool: look up an exercise by exact ID or fuzzy ILIKE match on name/target/category.
+    Prioritizes exercises that have valid media (gif_path, gif_url, or image_path).
+    Returns exercise dict with resolved image_url and gif_url.
+    """
+    from database import exercise_urls
+
+    if not id_or_name:
+        return None
+
+    query_str = str(id_or_name).strip()
+    with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        if query_str.isdigit():
+            cur.execute("SELECT * FROM exercises WHERE id = %s", (int(query_str),))
+            row = cur.fetchone()
+            if row:
+                return exercise_urls(dict(row))
+
+        pattern = f"%{query_str}%"
+        # 1. First priority: search exercises THAT HAVE MEDIA (GIF/image)
+        cur.execute(
+            """SELECT * FROM exercises
+               WHERE (name ILIKE %s OR target ILIKE %s OR category ILIKE %s OR muscle_group ILIKE %s)
+                 AND (gif_path IS NOT NULL OR gif_url IS NOT NULL OR image_path IS NOT NULL)
+               ORDER BY
+                 CASE
+                   WHEN LOWER(name) = LOWER(%s) THEN 1
+                   WHEN LOWER(name) = 'barbell ' || LOWER(%s) THEN 2
+                   WHEN LOWER(name) = 'dumbbell ' || LOWER(%s) THEN 3
+                   WHEN LOWER(name) LIKE LOWER(%s) THEN 4
+                   ELSE 5
+                 END,
+                 LENGTH(name) ASC
+               LIMIT 1""",
+            (pattern, pattern, pattern, pattern, query_str, query_str, query_str, f"{query_str}%")
+        )
+        row = cur.fetchone()
+
+        # 2. Fallback to any matching exercise if no exercise with media was found
+        if not row:
+            cur.execute(
+                """SELECT * FROM exercises
+                   WHERE name ILIKE %s OR target ILIKE %s OR category ILIKE %s OR muscle_group ILIKE %s
+                   ORDER BY
+                     CASE
+                       WHEN LOWER(name) = LOWER(%s) THEN 1
+                       WHEN LOWER(name) LIKE LOWER(%s) THEN 2
+                       ELSE 3
+                     END,
+                     LENGTH(name) ASC
+                   LIMIT 1""",
+                (pattern, pattern, pattern, pattern, query_str, f"{query_str}%")
+            )
+            row = cur.fetchone()
+
+        if row:
+            return exercise_urls(dict(row))
+
+    return None
+
+

@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../utils/auth";
 import { HpiLogo } from "../utils/icons";
+import { getApiBaseUrl } from "../utils/config";
 import {
-  Mail, ShieldCheck, User, Lock, ArrowRight, Dumbbell, Users,
+  Mail, ShieldCheck, User, Lock, ArrowRight, Dumbbell, Users, Server, Check, RefreshCw
 } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 import OrbThemeSwitcher from "../components/OrbThemeSwitcher";
@@ -25,10 +26,32 @@ export default function AuthPage() {
   const [role,    setRole]    = useState("athlete");
   const [mounted, setMounted] = useState(false);
 
+  // Server URL settings state
+  const [showServerConfig, setShowServerConfig] = useState(false);
+  const [serverUrl, setServerUrl] = useState(localStorage.getItem("custom_api_url") || getApiBaseUrl());
+  const [serverSavedMsg, setServerSavedMsg] = useState("");
+
   useEffect(() => {
     const t = setTimeout(() => setMounted(true), 120);
     return () => clearTimeout(t);
   }, []);
+
+  const handleSaveServerUrl = () => {
+    if (!serverUrl.trim()) {
+      localStorage.removeItem("custom_api_url");
+    } else {
+      localStorage.setItem("custom_api_url", serverUrl.trim());
+    }
+    setServerSavedMsg("Server URL updated!");
+    setTimeout(() => setServerSavedMsg(""), 3000);
+  };
+
+  const handleResetServerUrl = () => {
+    localStorage.removeItem("custom_api_url");
+    setServerUrl(getApiBaseUrl());
+    setServerSavedMsg("Reset to default!");
+    setTimeout(() => setServerSavedMsg(""), 3000);
+  };
 
   const switchMode = (next) => {
     setMode(next); setError(null); setOtpSent(false); setUseOtp(false);
@@ -82,8 +105,28 @@ export default function AuthPage() {
       {/* ── Animated background ───────────────────────── */}
       <GrowthBackground />
 
-      {/* ── Theme switcher — fixed top-right ─────────── */}
-      <div className="orion-theme-btn">
+      {/* ── Top controls — theme & server config ─────────── */}
+      <div className="orion-theme-btn" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+        <button
+          type="button"
+          onClick={() => setShowServerConfig(!showServerConfig)}
+          title="Server Settings"
+          style={{
+            background: 'rgba(255,255,255,0.08)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#fff',
+            cursor: 'pointer',
+            backdropFilter: 'blur(10px)'
+          }}
+        >
+          <Server size={18} />
+        </button>
         <OrbThemeSwitcher />
       </div>
 
@@ -109,6 +152,76 @@ export default function AuthPage() {
                 : "Join HPI and unlock precision training."}
             </p>
           </div>
+
+          {/* Server Config Dropdown / Box */}
+          {showServerConfig && (
+            <div style={{
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: '12px',
+              padding: '12px 14px',
+              marginBottom: '16px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.9)' }}>
+                  Backend Server URL
+                </span>
+                {serverSavedMsg && (
+                  <span style={{ fontSize: '12px', color: '#4ade80' }}>{serverSavedMsg}</span>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="text"
+                  value={serverUrl}
+                  onChange={(e) => setServerUrl(e.target.value)}
+                  placeholder="http://10.0.2.2:8000/api"
+                  style={{
+                    flex: 1,
+                    background: 'rgba(0,0,0,0.3)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '8px',
+                    padding: '6px 10px',
+                    fontSize: '12px',
+                    color: '#fff'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={handleSaveServerUrl}
+                  title="Save Server URL"
+                  style={{
+                    background: '#6366f1',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '0 10px',
+                    color: '#fff',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Check size={14} />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResetServerUrl}
+                  title="Reset to Default"
+                  style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '0 10px',
+                    color: '#fff',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <RefreshCw size={14} />
+                </button>
+              </div>
+              <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginTop: '6px', marginBottom: 0 }}>
+                Default: <code>10.0.2.2:8000</code> (Android Emulator) or PC LAN IP for physical device.
+              </p>
+            </div>
+          )}
 
           {/* Mode tabs */}
           <div className="orion-tabs" role="tablist">

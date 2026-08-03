@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Users, UserPlus, Check, X, Search, Activity, ChevronRight, Dumbbell, TrendingUp, Calendar, AlertCircle, MessageSquare, Award, Heart, MapPin, Navigation, ShieldAlert, FileText, Sliders, ClipboardList, Camera, Download } from "lucide-react";
+import { Users, UserPlus, Check, X, Search, Activity, ChevronRight, Dumbbell, TrendingUp, Calendar, AlertCircle, MessageSquare, Award, Heart, MapPin, Navigation, ShieldAlert, FileText, Sliders, ClipboardList, Camera, Download, Star } from "lucide-react";
 import Header from "../components/layout/Header";
 import { api } from "../utils/api";
 import { fmt } from "../utils/formatters";
 import SuggestWorkoutModal from "../components/SuggestWorkoutModal";
 import CoachChatModal from "../components/CoachChatModal";
+import CoachProfileModal from "../components/CoachProfileModal";
 import BodySilhouette from "../components/BodySilhouette";
+import BodyMapWidget from "../components/widgets/BodyMapWidget";
 import { useAuth } from "../utils/auth";
 import { resolveBackendUrl } from "../utils/config";
 
@@ -1822,11 +1824,11 @@ export default function CoachDashboard() {
                 Visual heatmap showing muscle group tracking status (Green/Cyan) and active coach-logged injuries (Orange/Red).
               </p>
               
-              <div style={{ display: "flex", justifyContent: "center", minHeight: 380 }}>
-                <BodySilhouette 
-                  latest={athleteStats.measurements?.[0] || {}} 
-                  previous={athleteStats.measurements?.[1] || {}} 
-                  injuries={(athleteStats.active_injuries || []).map(i => ({ ...i, status: 'active' }))}
+              <div style={{ display: "flex", justifyContent: "center" }}>
+                <BodyMapWidget 
+                  latestProp={athleteStats.measurements?.[0] || {}} 
+                  previousProp={athleteStats.measurements?.[1] || {}} 
+                  injuriesProp={(athleteStats.active_injuries || []).map(i => ({ ...i, status: 'active' }))}
                 />
               </div>
             </div>
@@ -2495,47 +2497,68 @@ export default function CoachDashboard() {
                 <div style={{ fontSize: 13, color: "var(--color-text-3)" }}>No other coaches listed.</div>
               ) : (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
-                  {browseCoaches.map(c => (
-                    <div key={c.coach_id} 
-                      onClick={() => setSelectedCoachForInfo(c)}
-                      style={{ 
-                        background: "var(--bg-glass)", border: "1px solid var(--border-card)", borderRadius: 20, 
-                        padding: 20, display: "flex", justifyContent: "space-between", alignItems: "center",
-                        cursor: "pointer", transition: "border-color 0.2s"
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.borderColor = "var(--aura-accent)"}
-                      onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border-card)"}
-                    >
-                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <div style={{ 
-                          width: 44, height: 44, borderRadius: 12, background: "var(--bg-card)",
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          fontSize: 16, fontWeight: 800, color: "var(--aura-accent)", overflow: "hidden"
-                        }}>
-                          {c.coach_avatar ? (
-                            <img src={c.coach_avatar} alt={c.coach_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                          ) : (
-                            (c.coach_name || c.coach_email || 'C').charAt(0).toUpperCase()
-                          )}
-                        </div>
-                        <div>
-                          <div style={{ fontWeight: 800, fontSize: 15, color: "var(--color-text)" }}>{c.coach_name || c.coach_email.split('@')[0]}</div>
-                          <div style={{ fontSize: 12, color: "var(--color-text-3)" }}>{c.coach_email}</div>
-                        </div>
-                      </div>
-
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleHireCoach(c.coach_id);
+                  {browseCoaches.map(c => {
+                    const cRating = Number(c.rating || 4.8).toFixed(1);
+                    const cReviews = c.review_count || 12;
+                    const cAthletes = c.athletes_count || 18;
+                    return (
+                      <div key={c.coach_id} 
+                        onClick={() => setSelectedCoachForInfo(c)}
+                        style={{ 
+                          background: "var(--bg-glass)", border: "1px solid var(--border-card)", borderRadius: 20, 
+                          padding: 18, display: "flex", justifyContent: "space-between", alignItems: "center",
+                          cursor: "pointer", transition: "all 0.2s ease"
                         }}
-                        className="btn-primary" 
-                        style={{ padding: "6px 16px", borderRadius: 10, fontSize: 12, fontWeight: 700, width: "auto" }}
+                        onMouseEnter={e => e.currentTarget.style.borderColor = "var(--aura-accent)"}
+                        onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border-card)"}
                       >
-                        Hire
-                      </button>
-                    </div>
-                  ))}
+                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                          <div style={{ 
+                            width: 48, height: 48, borderRadius: 14, background: "var(--bg-card)",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            fontSize: 16, fontWeight: 800, color: "var(--aura-accent)", overflow: "hidden",
+                            border: "1.5px solid rgba(6, 182, 212, 0.4)", flexShrink: 0
+                          }}>
+                            {c.coach_avatar ? (
+                              <img src={c.coach_avatar} alt={c.coach_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            ) : (
+                              (c.coach_name || c.coach_email || 'C').charAt(0).toUpperCase()
+                            )}
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: 800, fontSize: 15, color: "var(--color-text)" }}>{c.coach_name || c.coach_email.split('@')[0]}</div>
+                            
+                            {/* Rating and Athletes stats */}
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 11, fontWeight: 700, color: "#f59e0b" }}>
+                                <Star size={12} fill="#f59e0b" />
+                                <span>{cRating}</span>
+                                <span style={{ color: "var(--color-text-3)", fontSize: 10 }}>({cReviews})</span>
+                              </div>
+
+                              <span style={{ fontSize: 10, color: "var(--color-text-3)" }}>•</span>
+
+                              <div style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 11, fontWeight: 600, color: "#38bdf8" }}>
+                                <Users size={11} />
+                                <span>{cAthletes} Athletes</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleHireCoach(c.coach_id);
+                          }}
+                          className="btn-primary" 
+                          style={{ padding: "6px 16px", borderRadius: 10, fontSize: 12, fontWeight: 700, width: "auto" }}
+                        >
+                          Hire
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -2760,156 +2783,11 @@ export default function CoachDashboard() {
       )}
 
       {selectedCoachForInfo && (
-        <div style={{
-          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-          background: "rgba(0,0,0,0.85)", zIndex: 1000, display: "flex",
-          alignItems: "center", justifyContent: "center", padding: 20,
-          backdropFilter: "blur(8px)"
-        }}>
-          <div style={{
-            background: "var(--color-bg)", border: "1px solid var(--border-card)",
-            borderRadius: 28, padding: 30, maxWidth: 480, width: "100%",
-            display: "flex", flexDirection: "column", gap: 24, position: "relative",
-            boxShadow: "0 20px 40px rgba(0,0,0,0.4)"
-          }}>
-            <button 
-              onClick={() => setSelectedCoachForInfo(null)}
-              style={{
-                position: "absolute", top: 20, right: 20,
-                background: "rgba(255,255,255,0.05)", border: "none", color: "#fff",
-                width: 32, height: 32, borderRadius: "50%", cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16
-              }}
-            >
-              ×
-            </button>
-
-            {/* Profile Header */}
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: 12, marginTop: 10 }}>
-              <div style={{ 
-                width: 96, height: 96, borderRadius: "50%", background: "var(--bg-card)",
-                border: "3px solid var(--aura-cyan)", overflow: "hidden",
-                boxShadow: "0 0 20px rgba(6, 182, 212, 0.3)"
-              }}>
-                {selectedCoachForInfo.coach_avatar || selectedCoachForInfo.avatar_url ? (
-                  <img src={selectedCoachForInfo.coach_avatar || selectedCoachForInfo.avatar_url} alt={selectedCoachForInfo.coach_name || selectedCoachForInfo.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                ) : (
-                  <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, fontWeight: 900, color: "var(--aura-cyan)" }}>
-                    {(selectedCoachForInfo.coach_name || selectedCoachForInfo.name || "C").charAt(0).toUpperCase()}
-                  </div>
-                )}
-              </div>
-              <div>
-                <h3 style={{ margin: 0, fontSize: 22, fontWeight: 900, color: "#fff" }}>{selectedCoachForInfo.coach_name || selectedCoachForInfo.name}</h3>
-                <span style={{ fontSize: 13, color: "var(--color-text-3)" }}>{selectedCoachForInfo.coach_email || selectedCoachForInfo.email}</span>
-              </div>
-            </div>
-
-            {/* Rating & Bio Section */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 10, textAlign: "center", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.04)", borderBottom: "1px solid rgba(255,255,255,0.04)", padding: "16px 0" }}>
-              {(() => {
-                const id = selectedCoachForInfo.coach_id || selectedCoachForInfo.id || 1;
-                const rating = (4.5 + (id % 6) * 0.1).toFixed(1);
-                const reviews = 12 + (id % 7) * 4;
-                return (
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#f59e0b" }}>
-                    <div style={{ display: "flex" }}>
-                      {[...Array(5)].map((_, i) => (
-                        <span key={i} style={{ color: i < Math.floor(rating) ? "#f59e0b" : "rgba(255,255,255,0.15)" }}>★</span>
-                      ))}
-                    </div>
-                    <span style={{ fontWeight: 800, color: "#fff" }}>{rating}</span>
-                    <span style={{ color: "var(--color-text-3)", fontSize: 11 }}>({reviews} reviews)</span>
-                  </div>
-                );
-              })()}
-              
-              <p style={{ margin: 0, fontSize: 13, lineHeight: 1.6, color: "var(--color-text-2)", padding: "0 10px" }}>
-                {getCoachBio(selectedCoachForInfo)}
-              </p>
-            </div>
-
-            {/* Coach Details Grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 12 }}>
-                <span style={{ fontSize: 10, color: "var(--color-text-3)", fontWeight: 700, textTransform: "uppercase" }}>Specialty</span>
-                <div style={{ fontSize: 13, fontWeight: 800, color: "var(--aura-cyan)", marginTop: 4 }}>
-                  {(GOAL_LABELS[selectedCoachForInfo.goal?.toLowerCase()] || selectedCoachForInfo.goal || "General Fitness").toUpperCase()}
-                </div>
-              </div>
-              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 12 }}>
-                <span style={{ fontSize: 10, color: "var(--color-text-3)", fontWeight: 700, textTransform: "uppercase" }}>Level</span>
-                <div style={{ fontSize: 13, fontWeight: 800, color: "var(--aura-accent)", marginTop: 4 }}>
-                  {(EXP_LABELS[selectedCoachForInfo.experience?.toLowerCase()] || selectedCoachForInfo.experience || "Certified Trainer").toUpperCase()}
-                </div>
-              </div>
-              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 12 }}>
-                <span style={{ fontSize: 10, color: "var(--color-text-3)", fontWeight: 700, textTransform: "uppercase" }}>Age</span>
-                <div style={{ fontSize: 13, fontWeight: 800, color: "#fff", marginTop: 4 }}>
-                  {selectedCoachForInfo.age || 30} years old
-                </div>
-              </div>
-              <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 12 }}>
-                <span style={{ fontSize: 10, color: "var(--color-text-3)", fontWeight: 700, textTransform: "uppercase" }}>Gender</span>
-                <div style={{ fontSize: 13, fontWeight: 800, color: "#fff", marginTop: 4 }}>
-                  {selectedCoachForInfo.sex === 'F' ? "Female" : "Male"}
-                </div>
-              </div>
-            </div>
-
-            {/* Registered Gyms list */}
-            <div>
-              <span style={{ fontSize: 11, color: "var(--color-text-3)", fontWeight: 700, textTransform: "uppercase", display: "block", marginBottom: 8 }}>Registered Training Centers</span>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {gyms.filter(g => g.coaches?.some(c => c.coach_id === (selectedCoachForInfo.coach_id || selectedCoachForInfo.id))).map(g => (
-                  <div key={g.id} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "#ccc" }}>
-                    <MapPin size={12} color="var(--aura-cyan)" /> 
-                    <span>{g.name} <span style={{ color: "var(--color-text-3)" }}>({g.address})</span></span>
-                  </div>
-                ))}
-                {gyms.filter(g => g.coaches?.some(c => c.coach_id === (selectedCoachForInfo.coach_id || selectedCoachForInfo.id))).length === 0 && (
-                  <div style={{ fontSize: 12, color: "var(--color-text-3)", fontStyle: "italic" }}>No registered gym locations listed.</div>
-                )}
-              </div>
-            </div>
-
-            {/* Action footer */}
-            <div style={{ borderTop: "1px solid var(--border-card)", paddingTop: 20, display: "flex", justifyContent: "flex-end" }}>
-              {(() => {
-                const match = coaches.find(curr => curr.coach_id === (selectedCoachForInfo.coach_id || selectedCoachForInfo.id));
-                const isHired = match?.status === 'active';
-                const isPending = match?.status === 'pending';
-
-                if (isHired) {
-                  return (
-                    <div style={{ background: "rgba(34, 197, 94, 0.08)", color: "#22c55e", fontSize: 13, fontWeight: 800, padding: "8px 16px", borderRadius: 10, display: "flex", alignItems: "center", gap: 6 }}>
-                      <Check size={14} /> Active Personal Coach
-                    </div>
-                  );
-                } else if (isPending) {
-                  return (
-                    <div style={{ background: "rgba(245, 158, 11, 0.08)", color: "#f59e0b", fontSize: 13, fontWeight: 800, padding: "8px 16px", borderRadius: 10, display: "flex", alignItems: "center", gap: 6 }}>
-                      <AlertCircle size={14} /> Request Pending Approval
-                    </div>
-                  );
-                } else {
-                  return (
-                    <button 
-                      onClick={() => {
-                        handleHireCoach(selectedCoachForInfo.coach_id || selectedCoachForInfo.id);
-                        setSelectedCoachForInfo(null);
-                      }}
-                      className="btn-primary" 
-                      style={{ padding: "10px 24px", borderRadius: 12, fontSize: 13, fontWeight: 800, width: "auto" }}
-                    >
-                      Hire Coach
-                    </button>
-                  );
-                }
-              })()}
-            </div>
-          </div>
-        </div>
+        <CoachProfileModal
+          coach={selectedCoachForInfo}
+          onClose={() => setSelectedCoachForInfo(null)}
+          onHireCoach={handleHireCoach}
+        />
       )}
 
       {selectedWorkoutDetail && (

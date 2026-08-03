@@ -1,17 +1,19 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Brain, X, Send, Mic, MicOff } from "lucide-react";
+import { Brain, X, Send, Mic, MicOff, Phone } from "lucide-react";
 import "./HpiChat.css";
 import { API_BASE_URL as API_URL } from "../../utils/config";
 import { getSyncItem } from "../../utils/storage";
 import { startListening, stopListening } from "../../utils/speechRecognition";
+import VapiCallModal from "../VapiCallModal/VapiCallModal";
 
 const WELCOME_MSG = {
   role: "assistant",
-  content: "Hey, I'm Hpi \u{1F44B} Your AI fitness coach. Ask me anything about your training.",
+  content: "Hey, I'm Hpi 👋 Your AI fitness coach. Ask me anything or tap the call icon to talk live!",
 };
 
 export default function HpiChat() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isCallOpen, setIsCallOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,7 +23,6 @@ export default function HpiChat() {
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-  const recognitionRef = useRef(null);
 
   // Scroll to bottom on new messages
   const scrollToBottom = useCallback(() => {
@@ -88,7 +89,11 @@ export default function HpiChat() {
       const data = await res.json();
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: data.reply },
+        {
+          role: "assistant",
+          content: data.reply,
+          exercise: data.exercise || null,
+        },
       ]);
     } catch (err) {
       setError(err.message || "Failed to reach Hpi. Try again.");
@@ -137,7 +142,18 @@ export default function HpiChat() {
           <div className="hpi-header-icons">
             <Brain />
           </div>
-          <span className="hpi-header-title">Hpi</span>
+          <span className="hpi-header-title">Hpi AI</span>
+
+          {/* Voice Call Button */}
+          <button
+            className="hpi-call-header-btn"
+            onClick={() => setIsCallOpen(true)}
+            aria-label="Start Voice Call"
+            title="Start Vapi AI Voice Call"
+          >
+            <Phone size={18} />
+          </button>
+
           <button
             className="hpi-header-close"
             onClick={toggleChat}
@@ -151,7 +167,44 @@ export default function HpiChat() {
         <div className="hpi-messages">
           {messages.map((msg, i) => (
             <div key={i} className={`hpi-msg ${msg.role}`}>
-              {msg.content}
+              <div className="hpi-msg-text">{msg.content}</div>
+              
+              {/* Exercise GIF / Card display */}
+              {msg.exercise && (
+                <div className="hpi-exercise-card">
+                  <div className="hpi-exercise-card-header">
+                    <span className="hpi-exercise-title">{msg.exercise.name}</span>
+                    <div className="hpi-exercise-badges">
+                      {msg.exercise.category && <span className="hpi-badge cyan">{msg.exercise.category}</span>}
+                      {msg.exercise.equipment && <span className="hpi-badge dark">{msg.exercise.equipment}</span>}
+                      {msg.exercise.target && <span className="hpi-badge outline">{msg.exercise.target}</span>}
+                    </div>
+                  </div>
+
+                  {(msg.exercise.gif_url || msg.exercise.image_url) && (
+                    <div className="hpi-exercise-media-wrapper">
+                      <img
+                        src={msg.exercise.gif_url || msg.exercise.image_url}
+                        alt={msg.exercise.name}
+                        className="hpi-exercise-gif"
+                        onError={(e) => {
+                          e.target.style.display = "none";
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {msg.exercise.instructions && (
+                    <div className="hpi-exercise-instructions">
+                      {typeof msg.exercise.instructions === "string"
+                        ? msg.exercise.instructions
+                        : Array.isArray(msg.exercise.instructions)
+                        ? msg.exercise.instructions.join(" ")
+                        : ""}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ))}
 
@@ -176,7 +229,7 @@ export default function HpiChat() {
             ref={inputRef}
             className="hpi-input"
             type="text"
-            placeholder="Ask Hpi anything\u2026"
+            placeholder="Ask Hpi anything…"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -191,6 +244,18 @@ export default function HpiChat() {
           >
             {listening ? <MicOff size={18} /> : <Mic size={18} />}
           </button>
+
+          {/* Direct call button from input row */}
+          <button
+            className="hpi-mic-btn"
+            onClick={() => setIsCallOpen(true)}
+            aria-label="Voice call"
+            title="Talk with Hpi AI (Voice Call)"
+            style={{ color: "#06b6d4", border: "1px solid rgba(6, 182, 212, 0.3)" }}
+          >
+            <Phone size={18} />
+          </button>
+
           <button
             className="hpi-send-btn"
             onClick={() => sendMessage()}
@@ -212,6 +277,9 @@ export default function HpiChat() {
           <Brain className="hpi-brain" />
         </div>
       </button>
+
+      {/* ── Vapi Voice Call Interface ──────────────────────── */}
+      <VapiCallModal isOpen={isCallOpen} onClose={() => setIsCallOpen(false)} />
     </>
   );
 }

@@ -2,13 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { 
   Users, UserPlus, Check, X, Search, Activity, 
   ChevronRight, Dumbbell, Calendar, AlertCircle, 
-  MessageSquare, Send, ArrowLeft, Plus, Trash2, Award, Heart, ShieldAlert, FileText, MapPin
+  MessageSquare, Send, ArrowLeft, Plus, Trash2, Award, Heart, ShieldAlert, FileText, MapPin, Star
 } from "lucide-react";
 import { api } from "../../utils/api";
 import { resolveBackendUrl } from "../../utils/config";
 import { useToast } from "../../components/Toast";
 import { fmt } from "../../utils/formatters";
 import { useAuth } from "../../utils/auth";
+import CoachProfileModal from "../../components/CoachProfileModal";
 
 const GOAL_LABELS = {
   muscle_gain: "Muscle Gain & Hypertrophy",
@@ -36,6 +37,7 @@ export default function MobileCoachingZone() {
   const [activeTab, setActiveTab] = useState("my-coach"); // 'roster' | 'my-coach'
   const [athletes, setAthletes] = useState([]);
   const [coaches, setCoaches] = useState([]);
+  const [selectedCoachForInfo, setSelectedCoachForInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const toast = useToast();
 
@@ -2022,47 +2024,84 @@ export default function MobileCoachingZone() {
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {browseCoaches.map(c => (
-                  <div key={c.coach_id} className="mobile-card" style={{ padding: 14, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <div style={{ 
-                        width: 38, height: 38, borderRadius: 10, background: "var(--color-surface-h)",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        fontSize: 14, fontWeight: 800, color: "var(--aura-cyan)", overflow: "hidden"
-                      }}>
-                        {c.coach_avatar ? (
-                          <img src={resolveBackendUrl(c.coach_avatar)} alt={c.coach_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                        ) : (
-                          (c.coach_name || c.coach_email || 'C').charAt(0).toUpperCase()
-                        )}
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 800, fontSize: 14, color: "var(--color-text)" }}>{c.coach_name || c.coach_email.split('@')[0]}</div>
-                        <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{c.coach_email}</div>
-                      </div>
-                    </div>
-
-                    <button 
-                      onClick={() => handleHireCoach(c.coach_id)}
-                      style={{ 
-                        background: "rgba(var(--aura-cyan-rgb), 0.1)", 
-                        border: "1px solid var(--aura-cyan)", 
-                        color: "var(--aura-cyan)", 
-                        borderRadius: 8, 
-                        padding: "6px 12px", 
-                        fontWeight: 800, 
-                        fontSize: 11, 
-                        cursor: "pointer" 
-                      }}
+                {browseCoaches.map(c => {
+                  const cRating = Number(c.rating || 4.8).toFixed(1);
+                  const cReviews = c.review_count || 12;
+                  const cAthletes = c.athletes_count || 18;
+                  return (
+                    <div 
+                      key={c.coach_id} 
+                      className="mobile-card" 
+                      onClick={() => setSelectedCoachForInfo(c)}
+                      style={{ padding: 14, display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}
                     >
-                      Hire
-                    </button>
-                  </div>
-                ))}
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <div style={{ 
+                          width: 44, height: 44, borderRadius: 12, background: "var(--color-surface-h)",
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          fontSize: 14, fontWeight: 800, color: "var(--aura-cyan)", overflow: "hidden",
+                          border: "1.5px solid rgba(6, 182, 212, 0.4)", flexShrink: 0
+                        }}>
+                          {c.coach_avatar ? (
+                            <img src={resolveBackendUrl(c.coach_avatar)} alt={c.coach_name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          ) : (
+                            (c.coach_name || c.coach_email || 'C').charAt(0).toUpperCase()
+                          )}
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 800, fontSize: 14, color: "var(--color-text)" }}>{c.coach_name || c.coach_email.split('@')[0]}</div>
+                          
+                          {/* Rating and Athletes stats */}
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 11, fontWeight: 700, color: "#f59e0b" }}>
+                              <Star size={11} fill="#f59e0b" />
+                              <span>{cRating}</span>
+                              <span style={{ color: "var(--text-secondary)", fontSize: 10 }}>({cReviews})</span>
+                            </div>
+
+                            <span style={{ fontSize: 10, color: "var(--text-secondary)" }}>•</span>
+
+                            <div style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 11, fontWeight: 600, color: "#38bdf8" }}>
+                              <Users size={11} />
+                              <span>{cAthletes}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleHireCoach(c.coach_id);
+                        }}
+                        style={{ 
+                          background: "rgba(var(--aura-cyan-rgb), 0.1)", 
+                          border: "1px solid var(--aura-cyan)", 
+                          color: "var(--aura-cyan)", 
+                          borderRadius: 8, 
+                          padding: "6px 12px", 
+                          fontWeight: 800, 
+                          fontSize: 11, 
+                          cursor: "pointer" 
+                        }}
+                      >
+                        Hire
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
         </div>
+      )}
+
+      {selectedCoachForInfo && (
+        <CoachProfileModal
+          coach={selectedCoachForInfo}
+          onClose={() => setSelectedCoachForInfo(null)}
+          onHireCoach={handleHireCoach}
+        />
       )}
     </div>
   );

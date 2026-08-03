@@ -12,6 +12,7 @@
     "@capacitor/splash-screen": "^8.0.1",
     "@capacitor/status-bar": "^8.0.2",
     "@react-oauth/google": "^0.13.5",
+    "@vapi-ai/web": "^2.6.1",
     "lucide-react": "^1.8.0",
     "react": "^18.2.0",
     "react-body-highlighter": "^2.0.5",
@@ -26,7 +27,9 @@
     "build": "react-scripts build",
     "cap:build": "npm run build && npx cap sync",
     "cap:sync": "npx cap sync",
-    "cap:android": "npx cap open android"
+    "cap:android": "npx cap open android",
+    "dev:android": "cross-env CAPACITOR_LIVE_RELOAD=true npx cap sync android && npx cap open android",
+    "build:android": "npm run build && npx cap sync android"
   },
   "browserslist": {
     "production": [
@@ -41,6 +44,7 @@
   "proxy": "http://127.0.0.1:8000",
   "devDependencies": {
     "@capacitor/android": "^8.3.4",
-    "@capacitor/cli": "^8.3.4"
+    "@capacitor/cli": "^8.3.4",
+    "cross-env": "^7.0.3"
   }
 }

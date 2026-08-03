@@ -1,4 +1,4 @@
-import { API_BASE_URL as BASE } from './config';
+import { getApiBaseUrl } from './config';
 import { getSyncItem, setItem, removeItem } from './storage';
 
 // ── Token storage ─────────────────────────────────────────────
@@ -29,7 +29,16 @@ async function req(path, opts = {}) {
   const t = token.get();
   if (t) headers["Authorization"] = `Bearer ${t}`;
 
-  const res = await fetch(`${BASE}${path}`, { ...opts, headers });
+  const baseUrl = getApiBaseUrl();
+  let res;
+  try {
+    res = await fetch(`${baseUrl}${path}`, { ...opts, headers });
+  } catch (err) {
+    if (err.name === "TypeError" && err.message.toLowerCase().includes("fetch")) {
+      throw new Error(`Unable to connect to server at ${baseUrl}. Please check your connection or server IP.`);
+    }
+    throw err;
+  }
 
   // Handle unauthorized errors (except for auth routes themselves)
   if (res.status === 401 && !path.startsWith("/auth/")) {
@@ -170,8 +179,9 @@ export const api = {
   logFatigue: (data) => req("/fatigue/log", { method: "POST", body: JSON.stringify(data) }),
   getFatigueHistory: () => req("/fatigue/history"),
 
-  // Injuries
+  // Injuries & Measurements
   getInjuries: () => req("/injuries"),
+  getMeasurementsHistory: () => req("/measurements/history"),
   logInjury: (data) => req("/injuries", { method: "POST", body: JSON.stringify(data) }),
   markInjuryHealed: (id) => req(`/injuries/${id}`, { method: "PATCH" }),
   deleteInjury: (id) => req(`/injuries/${id}`, { method: "DELETE" }),
@@ -194,6 +204,8 @@ export const api = {
   respondInvite: (relationship_id, action) => req("/coach/respond", { method: "POST", body: JSON.stringify({ relationship_id, action }) }),
   removeRelationship: (relationship_id) => req("/coach/remove", { method: "POST", body: JSON.stringify({ relationship_id }) }),
   getAllCoaches: () => req("/coach/coaches"),
+  getCoachProfile: (coachId) => req(`/coach/coaches/${coachId}`),
+  addCoachReview: (coachId, rating, comment) => req(`/coach/coaches/${coachId}/reviews`, { method: "POST", body: JSON.stringify({ rating, comment }) }),
   submitCoachOnboarding: (formData) => req("/coach/onboarding", { method: "POST", body: formData }),
   hireCoach: (coachId) => req("/coach/hire", { method: "POST", body: JSON.stringify({ coach_id: coachId }) }),
   getSessionNotes: (sessionId) => req(`/coach/notes/session/${sessionId}`),
@@ -227,6 +239,7 @@ export const api = {
   getNutritionHistory: () => req("/nutrition/history"),
   copyMeals: (from_date, to_date) => req("/nutrition/log/copy", { method: "POST", body: JSON.stringify({ from_date, to_date }) }),
   scanMeal: (description) => req("/nutrition/scan", { method: "POST", body: JSON.stringify({ description }) }),
+  scanMealVision: (image_base64, auto_log = false) => req("/nutrition/scan-vision", { method: "POST", body: JSON.stringify({ image_base64, auto_log }) }),
   logWater: (amount_ml, action = "add") => req("/nutrition/water", { method: "POST", body: JSON.stringify({ amount_ml, action }) }),
   getWaterToday: () => req("/nutrition/water/today"),
   calculateNutritionTargets: (payload) => req("/nutrition/calculate-targets", { method: "POST", body: JSON.stringify(payload) }),

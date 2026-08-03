@@ -183,14 +183,14 @@ function AppContent() {
   useEffect(() => {
     if (isNative) {
       // 1. Hide splash screen after app mount
-      SplashScreen.hide().catch(() => {});
+      SplashScreen.hide().catch(() => { });
 
       // 2. Set status bar overlay and style (white icons for dark glassmorphism background)
-      StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
-      StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {});
+      StatusBar.setStyle({ style: Style.Dark }).catch(() => { });
+      StatusBar.setOverlaysWebView({ overlay: true }).catch(() => { });
 
       // 3. Configure keyboard
-      Keyboard.setAccessoryBarVisible({ visible: false }).catch(() => {});
+      Keyboard.setAccessoryBarVisible({ visible: false }).catch(() => { });
     }
   }, [isNative]);
 
@@ -200,7 +200,7 @@ function AppContent() {
         {isNative ? <MobileAppShell /> : <AppShell />}
       </Suspense>
       {!isAuth && <HpiChat />}
-      
+
       {!isNative && (
         <style>{`
           .glass, .card, .themed-card, [class*="card"], [class*="glass"] {

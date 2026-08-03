@@ -1,6 +1,6 @@
 import { WIDGET_REGISTRY, METRIC_LABELS } from '../config/widgets'
 import { X, Check, ArrowLeft } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { api } from '../utils/api'
 import ExercisePicker from './ExercisePicker'
 

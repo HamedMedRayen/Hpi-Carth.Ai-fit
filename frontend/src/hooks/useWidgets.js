@@ -6,8 +6,8 @@ export function useWidgets(page) {
 
   const defaults = {
     dashboard: ['volume_progression', 'weekly_volume', 'training_split',
-      'activity_map', 'streak_tracker', 'fatigue_history'],
-    progress: ['workouts_per_week', 'weight_over_time'],
+      'activity_map', 'streak_tracker', 'fatigue_history', 'body_map'],
+    progress: ['workouts_per_week', 'weight_over_time', 'body_map'],
   }
 
   const [widgets, setWidgets] = useState(() => {

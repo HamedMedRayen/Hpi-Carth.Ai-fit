@@ -18,7 +18,7 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(Path(__file__).parent))
 
 from core.config import settings
-from database import init_db, _raw_connection
+from database import init_db, _raw_connection, get_connection, release_connection
 
 logging.basicConfig(
     level=logging.INFO,
@@ -195,10 +195,11 @@ def create_app() -> FastAPI:
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-    # CORS — allow configured origins with credentials
+    # CORS — allow configured origins with credentials and mobile scheme regex
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
+        allow_origin_regex=r"https?://.*|capacitor://.*",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -321,7 +322,7 @@ def create_app() -> FastAPI:
                 "rules":        rules_count,
             }
         finally:
-            conn.close()
+            release_connection(conn)
         return {"status": "healthy", "version": settings.VERSION, **stats}
 
     @app.get("/", tags=["System"])
@@ -339,7 +340,7 @@ def create_app() -> FastAPI:
             conn.commit()
             return {"status": "ok", **result}
         finally:
-            conn.close()
+            release_connection(conn)
 
     return app
 

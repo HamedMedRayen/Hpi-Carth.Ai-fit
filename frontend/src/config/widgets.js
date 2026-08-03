@@ -1,6 +1,6 @@
 import {
   BarChart2, Scale, RefreshCw, Activity, TrendingUp,
-  Calendar, Zap, Heart, Target, Dumbbell
+  Calendar, Zap, Heart, Target, Dumbbell, User
 } from 'lucide-react'
 
 export const WIDGET_REGISTRY = [
@@ -9,6 +9,13 @@ export const WIDGET_REGISTRY = [
     label: 'Workouts per week',
     subtitle: 'Track your completed workouts each week',
     Icon: Calendar,
+    pages: ['dashboard', 'progress'],
+  },
+  {
+    id: 'body_map',
+    label: 'Body Map',
+    subtitle: 'Anatomical muscle group & injury heatmap',
+    Icon: User,
     pages: ['dashboard', 'progress'],
   },
   {

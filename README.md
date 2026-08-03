@@ -222,14 +222,36 @@ npm start
 The application will open automatically and be available at `http://localhost:3000`.
 
 ### 5. Run the Mobile App (Android)
-Since Hpi uses Capacitor to bridge the React app to native mobile, you can easily run it on an Android device or emulator directly from Windows:
+Since Hpi uses Capacitor to bridge the React app to native mobile, you can easily run it on an Android device or emulator directly from Windows.
 
 **Prerequisite:** Ensure you have [Android Studio](https://developer.android.com/studio) installed.
 
+> [!CAUTION]
+> **Never ship a production APK/AAB with the live-reload dev server URL active.** The `http://10.0.2.2:3000` address is only reachable from the Android emulator during local development. Production builds must serve from the bundled `build/` folder (the default `npm run build:android` behavior).
+
+#### Option A — Development (Live Reload) ⚡
+Get instant **Fast Refresh** inside the emulator — no native rebuild needed for JS/CSS changes:
+
+1. **Start the React dev server** (keep this terminal open):
+   ```bash
+   cd frontend
+   npm start
+   ```
+2. **Sync & open Android Studio** with the dev server URL injected:
+   ```bash
+   npm run dev:android
+   ```
+3. **Run on the emulator** in Android Studio (click the Play button). The app loads from `http://10.0.2.2:3000` (the emulator's alias for host `localhost:3000`) and any code change triggers an instant Fast Refresh.
+
+> [!TIP]
+> `dev:android` sets `CAPACITOR_LIVE_RELOAD=true` so the Capacitor config points at the dev server. When this variable is absent (the default), the app loads from the static `build/` folder as usual.
+
+#### Option B — Production Build
+Build, bundle, and sync the static assets for a release-ready APK:
+
 1. **Build and Sync:** Inside the `frontend` folder, build the web assets and sync them to the Android project:
    ```bash
-   npm run build
-   npx cap sync android
+   npm run build:android
    ```
 2. **Open Android Studio:**
    ```bash

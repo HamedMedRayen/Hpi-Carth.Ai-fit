@@ -16,13 +16,13 @@ const RoseIcon = ({ size = 16 }) => (
 );
 
 const THEMES = [
-  { id: 'dark',       color: '#94a3b8', Icon: Moon,      label: 'Night'  },
-  { id: 'light',      color: '#0ea5e9', Icon: Sun,       label: 'Sky'    },
-  { id: 'nature',     color: '#4A7C59', Icon: Leaf,      label: 'Nature' },
-  { id: 'fire',       color: '#ff0000', Icon: Flame,     label: 'Fire'   },
-  { id: 'queen',      color: '#ff718b', Icon: RoseIcon,  label: 'Queen'  },
-  { id: 'monochrome', color: '#e2e8f0', Icon: Contrast,  label: 'Mono'   },
-  { id: 'cyberpunk',  color: '#00ffcc', Icon: Zap,       label: 'Cyber'  },
+  { id: 'dark', color: '#94a3b8', Icon: Moon, label: 'Night' },
+  { id: 'light', color: '#0ea5e9', Icon: Sun, label: 'Sky' },
+  { id: 'nature', color: '#4A7C59', Icon: Leaf, label: 'Nature' },
+  { id: 'fire', color: '#ff0000', Icon: Flame, label: 'Fire' },
+  { id: 'queen', color: '#ff718b', Icon: RoseIcon, label: 'Queen' },
+  { id: 'monochrome', color: '#e2e8f0', Icon: Contrast, label: 'Mono' },
+  { id: 'cyberpunk', color: '#00ffcc', Icon: Zap, label: 'Cyber' },
 ];
 
 /**
@@ -36,8 +36,8 @@ export default function OrbThemeSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
-  const displayTheme  = previewTheme || activeTheme;
-  const activeConfig  = THEMES.find(t => t.id === displayTheme) || THEMES[0];
+  const displayTheme = previewTheme || activeTheme;
+  const activeConfig = THEMES.find(t => t.id === displayTheme) || THEMES[0];
   const selectedConfig = THEMES.find(t => t.id === activeTheme) || THEMES[0];
 
   /* Close on outside click */

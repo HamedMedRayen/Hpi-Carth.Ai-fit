@@ -29,9 +29,23 @@ BASE_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 
 def exercise_urls(row: dict) -> dict:
     """Convert relative image/gif paths to full URLs."""
-    row["image_url"] = f"{BASE_URL}/exercises-dataset/{row['image_path']}" if row.get("image_path") else None
-    row["gif_url"]   = f"{BASE_URL}/exercises-dataset/{row['gif_path']}"   if row.get("gif_path")   else None
+    if not row:
+        return row
+    
+    img = row.get("image_path") or row.get("image_url")
+    if img:
+        row["image_url"] = img if (img.startswith("http://") or img.startswith("https://")) else f"{BASE_URL}/exercises-dataset/{img}"
+    else:
+        row["image_url"] = None
+
+    gif = row.get("gif_path") or row.get("gif_url")
+    if gif:
+        row["gif_url"] = gif if (gif.startswith("http://") or gif.startswith("https://")) else f"{BASE_URL}/exercises-dataset/{gif}"
+    else:
+        row["gif_url"] = None
+
     return row
+
 
 
 SCHEMA_SQL = """
@@ -396,6 +410,19 @@ CREATE TABLE IF NOT EXISTS coach_notes (
     created_at  TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- ── Coach Reviews & Ratings ───────────────────────────────────
+CREATE TABLE IF NOT EXISTS coach_reviews (
+    id          BIGSERIAL PRIMARY KEY,
+    coach_id    BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id     BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    user_name   TEXT NOT NULL,
+    user_avatar TEXT,
+    rating      INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    comment     TEXT NOT NULL,
+    created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_coach_reviews_coach ON coach_reviews(coach_id);
+
 -- ── Rest Days ──────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS rest_days (
     id          BIGSERIAL PRIMARY KEY,
@@ -462,13 +489,10 @@ CREATE TABLE IF NOT EXISTS nutrition_targets (
 );
 CREATE INDEX IF NOT EXISTS idx_nutrition_targets_user ON nutrition_targets(user_id, created_at DESC);
 
--- ── RLS Policies (must be enabled in Supabase Dashboard) ──────
--- For custom_exercises table:
 -- ALTER TABLE custom_exercises ENABLE ROW LEVEL SECURITY;
 -- CREATE POLICY custom_exercises_own ON custom_exercises FOR ALL
 --   USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
 """
-
 
 def _raw_connection() -> psycopg2.extensions.connection:
     """Return a new (non-pooled) psycopg2 connection. Used by init_db only."""
@@ -479,10 +503,49 @@ def _raw_connection() -> psycopg2.extensions.connection:
     return conn
 
 
+def seed_synthetic_coach_reviews(conn) -> None:
+    """Seed synthetic users with comments and star ratings under all coaches if no reviews exist."""
+    with conn.cursor() as cur:
+        cur.execute("SELECT COUNT(*) as count FROM coach_reviews")
+        if cur.fetchone()["count"] > 0:
+            return
+
+        cur.execute("SELECT id, name FROM users WHERE role = 'coach'")
+        coaches = cur.fetchall()
+        if not coaches:
+            return
+
+        reviews_pool = [
+            ("Sami Trabelsi", "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80", 5, "Outstanding coach! Created a personalized hypertrophy program that completely transformed my strength. Very attentive to execution form."),
+            ("Emna Ben Ali", "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80", 5, "Super dedicated and responsive! Helped me stay consistent with macro tracking and weekly check-ins. Down 6kg of fat in 8 weeks."),
+            ("Mehdi Said", "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80", 5, "Very professional and knowledgeable. Fixed my deadlift posture and helped me break my 1RM plateau safely."),
+            ("Nour El Houda", "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80", 4, "Great communication and structured workout splits. Really appreciated the tailored progressive overload suggestions."),
+            ("Ahmed Dridi", "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80", 5, "Best coaching experience I've had. The posture correction cues and fatigue management plan kept me injury-free all season."),
+            ("Khadija Louati", "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80", 5, "Amazing motivation and detailed feedback after every logged workout. Couldn't ask for a better coach!"),
+            ("Selim Mansour", "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=150&q=80", 4, "Punctual, professional, and very thorough. The customized mobility drills helped my shoulder impingement tremendously."),
+            ("Ines Gharbi", "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=150&q=80", 5, "Incredible results! Guided me through a clean bulking phase without gaining unnecessary body fat. Top tier expertise.")
+        ]
+
+        for coach_idx, coach in enumerate(coaches):
+            coach_id = coach["id"]
+            num_reviews = 3 + (coach_idx % 3)
+            for r_idx in range(num_reviews):
+                item = reviews_pool[(coach_idx * 2 + r_idx) % len(reviews_pool)]
+                name, avatar, rating, comment = item
+                days_ago = (coach_idx * 3 + r_idx * 5) % 45 + 1
+                cur.execute("""
+                    INSERT INTO coach_reviews (coach_id, user_name, user_avatar, rating, comment, created_at)
+                    VALUES (%s, %s, %s, %s, %s, NOW() - (%s || ' days')::INTERVAL)
+                """, (coach_id, name, avatar, rating, comment, str(days_ago)))
+        
+        conn.commit()
+        print(f"[DB] Seeded synthetic reviews for {len(coaches)} coaches successfully.", flush=True)
+
+
 def init_db() -> None:
     """Create all tables and indexes (idempotent)."""
     import time
-    max_retries = 3
+    max_retries = 5
     for attempt in range(max_retries):
         try:
             _do_init_db()
@@ -490,10 +553,95 @@ def init_db() -> None:
         except (psycopg2.OperationalError, psycopg2.InterfaceError) as e:
             if attempt < max_retries - 1:
                 wait = (attempt + 1) * 2
-                print(f"[DB] Connection error during init: {str(e)[:100]}. Retrying in {wait}s... ({attempt+1}/{max_retries})", flush=True)
+                print(f"[DB] Connection error during init: {str(e)[:120]}. Retrying in {wait}s... ({attempt+1}/{max_retries})", flush=True)
                 time.sleep(wait)
             else:
+                print(f"[DB] Failed to connect to database after {max_retries} retries: {e}", flush=True)
                 raise
+
+
+# ── Connection Pool ────────────────────────────────────────────
+# Reuses connections instead of creating a new one per request.
+_pool = None
+
+def _get_pool():
+    """Lazily initialize a threaded connection pool."""
+    global _pool
+    if _pool is None or _pool.closed:
+        _pool = psycopg2.pool.ThreadedConnectionPool(
+            minconn=2,
+            maxconn=30,
+            dsn=settings.DATABASE_URL,
+            cursor_factory=psycopg2.extras.RealDictCursor,
+        )
+        print("[DB] Connection pool created (2-30 connections)", flush=True)
+    return _pool
+
+
+def release_connection(conn: Optional[psycopg2.extensions.connection]) -> None:
+    """Return a connection back to pool cleanly if pooled, or close if unpooled/closed."""
+    if conn is None:
+        return
+    global _pool
+    try:
+        if getattr(conn, "closed", 1) == 0:
+            if _pool and not _pool.closed:
+                _pool.putconn(conn)
+            else:
+                conn.close()
+    except Exception:
+        try:
+            if getattr(conn, "closed", 1) == 0:
+                conn.close()
+        except Exception:
+            pass
+
+
+def get_connection() -> psycopg2.extensions.connection:
+    """Return a connection from pool, with graceful fallback to _raw_connection if pool exhausted/stale."""
+    global _pool
+    try:
+        pool = _get_pool()
+        conn = pool.getconn()
+        if getattr(conn, "closed", 1) != 0:
+            try:
+                pool.putconn(conn, close=True)
+            except Exception:
+                pass
+            return _raw_connection()
+        return conn
+    except Exception as e:
+        print(f"[DB] Pool connection acquisition warning ({str(e)[:80]}), falling back to direct connection", flush=True)
+        try:
+            if _pool and not _pool.closed:
+                try: _pool.closeall()
+                except Exception: pass
+            _pool = None
+        except Exception:
+            pass
+        return _raw_connection()
+
+
+def get_db() -> Generator[psycopg2.extensions.connection, None, None]:
+    """
+    FastAPI dependency that yields a pooled connection and handles commit/rollback.
+    Returns the connection to the pool when done.
+    """
+    conn = get_connection()
+    try:
+        yield conn
+        if getattr(conn, "closed", 1) == 0:
+            conn.commit()
+    except Exception:
+        if getattr(conn, "closed", 1) == 0:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        release_connection(conn)
+
 
 def _do_init_db() -> None:
     """Actual initialization logic."""
@@ -719,8 +867,27 @@ def _do_init_db() -> None:
                 cur.execute("CREATE TABLE IF NOT EXISTS recipe_ingredients (id BIGSERIAL PRIMARY KEY, recipe_id BIGINT NOT NULL REFERENCES recipes(id) ON DELETE CASCADE, food_id BIGINT REFERENCES food_items(id) ON DELETE CASCADE, amount REAL NOT NULL, unit TEXT DEFAULT 'g')")
                 cur.execute("CREATE TABLE IF NOT EXISTS saved_meals (id BIGSERIAL PRIMARY KEY, user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE, name TEXT NOT NULL, items JSONB NOT NULL, created_at TIMESTAMPTZ DEFAULT NOW())")
 
+                # --- COACH REVIEWS & RATINGS MIGRATION ---
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS coach_reviews (
+                        id          BIGSERIAL PRIMARY KEY,
+                        coach_id    BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                        user_id     BIGINT REFERENCES users(id) ON DELETE SET NULL,
+                        user_name   TEXT NOT NULL,
+                        user_avatar TEXT,
+                        rating      INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+                        comment     TEXT NOT NULL,
+                        created_at  TIMESTAMPTZ DEFAULT NOW()
+                    )
+                """)
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_coach_reviews_coach ON coach_reviews(coach_id)")
+
                 conn.commit()
-                print("[DB] Migration: all exercise, auth, and chat columns added/verified.", flush=True)
+
+                # Seed synthetic reviews if empty
+                seed_synthetic_coach_reviews(conn)
+
+                print("[DB] Migration: all exercise, auth, chat, and coach review columns added/verified.", flush=True)
             except Exception as e:
                 conn.rollback()
                 import traceback

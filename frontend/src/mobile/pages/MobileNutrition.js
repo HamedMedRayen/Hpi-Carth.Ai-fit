@@ -12,6 +12,8 @@ import QuickAddModal from "../../components/nutrition/QuickAddModal";
 import RecipeBuilderModal from "../../components/nutrition/RecipeBuilderModal";
 import CustomFoodModal from "../../components/nutrition/CustomFoodModal";
 import NutritionCalculator from "../../components/nutrition/NutritionCalculator";
+import MealScanModal from "../../components/nutrition/MealScanModal";
+import { Camera } from "lucide-react";
 
 import "../styles/mobile.css";
 
@@ -325,7 +327,7 @@ export default function MobileNutrition() {
               color: "#000", 
               border: "none", 
               borderRadius: 12, 
-              padding: "0 14px", 
+              padding: "0 12px", 
               fontWeight: 700, 
               fontSize: 12, 
               display: "flex", 
@@ -335,6 +337,24 @@ export default function MobileNutrition() {
             }}
           >
             <Sparkles size={13} /> Ask
+          </button>
+          <button 
+            onClick={() => setActiveModal('vision')}
+            style={{ 
+              background: "linear-gradient(135deg, #00f2fe 0%, #ba55d3 100%)", 
+              color: "#fff", 
+              border: "none", 
+              borderRadius: 12, 
+              padding: "0 12px", 
+              fontWeight: 700, 
+              fontSize: 12, 
+              display: "flex", 
+              alignItems: "center", 
+              gap: 4,
+              cursor: "pointer"
+            }}
+          >
+            <Camera size={13} /> Photo
           </button>
         </div>
       </div>
@@ -382,6 +402,7 @@ export default function MobileNutrition() {
       {activeModal === 'quick' && <QuickAddModal onClose={() => setActiveModal(null)} onLog={refreshData} />}
       {activeModal === 'recipe' && <RecipeBuilderModal onClose={() => setActiveModal(null)} onSave={refreshData} />}
       {activeModal === 'custom' && <CustomFoodModal onClose={() => setActiveModal(null)} onSave={refreshData} />}
+      {activeModal === 'vision' && <MealScanModal onClose={() => setActiveModal(null)} onLog={refreshData} />}
     </div>
   );
 }

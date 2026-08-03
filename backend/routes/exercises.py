@@ -30,7 +30,21 @@ class CustomExerciseRequest(BaseModel):
 
 # ── Routes ────────────────────────────────────────────────────
 
+@router.get("/lookup")
+def lookup_exercise(
+    query: str = Query(..., description="Exercise ID or name query"),
+    db: psycopg2.extensions.connection = Depends(get_db)
+):
+    """Direct lookup endpoint for exercise by ID or name (returns single match with URLs)."""
+    from services.exercise_service import get_exercise_by_id_or_name
+    ex = get_exercise_by_id_or_name(db, query)
+    if not ex:
+        raise HTTPException(status_code=404, detail=f"No exercise found for query '{query}'")
+    return ex
+
+
 @router.get("/body-parts")
+
 def list_body_parts(db: psycopg2.extensions.connection = Depends(get_db)):
     """Legacy endpoint — returns distinct categories as body parts."""
     with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:

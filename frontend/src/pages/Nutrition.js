@@ -12,6 +12,8 @@ import QuickAddModal from "../components/nutrition/QuickAddModal";
 import RecipeBuilderModal from "../components/nutrition/RecipeBuilderModal";
 import CustomFoodModal from "../components/nutrition/CustomFoodModal";
 import NutritionCalculator from "../components/nutrition/NutritionCalculator";
+import MealScanModal from "../components/nutrition/MealScanModal";
+import { Camera } from "lucide-react";
 
 export default function Nutrition() {
   const { theme, previewTheme } = useTheme();
@@ -228,6 +230,23 @@ export default function Nutrition() {
               onKeyDown={(e) => { if (e.key === 'Enter') { handleScan(e.target.value); e.target.value = ''; } }}
             />
             <button className="themed-input" style={{ width: 'auto', background: 'var(--aura-accent)', color: '#000', fontWeight: 600 }}>Ask AI</button>
+            <button 
+              onClick={() => setActiveModal('vision')} 
+              className="themed-input" 
+              style={{ 
+                width: 'auto', 
+                background: 'linear-gradient(135deg, #00f2fe 0%, #ba55d3 100%)', 
+                color: '#fff', 
+                fontWeight: 700, 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 6,
+                cursor: 'pointer',
+                border: 'none'
+              }}
+            >
+              <Camera size={16} /> Scan Photo
+            </button>
           </div>
         </div>
 
@@ -266,6 +285,7 @@ export default function Nutrition() {
       {activeModal === 'quick' && <QuickAddModal onClose={() => setActiveModal(null)} onLog={refreshData} />}
       {activeModal === 'recipe' && <RecipeBuilderModal onClose={() => setActiveModal(null)} onSave={refreshData} />}
       {activeModal === 'custom' && <CustomFoodModal onClose={() => setActiveModal(null)} onSave={refreshData} />}
+      {activeModal === 'vision' && <MealScanModal onClose={() => setActiveModal(null)} onLog={refreshData} />}
 
       <style>{`
         .action-card {

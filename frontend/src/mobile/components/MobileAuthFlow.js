@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../utils/auth";
 import { HpiLogo } from "../../utils/icons";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { getApiBaseUrl } from "../../utils/config";
+import { ArrowLeft, Eye, EyeOff, Server, Check, RefreshCw } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 import "../styles/mobile.css";
 
@@ -18,6 +19,28 @@ export default function MobileAuthFlow() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // Server URL settings state
+  const [showServerConfig, setShowServerConfig] = useState(false);
+  const [serverUrl, setServerUrl] = useState(localStorage.getItem("custom_api_url") || getApiBaseUrl());
+  const [serverSavedMsg, setServerSavedMsg] = useState("");
+
+  const handleSaveServerUrl = () => {
+    if (!serverUrl.trim()) {
+      localStorage.removeItem("custom_api_url");
+    } else {
+      localStorage.setItem("custom_api_url", serverUrl.trim());
+    }
+    setServerSavedMsg("Server URL updated!");
+    setTimeout(() => setServerSavedMsg(""), 3000);
+  };
+
+  const handleResetServerUrl = () => {
+    localStorage.removeItem("custom_api_url");
+    setServerUrl(getApiBaseUrl());
+    setServerSavedMsg("Reset to default!");
+    setTimeout(() => setServerSavedMsg(""), 3000);
+  };
 
   const handleSubmit = async (e, type) => {
     e.preventDefault();
@@ -111,9 +134,101 @@ export default function MobileAuthFlow() {
     backdropFilter: "blur(8px)",
   };
 
+  const renderServerConfigPanel = () => (
+    <div style={{
+      background: 'rgba(255,255,255,0.06)',
+      border: '1px solid rgba(255,255,255,0.15)',
+      borderRadius: '16px',
+      padding: '14px 16px',
+      marginBottom: '20px',
+      textAlign: 'left'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+        <span style={{ fontSize: '13px', fontWeight: 700, color: '#f1f5f9' }}>
+          Backend Server URL
+        </span>
+        {serverSavedMsg && (
+          <span style={{ fontSize: '12px', color: '#4ade80', fontWeight: 600 }}>{serverSavedMsg}</span>
+        )}
+      </div>
+      <div style={{ display: 'flex', gap: '8px' }}>
+        <input
+          type="text"
+          value={serverUrl}
+          onChange={(e) => setServerUrl(e.target.value)}
+          placeholder="http://10.0.2.2:8000/api"
+          style={{
+            flex: 1,
+            background: 'rgba(0,0,0,0.4)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            borderRadius: '10px',
+            padding: '8px 12px',
+            fontSize: '13px',
+            color: '#fff'
+          }}
+        />
+        <button
+          type="button"
+          onClick={handleSaveServerUrl}
+          title="Save Server URL"
+          style={{
+            background: '#6366f1',
+            border: 'none',
+            borderRadius: '10px',
+            padding: '0 12px',
+            color: '#fff',
+            cursor: 'pointer'
+          }}
+        >
+          <Check size={16} />
+        </button>
+        <button
+          type="button"
+          onClick={handleResetServerUrl}
+          title="Reset to Default"
+          style={{
+            background: 'rgba(255,255,255,0.1)',
+            border: 'none',
+            borderRadius: '10px',
+            padding: '0 12px',
+            color: '#fff',
+            cursor: 'pointer'
+          }}
+        >
+          <RefreshCw size={16} />
+        </button>
+      </div>
+      <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginTop: '8px', marginBottom: 0 }}>
+        Default: <code>http://10.0.2.2:8000/api</code> for Android Emulator or your PC's LAN IP (e.g. <code>http://192.168.x.x:8000/api</code>) for physical phone over Wi-Fi.
+      </p>
+    </div>
+  );
+
   if (view === "welcome") {
     return (
       <div className="mobile-auth-container" style={{ ...cosmicBg, justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+        {/* Top Server Settings Button */}
+        <div style={{ width: "100%", display: "flex", justifyContent: "flex-end", paddingTop: 16, paddingRight: 16 }}>
+          <button
+            onClick={() => setShowServerConfig(!showServerConfig)}
+            style={{
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: 12,
+              color: "#ffffff",
+              padding: "8px 12px",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              fontSize: 12,
+              fontWeight: 600
+            }}
+          >
+            <Server size={16} /> Server Config
+          </button>
+        </div>
+
         <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
           <div style={{ color: "var(--aura-accent, #6366f1)" }}>
             <HpiLogo size={80} forceWhite={true} />
@@ -121,6 +236,8 @@ export default function MobileAuthFlow() {
         </div>
         
         <div style={{ width: "100%", paddingBottom: 40 }}>
+          {showServerConfig && renderServerConfigPanel()}
+
           <h1 style={{ color: "#ffffff", fontSize: 32, fontWeight: 800, marginBottom: 12, letterSpacing: "-0.5px" }}>
             Elevate your<br />training journey
           </h1>
@@ -165,11 +282,31 @@ export default function MobileAuthFlow() {
   return (
     <div className="mobile-auth-container" style={{ ...cosmicBg, paddingTop: "env(safe-area-inset-top)" }}>
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", marginBottom: 32, marginTop: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, marginTop: 16 }}>
         <button onClick={() => setView("welcome")} style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, color: "#ffffff", padding: 8, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
           <ArrowLeft size={20} />
         </button>
+        <button
+          onClick={() => setShowServerConfig(!showServerConfig)}
+          style={{
+            background: "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            borderRadius: 12,
+            color: "#ffffff",
+            padding: "8px 12px",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            fontSize: 12,
+            fontWeight: 600
+          }}
+        >
+          <Server size={16} /> Server Config
+        </button>
       </div>
+
+      {showServerConfig && renderServerConfigPanel()}
 
       <h1 style={{ color: "#ffffff", fontSize: 28, fontWeight: 800, margin: "0 0 8px 0" }}>
         {view === "register" ? "Create Account" : "Welcome Back"}

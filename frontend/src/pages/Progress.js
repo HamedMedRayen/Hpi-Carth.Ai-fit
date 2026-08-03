@@ -18,11 +18,13 @@ import WeightRepsWidget from "../components/widgets/WeightRepsWidget";
 
 import ExerciseTrackerWidget from "../components/widgets/ExerciseTrackerWidget";
 import SleepWidget from "../components/widgets/SleepWidget";
+import BodyMapWidget from "../components/widgets/BodyMapWidget";
 
 function renderWidget(w) {
   const id = typeof w === 'string' ? w : w.id;
   switch (id) {
     case 'workouts_per_week': return <WorkoutsPerWeekWidget />;
+    case 'body_map': return <BodyMapWidget />;
     case 'weight_over_time': return <WeightOverTimeWidget />;
     case 'reps_over_time': return <RepsOverTimeWidget />;
     case 'weight_reps_combined': return <WeightRepsWidget />;

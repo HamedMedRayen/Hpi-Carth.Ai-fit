@@ -15,9 +15,9 @@ if (typeof window !== "undefined") {
   document.documentElement.setAttribute("data-theme", savedTheme);
 }
 
-export const ThemeContext = createContext({ 
-  theme: "dark", 
-  setTheme: () => { }, 
+export const ThemeContext = createContext({
+  theme: "dark",
+  setTheme: () => { },
   toggle: () => { },
   previewTheme: null,
   setPreviewTheme: () => { }
