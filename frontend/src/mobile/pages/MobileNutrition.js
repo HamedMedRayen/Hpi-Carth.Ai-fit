@@ -253,6 +253,49 @@ export default function MobileNutrition() {
         </div>
       </div>
 
+      {/* ── AI Vision Camera Scanner Card Banner ── */}
+      <div 
+        onClick={() => setActiveModal('vision')}
+        style={{
+          background: "linear-gradient(135deg, rgba(0, 242, 254, 0.15) 0%, rgba(186, 85, 211, 0.15) 100%)",
+          border: "1px solid rgba(0, 242, 254, 0.3)",
+          borderRadius: 16,
+          padding: "16px 20px",
+          marginBottom: 20,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          cursor: "pointer",
+          boxShadow: "0 4px 20px rgba(0, 242, 254, 0.15)",
+          transition: "transform 0.2s ease"
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: 12,
+            background: "linear-gradient(135deg, #00f2fe 0%, #ba55d3 100%)",
+            display: "flex", justifyContent: "center", alignItems: "center",
+            color: "#fff", boxShadow: "0 2px 10px rgba(0, 242, 254, 0.3)"
+          }}>
+            <Camera size={22} />
+          </div>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: "#fff", letterSpacing: "-0.3px" }}>
+              AI Vision Meal Scanner
+            </div>
+            <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 2 }}>
+              Snap photo for instant component & macro breakdown
+            </div>
+          </div>
+        </div>
+        <div style={{
+          background: "#00f2fe", color: "#000", fontWeight: 800, fontSize: 11,
+          padding: "6px 12px", borderRadius: 20, textTransform: "uppercase", letterSpacing: "0.5px"
+        }}>
+          SCAN
+        </div>
+      </div>
+
       {/* ── 2x2 Quick Actions Logging Grid ── */}
       <div className="mobile-grid-2x2" style={{ marginBottom: 24 }}>
         <button className="mobile-quick-action action-workout" onClick={() => setActiveModal('search')} style={{ margin: 0, width: '100%' }}>
