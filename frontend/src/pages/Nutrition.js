@@ -12,7 +12,7 @@ import QuickAddModal from "../components/nutrition/QuickAddModal";
 import RecipeBuilderModal from "../components/nutrition/RecipeBuilderModal";
 import CustomFoodModal from "../components/nutrition/CustomFoodModal";
 import NutritionCalculator from "../components/nutrition/NutritionCalculator";
-import { Camera, Droplet } from "lucide-react";
+import { Camera, Droplet, Sparkles } from "lucide-react";
 
 const MacroRing = ({ value, target, color, label, unit }) => {
   const radius = 30;
