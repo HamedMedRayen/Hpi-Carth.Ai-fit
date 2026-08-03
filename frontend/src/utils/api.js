@@ -1,4 +1,4 @@
-import { getApiBaseUrl } from './config';
+import { getApiBaseUrl, getCandidateApiUrls, setVerifiedWorkingBaseUrl } from './config';
 import { getSyncItem, setItem, removeItem } from './storage';
 
 // ── Token storage ─────────────────────────────────────────────
@@ -20,6 +20,26 @@ export const token = {
   setUser: (u) => setItem("aura_user", JSON.stringify(u)),
 };
 
+export async function autoDetectServer() {
+  const candidates = getCandidateApiUrls();
+  for (const candidate of candidates) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      const res = await fetch(`${candidate}/auth/me`, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (res.status === 200 || res.status === 401) {
+        setVerifiedWorkingBaseUrl(candidate);
+        localStorage.setItem("custom_api_url", candidate);
+        return candidate;
+      }
+    } catch (e) {
+      continue;
+    }
+  }
+  return null;
+}
+
 // ── Core fetch ────────────────────────────────────────────────
 async function req(path, opts = {}) {
   const headers = { ...opts.headers };
@@ -29,15 +49,39 @@ async function req(path, opts = {}) {
   const t = token.get();
   if (t) headers["Authorization"] = `Bearer ${t}`;
 
-  const baseUrl = getApiBaseUrl();
+  let baseUrl = getApiBaseUrl();
   let res;
   try {
     res = await fetch(`${baseUrl}${path}`, { ...opts, headers });
+    setVerifiedWorkingBaseUrl(baseUrl);
   } catch (err) {
-    if (err.name === "TypeError" && err.message.toLowerCase().includes("fetch")) {
-      throw new Error(`Unable to connect to server at ${baseUrl}. Please check your connection or server IP.`);
+    if (err.name === "TypeError" && (err.message.toLowerCase().includes("fetch") || err.message.toLowerCase().includes("failed"))) {
+      // Auto-fallback: Probe candidates sequentially
+      const candidates = getCandidateApiUrls().filter(c => c !== baseUrl);
+      let foundWorking = false;
+      for (const candidate of candidates) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2500);
+          const fallbackRes = await fetch(`${candidate}${path}`, { ...opts, headers, signal: controller.signal });
+          clearTimeout(timeoutId);
+          if (fallbackRes) {
+            setVerifiedWorkingBaseUrl(candidate);
+            localStorage.setItem("custom_api_url", candidate);
+            res = fallbackRes;
+            foundWorking = true;
+            break;
+          }
+        } catch (e2) {
+          continue;
+        }
+      }
+      if (!foundWorking) {
+        throw new Error(`Unable to connect to server at ${baseUrl}. Please check your connection or server IP.`);
+      }
+    } else {
+      throw err;
     }
-    throw err;
   }
 
   // Handle unauthorized errors (except for auth routes themselves)
