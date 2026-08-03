@@ -5,16 +5,27 @@ export function getApiBaseUrl() {
   const customUrl = localStorage.getItem("custom_api_url");
   if (customUrl && customUrl.trim()) {
     const trimmed = customUrl.trim();
-    return trimmed.endsWith('/api') ? trimmed : `${trimmed.replace(/\/$/, '')}/api`;
+    let resUrl = trimmed.endsWith('/api') ? trimmed : `${trimmed.replace(/\/$/, '')}/api`;
+    // If in web browser on PC and customUrl has 10.0.2.2, map back to 127.0.0.1
+    if (!Capacitor.isNativePlatform() && resUrl.includes("10.0.2.2")) {
+      resUrl = resUrl.replace("10.0.2.2", "127.0.0.1");
+    }
+    return resUrl;
   }
 
   let url = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000/api";
 
-  // On Native Android, 127.0.0.1 or localhost points to the phone/emulator itself.
-  // Map loopback addresses to 10.0.2.2 (Android Emulator host alias).
-  if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
+  // ONLY convert to 10.0.2.2 when running in actual Capacitor Native Android app container
+  const isNativeAndroid = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android';
+
+  if (isNativeAndroid) {
     if (url.includes("127.0.0.1") || url.includes("localhost")) {
       url = url.replace("127.0.0.1", "10.0.2.2").replace("localhost", "10.0.2.2");
+    }
+  } else {
+    // In web browser (desktop/laptop/emulation), 10.0.2.2 is unreachable, so use 127.0.0.1
+    if (url.includes("10.0.2.2")) {
+      url = url.replace("10.0.2.2", "127.0.0.1");
     }
   }
 
