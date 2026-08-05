@@ -3,13 +3,14 @@ import { Search, X, Plus, ChevronRight, Brain } from "lucide-react";
 import { api } from "../../utils/api";
 import { useToast } from "../Toast";
 
-export default function FoodSearchModal({ onClose, onLog, onSwitchToCustom }) {
+export default function FoodSearchModal({ onClose, onLog, onSwitchToCustom, initialCategory = "Breakfast", targetDate }) {
   const [query, setQuery] = useState("");
   const [allFoods, setAllFoods] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedFood, setSelectedFood] = useState(null);
   const [amount, setAmount] = useState(100);
   const [unit, setUnit] = useState("g");
+  const [mealCategory, setMealCategory] = useState(initialCategory);
   const toast = useToast();
 
   useEffect(() => {
@@ -68,6 +69,7 @@ export default function FoodSearchModal({ onClose, onLog, onSwitchToCustom }) {
 
       await api.logNutrition({
         meal_name: selectedFood.name,
+        meal_category: mealCategory,
         food_id: selectedFood.id,
         amount: parsedAmount,
         unit: unit,
@@ -75,7 +77,8 @@ export default function FoodSearchModal({ onClose, onLog, onSwitchToCustom }) {
         protein_g: (selectedFood.protein_g || 0) * ratio,
         carbs_g: (selectedFood.carbs_g || 0) * ratio,
         fat_g: (selectedFood.fat_g || 0) * ratio,
-        fiber_g: (selectedFood.fiber_g || 0) * ratio
+        fiber_g: (selectedFood.fiber_g || 0) * ratio,
+        date: targetDate || undefined
       });
       onLog();
       onClose();
@@ -89,11 +92,35 @@ export default function FoodSearchModal({ onClose, onLog, onSwitchToCustom }) {
       <div className="card" style={{ maxWidth: 500, width: "95%", maxHeight: "90vh", display: "flex", flexDirection: "column", background: "#111", border: "1px solid var(--aura-accent)", borderRadius: 24, padding: 24, color: "#fff", boxShadow: "0 0 40px rgba(0,0,0,0.5)" }}>
         
         {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
           <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0, background: 'linear-gradient(90deg, #fff, #888)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Search Food</h2>
           <button onClick={onClose} style={{ background: "rgba(255,255,255,0.05)", border: "none", color: "#fff", cursor: "pointer", width: 36, height: 36, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <X size={20} />
           </button>
+        </div>
+
+        {/* Meal Category Pills */}
+        <div style={{ display: "flex", gap: 6, marginBottom: 16, overflowX: "auto", paddingBottom: 4 }}>
+          {["Breakfast", "Lunch", "Dinner", "Snacks"].map(cat => (
+            <button
+              key={cat}
+              onClick={() => setMealCategory(cat)}
+              style={{
+                padding: "6px 14px",
+                borderRadius: 20,
+                fontSize: 12,
+                fontWeight: 700,
+                border: "none",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                background: mealCategory === cat ? "var(--aura-accent)" : "rgba(255,255,255,0.08)",
+                color: mealCategory === cat ? "#000" : "#aaa",
+                transition: "all 0.2s ease"
+              }}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
 
         {!selectedFood ? (

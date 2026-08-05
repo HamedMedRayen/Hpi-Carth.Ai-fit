@@ -37,6 +37,7 @@ class RecipeCreate(BaseModel):
 
 class MealLogCreate(BaseModel):
     meal_name: str
+    meal_category: Optional[str] = "Breakfast"
     food_id: Optional[int] = None
     recipe_id: Optional[int] = None
     amount: float
@@ -51,6 +52,10 @@ class MealLogCreate(BaseModel):
 class QuickAddRequest(BaseModel):
     calories: float
     meal_name: str = "Quick Add"
+    meal_category: Optional[str] = "Breakfast"
+    protein_g: Optional[float] = 0
+    carbs_g: Optional[float] = 0
+    fat_g: Optional[float] = 0
     date: Optional[date] = None
 
 class CopyMealRequest(BaseModel):
@@ -59,6 +64,8 @@ class CopyMealRequest(BaseModel):
 
 class ScanRequest(BaseModel):
     description: str
+    meal_category: Optional[str] = "Breakfast"
+    date: Optional[date] = None
 
 class ScanVisionRequest(BaseModel):
     image_base64: str
@@ -278,33 +285,43 @@ def log_nutrition(payload: MealLogCreate, user_id: int = Depends(get_current_use
             fiber = (fiber / servings) * payload.amount
 
     with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        category = payload.meal_category or "Breakfast"
         cur.execute("""
-            INSERT INTO nutrition_logs (user_id, meal_name, calories, protein_g, carbs_g, fat_g, fiber_g, date)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO nutrition_logs (user_id, meal_name, meal_category, calories, protein_g, carbs_g, fat_g, fiber_g, date)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING *
-        """, (user_id, payload.meal_name, cals, protein, carbs, fat, fiber, log_date))
+        """, (user_id, payload.meal_name, category, cals, protein, carbs, fat, fiber, log_date))
         return cur.fetchone()
 
 @router.post("/log/quick")
 def quick_add(payload: QuickAddRequest, user_id: int = Depends(get_current_user_id), db=Depends(get_db)):
     log_date = payload.date or date.today()
+    category = payload.meal_category or "Breakfast"
     with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute("""
-            INSERT INTO nutrition_logs (user_id, meal_name, calories, date)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO nutrition_logs (user_id, meal_name, meal_category, calories, protein_g, carbs_g, fat_g, date)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING *
-        """, (user_id, payload.meal_name, payload.calories, log_date))
+        """, (user_id, payload.meal_name, category, payload.calories, payload.protein_g or 0, payload.carbs_g or 0, payload.fat_g or 0, log_date))
         return cur.fetchone()
 
+@router.delete("/log/{log_id}")
+def delete_log(log_id: int, user_id: int = Depends(get_current_user_id), db=Depends(get_db)):
+    with db.cursor() as cur:
+        cur.execute("DELETE FROM nutrition_logs WHERE id = %s AND user_id = %s", (log_id, user_id))
+        db.commit()
+    return {"message": "Log entry deleted"}
+
 @router.get("/today")
-def get_today_nutrition(user_id: int = Depends(get_current_user_id), db=Depends(get_db)):
+def get_today_nutrition(date: Optional[str] = Query(None), user_id: int = Depends(get_current_user_id), db=Depends(get_db)):
+    target_date = date or str(date.today()) if hasattr(date, 'today') else (date or str(datetime.now().date()))
     with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute("""
-            SELECT id, meal_name, calories, protein_g, carbs_g, fat_g, fiber_g 
+            SELECT id, meal_name, COALESCE(meal_category, 'Breakfast') as meal_category, calories, protein_g, carbs_g, fat_g, fiber_g, date, logged_at 
             FROM nutrition_logs 
-            WHERE user_id = %s AND date = CURRENT_DATE
+            WHERE user_id = %s AND date = %s::date
             ORDER BY logged_at ASC
-        """, (user_id,))
+        """, (user_id, target_date))
         meals = cur.fetchall()
         
     totals = {"calories": 0, "protein_g": 0, "carbs_g": 0, "fat_g": 0}
@@ -314,7 +331,7 @@ def get_today_nutrition(user_id: int = Depends(get_current_user_id), db=Depends(
         totals["carbs_g"] += m["carbs_g"] or 0
         totals["fat_g"] += m["fat_g"] or 0
         
-    return {"meals": meals, "totals": totals}
+    return {"meals": meals, "totals": totals, "date": target_date}
 
 @router.get("/history")
 def get_nutrition_history(user_id: int = Depends(get_current_user_id), db=Depends(get_db)):
@@ -371,15 +388,17 @@ Be accurate based on typical serving sizes."""
         
         data = json.loads(reply)
         
+        category = payload.meal_category or "Breakfast"
+        log_date = payload.date or date.today()
         with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute("""
-                INSERT INTO nutrition_logs (user_id, meal_name, calories, protein_g, carbs_g, fat_g, fiber_g, description)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                INSERT INTO nutrition_logs (user_id, meal_name, meal_category, calories, protein_g, carbs_g, fat_g, fiber_g, description, date)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING *
             """, (
-                user_id, data.get("meal_name", "AI Meal"), data.get("calories", 0),
+                user_id, data.get("meal_name", "AI Meal"), category, data.get("calories", 0),
                 data.get("protein_g", 0), data.get("carbs_g", 0), data.get("fat_g", 0),
-                data.get("fiber_g", 0), payload.description
+                data.get("fiber_g", 0), payload.description, log_date
             ))
             return cur.fetchone()
     except Exception as e:

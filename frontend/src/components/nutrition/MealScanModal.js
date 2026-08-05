@@ -3,13 +3,14 @@ import { X, Camera, Sparkles, Upload, Check, RefreshCw, Layers, ShieldCheck, Fla
 import { api } from "../../utils/api";
 import { useToast } from "../Toast";
 
-export default function MealScanModal({ onClose, onLog }) {
+export default function MealScanModal({ onClose, onLog, initialCategory = "Breakfast", targetDate }) {
   const [selectedImage, setSelectedImage] = useState(null); // Data URL string
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState(null);
   const [logging, setLogging] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraStream, setCameraStream] = useState(null);
+  const [mealCategory, setMealCategory] = useState(initialCategory);
 
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
@@ -178,13 +179,15 @@ export default function MealScanModal({ onClose, onLog }) {
     try {
       await api.logNutrition({
         meal_name: scanResult.meal_name || "Vision Scanned Meal",
+        meal_category: mealCategory,
         amount: 1,
         unit: "serving",
         calories: scanResult.totals.calories || 0,
         protein_g: scanResult.totals.protein_g || 0,
         carbs_g: scanResult.totals.carbs_g || 0,
         fat_g: scanResult.totals.fat_g || 0,
-        fiber_g: scanResult.totals.fiber_g || 0
+        fiber_g: scanResult.totals.fiber_g || 0,
+        date: targetDate || undefined
       });
       if (toast?.success) toast.success("Meal logged successfully!");
       if (onLog) onLog();
@@ -198,16 +201,31 @@ export default function MealScanModal({ onClose, onLog }) {
   };
 
   return (
-    <div className="modal-overlay" style={{ zIndex: 1000, display: "flex", justifyContent: "center", alignItems: "center" }}>
+    <div 
+      className="modal-overlay" 
+      style={{ 
+        position: "fixed", 
+        inset: 0, 
+        zIndex: 9999, 
+        background: "rgba(0, 0, 0, 0.85)", 
+        backdropFilter: "blur(18px)", 
+        WebkitBackdropFilter: "blur(18px)",
+        display: "flex", 
+        justifyContent: "center", 
+        alignItems: "center",
+        padding: 16
+      }}
+    >
       <div className="card modal-content" style={{ 
-        maxWidth: 580, 
-        width: "92%", 
-        maxHeight: "90vh", 
+        maxWidth: 460, 
+        width: "100%", 
+        maxHeight: "88vh", 
         overflowY: "auto",
-        borderRadius: 20, 
-        border: "1px solid rgba(255, 255, 255, 0.12)",
+        borderRadius: 24, 
+        border: "1px solid rgba(0, 242, 254, 0.4)",
         background: "#0d1117",
-        padding: 24
+        padding: 20,
+        boxShadow: "0 20px 50px rgba(0, 0, 0, 0.8)"
       }}>
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
@@ -508,6 +526,36 @@ export default function MealScanModal({ onClose, onLog }) {
                 </div>
               </div>
             )}
+
+            {/* Mandatory Meal Category Selection */}
+            <div>
+              <label style={{ display: "block", fontSize: 12, fontWeight: 700, color: "var(--aura-accent, #00f2fe)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                Select Meal Section (Obligatory)
+              </label>
+              <div style={{ display: "flex", gap: 6 }}>
+                {["Breakfast", "Lunch", "Dinner", "Snacks"].map(cat => (
+                  <button
+                    type="button"
+                    key={cat}
+                    onClick={() => setMealCategory(cat)}
+                    style={{
+                      flex: 1,
+                      padding: "8px 4px",
+                      borderRadius: 10,
+                      fontSize: 12,
+                      fontWeight: 800,
+                      border: "none",
+                      cursor: "pointer",
+                      background: mealCategory === cat ? "linear-gradient(135deg, #00f2fe, #4facfe)" : "rgba(255,255,255,0.06)",
+                      color: mealCategory === cat ? "#000" : "#aaa",
+                      transition: "all 0.2s ease"
+                    }}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             {/* Log to Tracker Action */}
             <div style={{ display: "flex", gap: 10, marginTop: 4 }}>

@@ -3,12 +3,13 @@ import { X, Zap } from "lucide-react";
 import { api } from "../../utils/api";
 import { useToast } from "../Toast";
 
-export default function QuickAddModal({ onClose, onLog }) {
+export default function QuickAddModal({ onClose, onLog, initialCategory = "Breakfast", targetDate }) {
   const [calories, setCalories] = useState("");
   const [protein, setProtein] = useState("");
   const [carbs, setCarbs] = useState("");
   const [fat, setFat] = useState("");
   const [name, setName] = useState("Quick Add");
+  const [mealCategory, setMealCategory] = useState(initialCategory);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
@@ -19,12 +20,14 @@ export default function QuickAddModal({ onClose, onLog }) {
     try {
       await api.logNutrition({
         meal_name: name,
+        meal_category: mealCategory,
         amount: 1,
         unit: "serving",
         calories: parseFloat(calories),
         protein_g: parseFloat(protein) || 0,
         carbs_g: parseFloat(carbs) || 0,
-        fat_g: parseFloat(fat) || 0
+        fat_g: parseFloat(fat) || 0,
+        date: targetDate || undefined
       });
       onLog();
       onClose();
@@ -48,6 +51,33 @@ export default function QuickAddModal({ onClose, onLog }) {
         </div>
 
         <form onSubmit={handleQuickAdd} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          {/* Meal Category Pills */}
+          <div>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--color-text-3)", marginBottom: 6 }}>Meal Section</label>
+            <div style={{ display: "flex", gap: 6, overflowX: "auto" }}>
+              {["Breakfast", "Lunch", "Dinner", "Snacks"].map(cat => (
+                <button
+                  type="button"
+                  key={cat}
+                  onClick={() => setMealCategory(cat)}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: 16,
+                    fontSize: 12,
+                    fontWeight: 700,
+                    border: "none",
+                    cursor: "pointer",
+                    background: mealCategory === cat ? "var(--aura-accent)" : "rgba(255,255,255,0.08)",
+                    color: mealCategory === cat ? "#000" : "#aaa",
+                    transition: "all 0.2s ease"
+                  }}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div>
             <label style={{ display: "block", fontSize: 13, fontWeight: 600, color: "var(--color-text-3)", marginBottom: 8 }}>Description (Optional)</label>
             <input

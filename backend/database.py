@@ -293,17 +293,18 @@ CREATE INDEX IF NOT EXISTS idx_progress_photos_user ON progress_photos(user_id, 
 
 -- ── Nutrition Logs ────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS nutrition_logs (
-    id          BIGSERIAL PRIMARY KEY,
-    user_id     BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    meal_name   TEXT,
-    description TEXT,
-    calories    INT,
-    protein_g   FLOAT,
-    carbs_g     FLOAT,
-    fat_g       FLOAT,
-    fiber_g     FLOAT,
-    date        DATE DEFAULT CURRENT_DATE,
-    logged_at   TIMESTAMPTZ DEFAULT NOW()
+    id            BIGSERIAL PRIMARY KEY,
+    user_id       BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    meal_name     TEXT,
+    meal_category TEXT DEFAULT 'Breakfast',
+    description   TEXT,
+    calories      INT,
+    protein_g     FLOAT,
+    carbs_g       FLOAT,
+    fat_g         FLOAT,
+    fiber_g       FLOAT,
+    date          DATE DEFAULT CURRENT_DATE,
+    logged_at     TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_nutrition_logs_user ON nutrition_logs(user_id, date DESC);
 
@@ -745,6 +746,9 @@ def _do_init_db() -> None:
                 
                 # --- INJURY LOGS MIGRATIONS ---
                 cur.execute("ALTER TABLE injury_logs ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'active'")
+
+                # --- NUTRITION LOGS MIGRATIONS ---
+                cur.execute("ALTER TABLE nutrition_logs ADD COLUMN IF NOT EXISTS meal_category TEXT DEFAULT 'Breakfast'")
 
                 # --- USER PROFILE MIGRATIONS ---
                 cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT")

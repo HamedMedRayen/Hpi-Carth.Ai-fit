@@ -1,28 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import * as LucideIcons from "lucide-react";
+import {
+  Sparkles, FileText, Brain, ArrowRight, ShieldCheck, Download,
+  Copy, Check, Users, AlertCircle, RefreshCw, Printer, Zap,
+  TrendingUp, Sliders, Activity, Dumbbell, Moon, HeartPulse
+} from "lucide-react";
 import { api } from "../../utils/api";
 import { resolveBackendUrl } from "../../utils/config";
-
-const Sparkles = LucideIcons.Sparkles || LucideIcons.Activity || (() => null);
-const FileText = LucideIcons.FileText || LucideIcons.Activity || (() => null);
-const Brain = LucideIcons.Brain || LucideIcons.Activity || (() => null);
-const ArrowRight = LucideIcons.ArrowRight || LucideIcons.Activity || (() => null);
-const ShieldCheck = LucideIcons.ShieldCheck || LucideIcons.Activity || (() => null);
-const Download = LucideIcons.Download || LucideIcons.Activity || (() => null);
-const Copy = LucideIcons.Copy || LucideIcons.Activity || (() => null);
-const Check = LucideIcons.Check || LucideIcons.Activity || (() => null);
-const Users = LucideIcons.Users || LucideIcons.Activity || (() => null);
-const AlertCircle = LucideIcons.AlertCircle || LucideIcons.Activity || (() => null);
-const RefreshCw = LucideIcons.RefreshCw || LucideIcons.Activity || (() => null);
-const Printer = LucideIcons.Printer || LucideIcons.Activity || (() => null);
-const Zap = LucideIcons.Zap || LucideIcons.Activity || (() => null);
-const TrendingUp = LucideIcons.TrendingUp || LucideIcons.Activity || (() => null);
-const Sliders = LucideIcons.Sliders || LucideIcons.Activity || (() => null);
-const Activity = LucideIcons.Activity || (() => null);
-const Dumbbell = LucideIcons.Dumbbell || LucideIcons.Activity || (() => null);
-const Moon = LucideIcons.Moon || LucideIcons.Activity || (() => null);
-const HeartPulse = LucideIcons.HeartPulse || LucideIcons.Activity || (() => null);
-const MessageSquare = LucideIcons.MessageSquare || LucideIcons.Activity || (() => null);
 
 const PRESET_SHORTCUTS = [
   {
@@ -57,17 +40,12 @@ export default function AiReportsSection() {
   const [promptText, setPromptText] = useState("");
   const [selectedPreset, setSelectedPreset] = useState(null);
   const [loadingAthletes, setLoadingAthletes] = useState(true);
-  
+
   // Generation State
   const [generating, setGenerating] = useState(false);
   const [reportResult, setReportResult] = useState(null);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
-
-  // Real-Time Feedback Refinement State
-  const [coachFeedbackInput, setCoachFeedbackInput] = useState("");
-  const [refining, setRefining] = useState(false);
-  const [appliedFeedbacks, setAppliedFeedbacks] = useState([]);
 
   const reportRef = useRef(null);
 
@@ -131,99 +109,36 @@ export default function AiReportsSection() {
     }
   };
 
-  const stripEmojis = (str) => {
-    if (!str) return "";
-    return str.replace(/[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, "");
-  };
-
   const handleCopy = () => {
     if (!reportResult?.report) return;
-    navigator.clipboard.writeText(stripEmojis(reportResult.report));
+    navigator.clipboard.writeText(reportResult.report);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
 
-  const handleDownloadPdf = () => {
-    if (!reportRef.current || !reportResult) return;
+  const handlePrint = () => {
+    if (!reportRef.current) return;
     const printWindow = window.open('', '_blank');
-    const athleteName = reportResult.athlete_name || "Athlete";
-    const dateStr = new Date(reportResult.generated_at || Date.now()).toLocaleDateString();
-
-    const cleanHtml = stripEmojis(reportRef.current.innerHTML);
-
     printWindow.document.write(`
-      <!DOCTYPE html>
       <html>
         <head>
-          <title>Hpi Performance Report - ${athleteName}</title>
+          <title>Athlete AI Report</title>
           <style>
-            @media print {
-              @page { margin: 15mm; size: A4; }
-              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #0f172a; background: #fff; }
-            }
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 36px; color: #0f172a; line-height: 1.6; max-width: 800px; margin: 0 auto; }
-            .header-banner { border-bottom: 2px solid #06b6d4; padding-bottom: 12px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
-            .title { font-size: 22px; font-weight: 800; color: #0f172a; margin: 0; }
-            .subtitle { font-size: 12px; color: #64748b; margin-top: 4px; }
-            h2 { color: #0f172a; font-weight: 800; font-size: 17px; margin-top: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; }
-            h3 { color: #0284c7; font-weight: 700; font-size: 14px; margin-top: 16px; }
-            h4 { color: #0891b2; font-weight: 700; font-size: 13px; margin-top: 12px; }
-            p, li { font-size: 13px; color: #334155; }
+            body { font-family: 'Inter', -apple-system, sans-serif; padding: 40px; color: #111; line-height: 1.6; }
+            h1 { color: #0f172a; border-bottom: 2px solid #06b6d4; padding-bottom: 8px; }
+            h2 { color: #0284c7; margin-top: 24px; }
             ul { padding-left: 20px; }
-            button { display: none !important; }
+            .transparency { background: #f1f5f9; padding: 16px; border-radius: 8px; margin-top: 32px; font-size: 12px; border: 1px solid #cbd5e1; }
           </style>
         </head>
         <body>
-          <div class="header-banner">
-            <div>
-              <div class="title">HPI Performance & Strength Synthesis</div>
-              <div class="subtitle">Client Roster Report: ${athleteName} • Date: ${dateStr}</div>
-            </div>
-          </div>
-          <div>
-            ${cleanHtml}
-          </div>
-          <script>
-            window.onload = function() {
-              window.print();
-            };
-          </script>
+          ${reportRef.current.innerHTML}
         </body>
       </html>
     `);
     printWindow.document.close();
-  };
-
-  const handleRefineWithFeedback = async (e) => {
-    if (e) e.preventDefault();
-    if (!coachFeedbackInput.trim() || !selectedAthleteId || !reportResult) return;
-
-    const feedbackText = coachFeedbackInput.trim();
-    setRefining(true);
-    setError(null);
-
-    try {
-      const payload = {
-        prompt: promptText,
-        preset_token: selectedPreset,
-        coach_feedback: feedbackText,
-        previous_report: reportResult.report
-      };
-
-      const res = await api.generateAthleteAiReport(selectedAthleteId, payload);
-      if (res && res.report) {
-        setReportResult(res);
-        setAppliedFeedbacks(prev => [...prev, feedbackText]);
-        setCoachFeedbackInput("");
-      } else {
-        throw new Error("Failed to refine report.");
-      }
-    } catch (err) {
-      console.error("Failed to refine report with feedback:", err);
-      setError(err.message || "Failed to refine AI report with coach feedback.");
-    } finally {
-      setRefining(false);
-    }
+    printWindow.focus();
+    printWindow.print();
   };
 
   const selectedAthlete = athletes.find(a => String(a.athlete_id) === String(selectedAthleteId));
@@ -489,7 +404,7 @@ export default function AiReportsSection() {
                 </button>
 
                 <button
-                  onClick={handleDownloadPdf}
+                  onClick={handlePrint}
                   style={{
                     background: "rgba(6, 182, 212, 0.12)",
                     border: "1px solid var(--aura-cyan)",
@@ -504,7 +419,7 @@ export default function AiReportsSection() {
                     gap: 6
                   }}
                 >
-                  <Download size={14} /> Download PDF Report
+                  <Printer size={14} /> Export / Print PDF
                 </button>
               </div>
             </div>
@@ -519,7 +434,7 @@ export default function AiReportsSection() {
                 padding: "8px 0"
               }}
             >
-              {stripEmojis(reportResult.report).split('\n').map((line, idx) => {
+              {reportResult.report.split('\n').map((line, idx) => {
                 if (line.startsWith('# ')) {
                   return <h1 key={idx} style={{ fontSize: 20, fontWeight: 900, color: "#fff", borderBottom: "2px solid #06b6d4", paddingBottom: 6, margin: "16px 0 12px" }}>{line.replace('# ', '')}</h1>;
                 }
@@ -561,124 +476,17 @@ export default function AiReportsSection() {
                   <span style={{ fontWeight: 800, color: "#fff" }}>Data Grounding Transparency:</span>
                 </div>
                 <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontWeight: 700 }}>
-                  <span>
-                    Workouts: {reportResult.data_transparency.workouts_analyzed > 0 ? (
-                      <><strong>{reportResult.data_transparency.workouts_analyzed}</strong> ({Math.round(reportResult.data_transparency.total_volume_kg).toLocaleString()} kg)</>
-                    ) : (
-                      <span style={{ color: "var(--color-text-3)", fontWeight: 500 }}>No workouts logged</span>
-                    )}
-                  </span>
-                  <span>
-                    Nutrition: {reportResult.data_transparency.nutrition_days_analyzed > 0 ? (
-                      <><strong>{reportResult.data_transparency.nutrition_days_analyzed}</strong> days</>
-                    ) : (
-                      <span style={{ color: "var(--color-text-3)", fontWeight: 500 }}>No nutrition logs</span>
-                    )}
-                  </span>
-                  <span>
-                    Sleep: {reportResult.data_transparency.sleep_nights_analyzed > 0 ? (
-                      <><strong>{reportResult.data_transparency.sleep_nights_analyzed}</strong> nights</>
-                    ) : (
-                      <span style={{ color: "var(--color-text-3)", fontWeight: 500 }}>No sleep logs</span>
-                    )}
-                  </span>
-                  <span>
-                    Active Injuries: {reportResult.data_transparency.active_injuries > 0 ? (
-                      <strong>{reportResult.data_transparency.active_injuries}</strong>
-                    ) : (
-                      <span style={{ color: "var(--color-text-3)", fontWeight: 500 }}>None active</span>
-                    )}
-                  </span>
+                  <span>Workouts: <strong>{reportResult.data_transparency.workouts_analyzed}</strong> ({Math.round(reportResult.data_transparency.total_volume_kg).toLocaleString()} kg)</span>
+                  <span>Nutrition: <strong>{reportResult.data_transparency.nutrition_days_analyzed}</strong> days</span>
+                  <span>Sleep: <strong>{reportResult.data_transparency.sleep_nights_analyzed}</strong> nights</span>
+                  <span>Active Injuries: <strong>{reportResult.data_transparency.active_injuries}</strong></span>
                 </div>
               </div>
             )}
-
-            {/* Real-time Coach Feedback & Report Refinement Panel */}
-            <div style={{
-              background: "rgba(168, 85, 247, 0.06)",
-              border: "1px solid rgba(168, 85, 247, 0.25)",
-              borderRadius: 16,
-              padding: 20,
-              display: "flex",
-              flexDirection: "column",
-              gap: 14
-            }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-                <div style={{ fontSize: 13, fontWeight: 800, color: "#c084fc", display: "flex", alignItems: "center", gap: 8 }}>
-                  <MessageSquare size={16} /> Real-Time Coach Feedback & Report Refinement
-                </div>
-                <span style={{ fontSize: 11, color: "var(--color-text-3)" }}>
-                  Feedback instantly updates report & persists rule permanently for LLM.
-                </span>
-              </div>
-
-              {appliedFeedbacks.length > 0 && (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  {appliedFeedbacks.map((fb, idx) => (
-                    <span key={idx} style={{
-                      fontSize: 11, fontWeight: 700, background: "rgba(34, 197, 94, 0.1)",
-                      border: "1px solid rgba(34, 197, 94, 0.25)", color: "#4ade80",
-                      padding: "4px 10px", borderRadius: 8, display: "flex", alignItems: "center", gap: 4
-                    }}>
-                      <Check size={12} /> Refinement Applied: "{fb}"
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              <form onSubmit={handleRefineWithFeedback} style={{ display: "flex", gap: 10 }}>
-                <input
-                  type="text"
-                  placeholder="Enter correction or directive (e.g. 'Swap leg press for extensions due to knee pain', 'Reduce volume by 20%')..."
-                  value={coachFeedbackInput}
-                  onChange={e => setCoachFeedbackInput(e.target.value)}
-                  style={{
-                    flex: 1,
-                    background: "rgba(0, 0, 0, 0.3)",
-                    border: "1px solid var(--border-card)",
-                    borderRadius: 12,
-                    padding: "12px 16px",
-                    color: "#fff",
-                    fontSize: 13,
-                    outline: "none"
-                  }}
-                />
-                <button
-                  type="submit"
-                  disabled={refining || !coachFeedbackInput.trim()}
-                  style={{
-                    background: "linear-gradient(135deg, #a855f7 0%, #06b6d4 100%)",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 12,
-                    padding: "0 20px",
-                    fontWeight: 800,
-                    fontSize: 13,
-                    cursor: refining || !coachFeedbackInput.trim() ? "not-allowed" : "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 8,
-                    opacity: refining || !coachFeedbackInput.trim() ? 0.6 : 1,
-                    whiteSpace: "nowrap"
-                  }}
-                >
-                  {refining ? (
-                    <>
-                      <RefreshCw size={14} className="spin-slow" />
-                      Refining Report...
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles size={14} />
-                      Refine & Re-Generate
-                    </>
-                  )}
-                </button>
-              </form>
-            </div>
           </div>
         )}
       </div>
     </div>
   );
 }
+

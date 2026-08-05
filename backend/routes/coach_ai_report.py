@@ -155,7 +155,7 @@ def fetch_athlete_full_context(athlete_id: int, coach_id: int, cur) -> dict:
 
     # 1. Profile
     cur.execute("""
-        SELECT id, name, email, bodyweight, sex, age, height_cm, experience, goal
+        SELECT id, name, email, avatar_url, bodyweight, sex, age, height_cm, experience, goal
         FROM users WHERE id = %s
     """, (athlete_id,))
     ctx["profile"] = cur.fetchone() or {}
@@ -268,6 +268,13 @@ PRE-CALCULATED DATA QUALITY & RELIABILITY AUDIT (AUTHORITATIVE):
 ================================================================================
 {json.dumps(audit, indent=2)}
 
+MANDATORY FORMATTING & VISUAL LAYOUT RULES (CRITICAL FOR APP RENDERING):
+1. Use Markdown Headers (`#`, `##`, `###`) to demarcate every section clearly.
+2. ALWAYS use GFM Markdown Tables (`| Header | Header |`) for structured data, itemized lists (like active injuries, recommendations, metrics, data audit). DO NOT output plain unformatted text lists for tabular data.
+3. Use GFM Blockquotes (`> ! Alert title — details`, `> ? Question title — details`, `> ~ Warning title — details`) for alerts, suspicious values, and follow-up questions.
+4. Use `**Bold**` for emphasis on key terms, verdicts, and severity metrics.
+5. NO EMOJIS anywhere. Use standard text symbols (●, ◐, ○, ×, !, ?, ▲, ▼) if needed.
+
 MANDATORY DATA QUALITY & COACHING DIRECTIVES:
 1. ABSENCE OF DATA IS NOT ABSENCE OF BEHAVIOR.
 2. NUTRITION LOGGING VALIDATION & THE 388 KCAL RULE:
@@ -276,7 +283,7 @@ MANDATORY DATA QUALITY & COACHING DIRECTIVES:
    - IF Nutrition Reliability is LOW or suspicious_calories is True:
      * YOU MUST NOT prescribe a calorie increase/decrease based on this recorded average.
      * YOU MUST explicitly output a Coaching Alert:
-       "Nutrition Logging Alert: The recorded calorie average of {audit['nutrition']['recorded_avg_calories']} kcal/day is not considered reliable because nutrition logging appears incomplete ({audit['nutrition']['logged_unique_days']} of {audit['nutrition']['expected_days']} unique days logged). This value should not be interpreted as actual daily intake."
+       "> ! **Nutrition Logging Alert** — The recorded calorie average of {audit['nutrition']['recorded_avg_calories']} kcal/day is not considered reliable because nutrition logging appears incomplete ({audit['nutrition']['logged_unique_days']} of {audit['nutrition']['expected_days']} unique days logged). This value should not be interpreted as actual daily intake."
      * Action: Direct the primary recommendation to improving nutrition logging.
 3. SLEEP LOGGING VALIDATION:
    - Sleep Reliability = {audit['sleep']['reliability']} (Coverage: {audit['sleep']['coverage_pct']}%, Logged Unique Days: {audit['sleep']['logged_unique_days']} of {audit['sleep']['expected_days']}).
@@ -305,6 +312,7 @@ ATHLETE DATA PAYLOAD:
 6. Past Coach Directives & Corrections (MUST BE OBEYED PERMANENTLY):
 {json.dumps(notes, indent=2)}
 """
+
 
     if payload.coach_feedback and payload.coach_feedback.strip():
         user_msg += f"""
@@ -390,6 +398,8 @@ def generate_athlete_ai_report(
         return {
             "success": True,
             "report": report_md,
+            "athlete_profile": ctx.get("profile", {}),
+            "active_injuries": ctx.get("active_injuries", []),
             "data_transparency": data_transparency
         }
 
