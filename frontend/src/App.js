@@ -27,6 +27,7 @@ import HpiChat from "./components/HpiChat/HpiChat";
 
 // ── Lazy-loaded pages — code-split for faster initial load ──
 const AuthPage = React.lazy(() => import("./pages/AuthPage"));
+const OnboardingFlow = React.lazy(() => import("./components/onboarding/OnboardingFlow"));
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
 const Workouts = React.lazy(() => import("./pages/Workouts"));
 const LogWorkout = React.lazy(() => import("./pages/LogWorkout"));
@@ -52,7 +53,15 @@ function PageLoader() {
 
 function RequireAuth({ children }) {
   const { user } = useAuth();
+  const location = useLocation();
   if (!user) return <Navigate to="/auth" replace />;
+
+  const isCompleted = user.onboarding_completed === true || user.profile?.onboarding_completed === true;
+  const isExplicitlyFalse = (user.onboarding_completed === false || user.profile?.onboarding_completed === false) && !isCompleted;
+
+  if (isExplicitlyFalse && location.pathname !== "/onboarding") {
+    return <Navigate to="/onboarding" replace />;
+  }
   return children;
 }
 
@@ -65,6 +74,7 @@ function AppShell() {
   const { user } = useAuth();
   const location = useLocation();
   const isAuth = location.pathname === "/auth";
+  const isOnboarding = location.pathname === "/onboarding";
 
   if (!user || isAuth) {
     return (
@@ -73,6 +83,22 @@ function AppShell() {
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
             <Route path="*" element={<Navigate to="/auth" replace />} />
+          </Routes>
+        </Suspense>
+      </PageWrap>
+    );
+  }
+
+  const isCompleted = user.onboarding_completed === true || user.profile?.onboarding_completed === true;
+  const isExplicitlyFalse = (user.onboarding_completed === false || user.profile?.onboarding_completed === false) && !isCompleted;
+
+  if (isExplicitlyFalse || (isOnboarding && !isCompleted)) {
+    return (
+      <PageWrap>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/onboarding" element={<RequireAuth><OnboardingFlow /></RequireAuth>} />
+            <Route path="*" element={<Navigate to="/onboarding" replace />} />
           </Routes>
         </Suspense>
       </PageWrap>
@@ -89,6 +115,7 @@ function AppShell() {
             <ErrorBoundary title="Page Error" message="This page encountered an error. Try refreshing." fullPage>
               <Routes>
                 <Route path="/" element={<RequireAuth><Dashboard /></RequireAuth>} />
+                <Route path="/onboarding" element={<RequireAuth><OnboardingFlow /></RequireAuth>} />
                 <Route path="/workouts" element={<RequireAuth><Workouts /></RequireAuth>} />
                 <Route path="/log" element={<RequireAuth><LogWorkout /></RequireAuth>} />
                 <Route path="/progress" element={<RequireAuth><Progress /></RequireAuth>} />
@@ -103,7 +130,7 @@ function AppShell() {
                 <Route path="/injuries" element={<RequireAuth><InjuryLog /></RequireAuth>} />
                 <Route path="/sleep" element={<RequireAuth><SleepTracker /></RequireAuth>} />
                 <Route path="/challenges" element={<RequireAuth><Challenges /></RequireAuth>} />
-                <Route path="/coach" element={<RequireAuth><CoachDashboard /></RequireAuth>} />
+                <Route path="/coach/*" element={<RequireAuth><CoachDashboard /></RequireAuth>} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </ErrorBoundary>

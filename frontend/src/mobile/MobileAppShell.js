@@ -29,7 +29,7 @@ const FatigueCheck = React.lazy(() => import("../pages/FatigueCheck"));
 const Measurements = React.lazy(() => import("../pages/Measurements"));
 const ProgressPhotos = React.lazy(() => import("../pages/ProgressPhotos"));
 const Exercises = React.lazy(() => import("../pages/Exercises"));
-const Recommend = React.lazy(() => import("../pages/Recommend"));
+const OnboardingFlow = React.lazy(() => import("../components/onboarding/OnboardingFlow"));
 
 function MobilePageLoader() {
   return <Skeleton.Dashboard />;
@@ -37,7 +37,15 @@ function MobilePageLoader() {
 
 function RequireAuth({ children }) {
   const { user } = useAuth();
+  const location = useLocation();
   if (!user) return <Navigate to="/auth" replace />;
+
+  const isCompleted = user.onboarding_completed === true || user.profile?.onboarding_completed === true;
+  const isExplicitlyFalse = (user.onboarding_completed === false || user.profile?.onboarding_completed === false) && !isCompleted;
+
+  if (isExplicitlyFalse && location.pathname !== "/onboarding") {
+    return <Navigate to="/onboarding" replace />;
+  }
   return children;
 }
 
@@ -46,6 +54,7 @@ export default function MobileAppShell() {
   const { theme } = useTheme();
   const location = useLocation();
   const isAuth = location.pathname === "/auth";
+  const isOnboarding = location.pathname === "/onboarding";
 
   if (!user || isAuth) {
     return (
@@ -54,6 +63,22 @@ export default function MobileAppShell() {
           <Routes>
             <Route path="/auth" element={<MobileAuthFlow />} />
             <Route path="*" element={<Navigate to="/auth" replace />} />
+          </Routes>
+        </Suspense>
+      </div>
+    );
+  }
+
+  const isCompleted = user.onboarding_completed === true || user.profile?.onboarding_completed === true;
+  const isExplicitlyFalse = (user.onboarding_completed === false || user.profile?.onboarding_completed === false) && !isCompleted;
+
+  if (isExplicitlyFalse || (isOnboarding && !isCompleted)) {
+    return (
+      <div className="mobile-app" data-mobile-theme={theme}>
+        <Suspense fallback={<MobilePageLoader />}>
+          <Routes>
+            <Route path="/onboarding" element={<RequireAuth><OnboardingFlow /></RequireAuth>} />
+            <Route path="*" element={<Navigate to="/onboarding" replace />} />
           </Routes>
         </Suspense>
       </div>
@@ -77,7 +102,7 @@ export default function MobileAppShell() {
               <Route path="/sleep" element={<RequireAuth><MobileSleep /></RequireAuth>} />
               <Route path="/chat" element={<RequireAuth><MobileChat /></RequireAuth>} />
               <Route path="/challenges" element={<RequireAuth><MobileChallenges /></RequireAuth>} />
-              <Route path="/coach" element={<RequireAuth><MobileCoachingZone /></RequireAuth>} />
+              <Route path="/coach/*" element={<RequireAuth><MobileCoachingZone /></RequireAuth>} />
               <Route path="/profile" element={<RequireAuth><MobileProfile /></RequireAuth>} />
               
               {/* Web App Routes linked by Mobile Hubs */}

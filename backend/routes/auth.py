@@ -56,6 +56,7 @@ class AuthResponse(BaseModel):
     user_id: int
     nickname: str
     avatar_url: Optional[str] = None
+    onboarding_completed: bool = False
 
 
 # ── Dependency: current user ──────────────────────────────────
@@ -96,12 +97,18 @@ def register(payload: RegisterRequest, db: psycopg2.extensions.connection = Depe
         raise HTTPException(status_code=409, detail=str(e))
 
     with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-        cur.execute("SELECT id, avatar_url FROM users WHERE auth_id = %s", (auth_user["id"],))
+        cur.execute("SELECT id, avatar_url, onboarding_completed FROM users WHERE auth_id = %s", (auth_user["id"],))
         u_row = cur.fetchone()
     
     user_id = u_row["id"]
     token = create_access_token({"auth_id": auth_user["id"], "nickname": auth_user["nickname"]})
-    return AuthResponse(access_token=token, user_id=user_id, nickname=auth_user["nickname"], avatar_url=u_row.get("avatar_url"))
+    return AuthResponse(
+        access_token=token,
+        user_id=user_id,
+        nickname=auth_user["nickname"],
+        avatar_url=u_row.get("avatar_url"),
+        onboarding_completed=bool(u_row.get("onboarding_completed", False))
+    )
 
 
 @router.post("/login", response_model=AuthResponse)
@@ -112,12 +119,18 @@ def login(request: Request, payload: LoginRequest, db: psycopg2.extensions.conne
         raise HTTPException(status_code=401, detail="Invalid nickname or password.")
 
     with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-        cur.execute("SELECT id, avatar_url FROM users WHERE auth_id = %s", (auth_user["id"],))
+        cur.execute("SELECT id, avatar_url, onboarding_completed FROM users WHERE auth_id = %s", (auth_user["id"],))
         u_row = cur.fetchone()
         
     user_id = u_row["id"]
     token = create_access_token({"auth_id": auth_user["id"], "nickname": auth_user["nickname"]})
-    return AuthResponse(access_token=token, user_id=user_id, nickname=auth_user["nickname"], avatar_url=u_row.get("avatar_url"))
+    return AuthResponse(
+        access_token=token,
+        user_id=user_id,
+        nickname=auth_user["nickname"],
+        avatar_url=u_row.get("avatar_url"),
+        onboarding_completed=bool(u_row.get("onboarding_completed", False))
+    )
 
 
 @router.post("/google", response_model=AuthResponse)
@@ -128,12 +141,18 @@ def google_login(payload: SocialLoginRequest, db: psycopg2.extensions.connection
         
     auth_user = get_or_create_user_social(db, info["email"], info["name"], "google")
     with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-        cur.execute("SELECT id, avatar_url FROM users WHERE auth_id = %s", (auth_user["id"],))
+        cur.execute("SELECT id, avatar_url, onboarding_completed FROM users WHERE auth_id = %s", (auth_user["id"],))
         u_row = cur.fetchone()
 
     user_id = u_row["id"]
     token = create_access_token({"auth_id": auth_user["id"], "nickname": auth_user["nickname"]})
-    return AuthResponse(access_token=token, user_id=user_id, nickname=auth_user["nickname"], avatar_url=u_row.get("avatar_url"))
+    return AuthResponse(
+        access_token=token,
+        user_id=user_id,
+        nickname=auth_user["nickname"],
+        avatar_url=u_row.get("avatar_url"),
+        onboarding_completed=bool(u_row.get("onboarding_completed", False))
+    )
 
 
 @router.post("/email-otp-request")
@@ -153,12 +172,18 @@ def email_otp_verify(payload: OtpVerifyRequest, db: psycopg2.extensions.connecti
         raise HTTPException(status_code=401, detail="Invalid or expired OTP.")
         
     with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-        cur.execute("SELECT id, avatar_url FROM users WHERE auth_id = %s", (auth_user["id"],))
+        cur.execute("SELECT id, avatar_url, onboarding_completed FROM users WHERE auth_id = %s", (auth_user["id"],))
         u_row = cur.fetchone()
 
     user_id = u_row["id"]
     token = create_access_token({"auth_id": auth_user["id"], "nickname": auth_user["nickname"]})
-    return AuthResponse(access_token=token, user_id=user_id, nickname=auth_user["nickname"], avatar_url=u_row.get("avatar_url"))
+    return AuthResponse(
+        access_token=token,
+        user_id=user_id,
+        nickname=auth_user["nickname"],
+        avatar_url=u_row.get("avatar_url"),
+        onboarding_completed=bool(u_row.get("onboarding_completed", False))
+    )
 
 
 @router.get("/me")
@@ -170,4 +195,15 @@ def me(current=Depends(get_current_user), db: psycopg2.extensions.connection = D
         row = cur.fetchone()
     role = row.get("role", "athlete") if row else "athlete"
     avatar_url = row.get("avatar_url") if row else None
-    return {**current, "role": role, "avatar_url": avatar_url, "profile": dict(row) if row else None}
+    onboarding_completed = bool(row.get("onboarding_completed", False)) if row else False
+    coach_verified = bool(row.get("coach_verified", False) or row.get("approved", False)) if row else False
+    verification_status = row.get("verification_status") or ("approved" if coach_verified else ("pending" if row.get("cv_url") else "unsubmitted")) if row else "unsubmitted"
+    return {
+        **current, 
+        "role": role, 
+        "avatar_url": avatar_url, 
+        "onboarding_completed": onboarding_completed,
+        "coach_verified": coach_verified,
+        "verification_status": verification_status,
+        "profile": dict(row) if row else None
+    }

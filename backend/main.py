@@ -247,9 +247,13 @@ def create_app() -> FastAPI:
     from routes.challenges      import router as challenges_router
     from routes.notifications   import router as notifications_router
     from routes.coach_chat     import router as coach_chat_router
+    from routes.coach_schedule import router as coach_schedule_router
+    from routes.coach_ai_report import router as coach_ai_report_router
+    from routes.onboarding     import router as onboarding_router
 
     API = settings.API_PREFIX
     app.include_router(auth_router,         prefix=API)
+    app.include_router(onboarding_router,   prefix=API)
     app.include_router(users_router,        prefix=API)
     app.include_router(workouts_router,     prefix=API)
     app.include_router(metrics_router,      prefix=API)
@@ -271,6 +275,8 @@ def create_app() -> FastAPI:
     app.include_router(challenges_router,   prefix=API)
     app.include_router(notifications_router, prefix=API)
     app.include_router(coach_chat_router,     prefix=API)
+    app.include_router(coach_schedule_router, prefix=API)
+    app.include_router(coach_ai_report_router, prefix=API)
 
     # ── Static files — Exercise dataset images + videos ─────
     DATASET_PATH = os.path.join(os.path.dirname(__file__), "..", "exercises-dataset-main")
