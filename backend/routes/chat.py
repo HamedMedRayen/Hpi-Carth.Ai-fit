@@ -127,10 +127,77 @@ async def chat(
         import json
         import re
 
+        import psycopg2.extras
         client = Groq(api_key=api_key)
 
+        # Fetch user profile & onboarding data from database
+        user_context_str = ""
+        if user_id:
+            try:
+                with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                    cur.execute("SELECT * FROM users WHERE id = %s", (user_id,))
+                    user_row = cur.fetchone()
+
+                if user_row:
+                    onboarding_data = user_row.get("onboarding_data") or {}
+                    if isinstance(onboarding_data, str):
+                        try:
+                            onboarding_data = json.loads(onboarding_data)
+                        except Exception:
+                            onboarding_data = {}
+
+                    profile_details = []
+                    if user_row.get("name"): profile_details.append(f"Name: {user_row['name']}")
+                    if user_row.get("sex"): profile_details.append(f"Biological Sex: {user_row['sex']}")
+                    if user_row.get("age"): profile_details.append(f"Age: {user_row['age']} years old")
+                    if user_row.get("height_cm"): profile_details.append(f"Height: {user_row['height_cm']} cm")
+                    if user_row.get("bodyweight"): profile_details.append(f"Current Bodyweight: {user_row['bodyweight']} kg")
+                    if user_row.get("goal"): profile_details.append(f"Primary Goal: {user_row['goal']}")
+                    if user_row.get("experience"): profile_details.append(f"Experience Level: {user_row['experience']}")
+                    if user_row.get("hypertension"): profile_details.append(f"Hypertension: {user_row['hypertension']}")
+                    if user_row.get("diabetes"): profile_details.append(f"Diabetes: {user_row['diabetes']}")
+
+                    onboarding_details = []
+                    if isinstance(onboarding_data, dict):
+                        for k, v in onboarding_data.items():
+                            if v is not None and v != "" and v != [] and v != {}:
+                                if isinstance(v, dict):
+                                    if "value" in v and "unit" in v:
+                                        formatted_val = f"{v['value']} {v['unit']}"
+                                    elif "selected" in v:
+                                        sel = v['selected']
+                                        if isinstance(sel, list):
+                                            sel = ", ".join([str(s) for s in sel])
+                                        other = v.get("otherText")
+                                        formatted_val = f"{sel} ({other})" if other else str(sel)
+                                    elif "year" in v:
+                                        formatted_val = f"{v.get('day','--')}/{v.get('month','--')}/{v.get('year','--')}"
+                                    else:
+                                        formatted_val = json.dumps(v)
+                                elif isinstance(v, list):
+                                    formatted_val = ", ".join([str(item) for item in v])
+                                else:
+                                    formatted_val = str(v)
+
+                                pretty_key = k.replace("_", " ").title()
+                                onboarding_details.append(f"• {pretty_key}: {formatted_val}")
+
+                    context_blocks = []
+                    if profile_details:
+                        context_blocks.append("Active Profile Summary:\n" + "\n".join([f"• {p}" for p in profile_details]))
+                    if onboarding_details:
+                        context_blocks.append("Detailed Onboarding Questionnaire Responses:\n" + "\n".join(onboarding_details))
+
+                    if context_blocks:
+                        user_context_str = "\n\n=== ATHLETE PROFILE & ONBOARDING DATA ===\n" + \
+                            "You have direct access to the athlete's complete personal profile and 27-question onboarding responses below. Use this context to personalize all answers, workout advice, nutritional guidelines, and exercise programming specifically for them:\n\n" + \
+                            "\n\n".join(context_blocks) + "\n=========================================\n"
+            except Exception as e:
+                log.warning(f"Could not load user onboarding context for chat: {e}")
+
         # Build messages array with system prompt prepended
-        messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+        full_system_prompt = SYSTEM_PROMPT + user_context_str
+        messages = [{"role": "system", "content": full_system_prompt}]
         messages.extend([{"role": m.role, "content": m.content} for m in body.messages])
 
         completion = client.chat.completions.create(
