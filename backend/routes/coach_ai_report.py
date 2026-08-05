@@ -19,6 +19,123 @@ router = APIRouter(prefix="", tags=["Coach AI Report Agent"])
 class AIReportReq(BaseModel):
     prompt: Optional[str] = ""
     preset_token: Optional[str] = None
+    coach_feedback: Optional[str] = None
+    previous_report: Optional[str] = None
+
+BACKSTORY_PATH = Path(__file__).parent / "AI_Athlete_Coach_v2.md"
+if BACKSTORY_PATH.exists():
+    SYSTEM_BACKSTORY = BACKSTORY_PATH.read_text(encoding="utf-8")
+else:
+    SYSTEM_BACKSTORY = """You are an expert AI Performance Coach responsible for analyzing an athlete's training, nutrition, sleep, recovery, and injury data.
+
+Your job is NOT simply to summarize the data. Your job is to determine whether the data is reliable enough to support a coaching conclusion, identify meaningful patterns, and provide practical recommendations.
+
+You must behave like a skeptical human coach: DO NOT blindly trust the numbers you receive.
+"""
+
+def perform_data_quality_audit(ctx: dict, analysis_window_days: int = 14) -> dict:
+    workouts = ctx.get("recent_workouts", [])
+    nutrition = ctx.get("nutrition_logs", [])
+    sleep = ctx.get("sleep_logs", [])
+    injuries = ctx.get("active_injuries", [])
+
+    # 1. Training (Unique Session Dates)
+    unique_workout_dates = set(str(w.get("session_date"))[:10] for w in workouts if w.get("session_date"))
+    logged_workout_days = len(unique_workout_dates)
+    workout_coverage_pct = round((logged_workout_days / analysis_window_days) * 100) if analysis_window_days > 0 else 0
+
+    if logged_workout_days == 0:
+        workout_reliability = "NO DATA"
+    elif workout_coverage_pct >= 70:
+        workout_reliability = "HIGH"
+    elif workout_coverage_pct >= 40:
+        workout_reliability = "MODERATE"
+    else:
+        workout_reliability = "LOW"
+
+    # 2. Nutrition (Unique Dates + Calories Verification)
+    unique_nutrition_dates = set(str(n.get("date"))[:10] for n in nutrition if n.get("date"))
+    logged_nutrition_days = len(unique_nutrition_dates)
+    nutrition_coverage_pct = round((logged_nutrition_days / analysis_window_days) * 100) if analysis_window_days > 0 else 0
+    
+    total_logged_calories = sum(float(n.get("calories", 0) or 0) for n in nutrition)
+    avg_recorded_calories = round(total_logged_calories / logged_nutrition_days) if logged_nutrition_days > 0 else 0
+    
+    # Flag suspicious calories (e.g. < 800 kcal/day or > 6000 kcal/day average across window)
+    suspicious_calories = (logged_nutrition_days > 0 and (avg_recorded_calories < 800 or avg_recorded_calories > 6000))
+    incomplete_nutrition_logging = (nutrition_coverage_pct < 60) or suspicious_calories
+
+    if logged_nutrition_days == 0:
+        nutrition_reliability = "NO DATA"
+    elif incomplete_nutrition_logging or nutrition_coverage_pct < 40:
+        nutrition_reliability = "LOW"
+    elif nutrition_coverage_pct >= 70:
+        nutrition_reliability = "HIGH"
+    else:
+        nutrition_reliability = "MODERATE"
+
+    # 3. Sleep (Unique Dates)
+    unique_sleep_dates = set(str(s.get("date"))[:10] for s in sleep if s.get("date"))
+    logged_sleep_days = len(unique_sleep_dates)
+    sleep_coverage_pct = round((logged_sleep_days / analysis_window_days) * 100) if analysis_window_days > 0 else 0
+    avg_recorded_sleep = round(sum(float(s.get("hours", 0) or 0) for s in sleep) / logged_sleep_days, 1) if logged_sleep_days > 0 else 0
+
+    if logged_sleep_days == 0:
+        sleep_reliability = "NO DATA"
+    elif sleep_coverage_pct >= 70:
+        sleep_reliability = "HIGH"
+    elif sleep_coverage_pct >= 40:
+        sleep_reliability = "MODERATE"
+    else:
+        sleep_reliability = "LOW"
+
+    # 4. Injuries
+    active_injury_count = len(injuries)
+    injury_reliability = "HIGH" if active_injury_count > 0 else "HIGH (None Logged)"
+
+    # 5. Overall Confidence
+    reliabilities = [workout_reliability, nutrition_reliability, sleep_reliability]
+    low_count = reliabilities.count("LOW") + reliabilities.count("NO DATA")
+    if low_count >= 2:
+        overall_confidence = "LOW"
+    elif low_count == 1:
+        overall_confidence = "MODERATE"
+    else:
+        overall_confidence = "HIGH"
+
+    return {
+        "analysis_window_days": analysis_window_days,
+        "training": {
+            "expected_days": analysis_window_days,
+            "logged_unique_days": logged_workout_days,
+            "total_records": len(workouts),
+            "coverage_pct": workout_coverage_pct,
+            "reliability": workout_reliability
+        },
+        "nutrition": {
+            "expected_days": analysis_window_days,
+            "logged_unique_days": logged_nutrition_days,
+            "total_records": len(nutrition),
+            "coverage_pct": nutrition_coverage_pct,
+            "recorded_avg_calories": avg_recorded_calories,
+            "suspicious_calories": suspicious_calories,
+            "incomplete_logging": incomplete_nutrition_logging,
+            "reliability": nutrition_reliability
+        },
+        "sleep": {
+            "expected_days": analysis_window_days,
+            "logged_unique_days": logged_sleep_days,
+            "total_records": len(sleep),
+            "coverage_pct": sleep_coverage_pct,
+            "recorded_avg_sleep_hrs": avg_recorded_sleep,
+            "reliability": sleep_reliability
+        },
+        "injuries": {
+            "active_records": active_injury_count,
+            "reliability": injury_reliability
+        },
+        "overall_confidence": overall_confidence
+    }
 
 def verify_coach_and_athlete(coach_id: int, athlete_id: int, cur):
     cur.execute("SELECT role FROM users WHERE id = %s", (coach_id,))
@@ -105,12 +222,12 @@ def fetch_athlete_full_context(athlete_id: int, coach_id: int, cur) -> dict:
     """, (athlete_id,))
     ctx["active_injuries"] = cur.fetchall() or []
 
-    # 7. Recent Coach Notes
+    # 7. Recent Coach Notes & Directives
     cur.execute("""
         SELECT note, created_at::text
         FROM coach_notes
         WHERE athlete_id = %s AND coach_id = %s
-        ORDER BY created_at DESC LIMIT 5
+        ORDER BY created_at DESC LIMIT 10
     """, (athlete_id, coach_id))
     ctx["coach_notes"] = cur.fetchall() or []
 
@@ -126,73 +243,86 @@ def build_report_prompt(athlete_name: str, payload: AIReportReq, ctx: dict) -> s
     prs = ctx.get("prs", [])
     notes = ctx.get("coach_notes", [])
 
+    # Compute authoritative Pre-LLM Data Quality Audit
+    audit = perform_data_quality_audit(ctx, analysis_window_days=14)
+
     total_vol = sum(w.get("total_volume", 0) for w in workouts)
-    avg_sleep = (sum(s.get("hours", 0) for s in sleep) / len(sleep)) if sleep else None
-    avg_cal = (sum(n.get("calories", 0) for n in nutrition) / len(nutrition)) if nutrition else None
+    avg_sleep = audit["sleep"]["recorded_avg_sleep_hrs"]
+    avg_cal = audit["nutrition"]["recorded_avg_calories"]
 
     prompt_text = payload.prompt.strip() if payload.prompt else ""
     if payload.preset_token:
         prompt_text = f"[{payload.preset_token}] {prompt_text}"
 
     user_msg = f"""
-You are acting as an Head Strength & Conditioning Coach and Sports Scientist analyzing athlete data.
+You are acting as Head Strength & Conditioning Coach and Lead Sports Scientist analyzing athlete data.
 
 ATHLETE PROFILE:
 - Name: {profile.get('name', athlete_name)}
 - Age: {profile.get('age', 'N/A')}, Gender: {profile.get('sex', 'M')}
 - Bodyweight: {profile.get('bodyweight', 0)} kg, Height: {profile.get('height_cm', 0)} cm
-- Experience Level: {profile.get('experience', 'Intermediate')}
 - Primary Goal: {profile.get('goal', 'General Fitness')}
+
+================================================================================
+PRE-CALCULATED DATA QUALITY & RELIABILITY AUDIT (AUTHORITATIVE):
+================================================================================
+{json.dumps(audit, indent=2)}
+
+MANDATORY DATA QUALITY & COACHING DIRECTIVES:
+1. ABSENCE OF DATA IS NOT ABSENCE OF BEHAVIOR.
+2. NUTRITION LOGGING VALIDATION & THE 388 KCAL RULE:
+   - Nutrition Reliability = {audit['nutrition']['reliability']} (Coverage: {audit['nutrition']['coverage_pct']}%, Logged Unique Days: {audit['nutrition']['logged_unique_days']} of {audit['nutrition']['expected_days']}).
+   - Suspicious Calories Flag = {audit['nutrition']['suspicious_calories']} (Recorded Average = {audit['nutrition']['recorded_avg_calories']} kcal/day).
+   - IF Nutrition Reliability is LOW or suspicious_calories is True:
+     * YOU MUST NOT prescribe a calorie increase/decrease based on this recorded average.
+     * YOU MUST explicitly output a Coaching Alert:
+       "Nutrition Logging Alert: The recorded calorie average of {audit['nutrition']['recorded_avg_calories']} kcal/day is not considered reliable because nutrition logging appears incomplete ({audit['nutrition']['logged_unique_days']} of {audit['nutrition']['expected_days']} unique days logged). This value should not be interpreted as actual daily intake."
+     * Action: Direct the primary recommendation to improving nutrition logging.
+3. SLEEP LOGGING VALIDATION:
+   - Sleep Reliability = {audit['sleep']['reliability']} (Coverage: {audit['sleep']['coverage_pct']}%, Logged Unique Days: {audit['sleep']['logged_unique_days']} of {audit['sleep']['expected_days']}).
+4. TRAINING LOGGING VALIDATION:
+   - Training Reliability = {audit['training']['reliability']} (Coverage: {audit['training']['coverage_pct']}%, Logged Unique Days: {audit['training']['logged_unique_days']} of {audit['training']['expected_days']}).
 
 COACH DIRECTIVE / QUESTION:
 "{prompt_text or 'Provide a comprehensive weekly training & recovery assessment report for this athlete.'}"
 
 ATHLETE DATA PAYLOAD:
-1. Workouts ({len(workouts)} sessions logged, {round(total_vol)} kg total volume):
+1. Workouts ({len(workouts)} sessions logged across {audit['training']['logged_unique_days']} unique days, {round(total_vol)} kg total volume):
 {json.dumps(workouts, indent=2)}
 
 2. Top PRs & Heavy Lifts:
 {json.dumps(prs, indent=2)}
 
-3. Nutrition Compliance ({len(nutrition)} days logged, target: {target.get('final_calories', 'N/A')} kcal):
+3. Nutrition Compliance ({len(nutrition)} records across {audit['nutrition']['logged_unique_days']} unique days, target: {target.get('final_calories', 'N/A')} kcal):
 {json.dumps(nutrition, indent=2)}
 
-4. Sleep & Recovery Logs ({len(sleep)} nights logged, avg {round(avg_sleep, 1) if avg_sleep else 'N/A'} hrs):
+4. Sleep & Recovery Logs ({len(sleep)} records across {audit['sleep']['logged_unique_days']} unique days, avg {avg_sleep} hrs):
 {json.dumps(sleep, indent=2)}
 
 5. Active Injuries & Limitations ({len(injuries)} active):
 {json.dumps(injuries, indent=2)}
 
-6. Past Coach Log Review Notes:
+6. Past Coach Directives & Corrections (MUST BE OBEYED PERMANENTLY):
 {json.dumps(notes, indent=2)}
-
-REPORT STRUCTURE REQUIREMENTS:
-Please generate a professional, cleanly formatted Markdown report with these exact section headers:
-
-# Athlete Performance & Recovery Report: {profile.get('name', athlete_name)}
-
-## Executive Summary
-(2-3 high-impact sentences summarizing current state)
-
-## Key Strengths & Performance Gains
-(Bulleted analysis of strength, volume consistency, or compliance)
-
-## Areas of Concern & Recovery Risks
-(Highlight fatigue, sleep deficiencies, nutrition gaps, or active injuries)
-
-## Actionable Coaching Plan for Next Week
-(3-4 precise, actionable recommendations for training adjustments, nutrition tweaks, and injury protocols)
-
-## Data Points Analyzed
-- Workouts Analyzed: {len(workouts)} sessions ({round(total_vol)} kg volume)
-- Nutrition Logs: {len(nutrition)} days (Avg: {round(avg_cal) if avg_cal else 0} kcal vs Target: {target.get('final_calories', 'N/A')} kcal)
-- Sleep Logs: {len(sleep)} nights (Avg: {round(avg_sleep, 1) if avg_sleep else 'N/A'} hrs)
-- Active Injuries: {len(injuries)} records
-
-STRICT CONSTRAINTS:
-- Be 100% grounded in the supplied data points above. Do not invent non-existent metrics.
-- Keep tone professional, authoritative, encouraging, and clear.
 """
+
+    if payload.coach_feedback and payload.coach_feedback.strip():
+        user_msg += f"""
+
+=== COACH REAL-TIME REFINEMENT DIRECTIVE & CORRECTION ===
+The head coach reviewed the report draft and provided the following REAL-TIME FEEDBACK / CORRECTION:
+"{payload.coach_feedback.strip()}"
+
+{"PREVIOUS REPORT DRAFT VERSION TO REFINE:" if payload.previous_report else ""}
+{payload.previous_report.strip() if payload.previous_report else ""}
+
+REFINEMENT INSTRUCTIONS:
+- You MUST immediately incorporate the coach's feedback and corrections above into the report.
+- Adjust training recommendations, volume numbers, exercise choices, nutrition targets, or risk assessments to strictly align with the coach's directive.
+- Ensure the same mistake or oversight is NOT repeated.
+- Produce a complete, updated, refined report incorporating all feedback while maintaining 100% data grounding and ZERO emojis.
+"""
+
     return user_msg
 
 @router.post("/coach/athlete/{athlete_id}/ai-report")
@@ -208,6 +338,15 @@ def generate_athlete_ai_report(
 
     with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         verify_coach_and_athlete(coach_id, athlete_id, cur)
+        
+        # Persist feedback so LLM remembers it in all future runs
+        if payload.coach_feedback and payload.coach_feedback.strip():
+            cur.execute("""
+                INSERT INTO coach_notes (coach_id, athlete_id, note)
+                VALUES (%s, %s, %s)
+            """, (coach_id, athlete_id, f"Coach Feedback Rule: {payload.coach_feedback.strip()}"))
+            db.commit()
+
         ctx = fetch_athlete_full_context(athlete_id, coach_id, cur)
 
     prompt = build_report_prompt(ctx.get("profile", {}).get("name", "Athlete"), payload, ctx)
@@ -220,7 +359,7 @@ def generate_athlete_ai_report(
             messages=[
                 {
                     "role": "system", 
-                    "content": "You are an expert Strength & Conditioning Head Coach producing data-grounded athletic evaluation reports."
+                    "content": SYSTEM_BACKSTORY
                 },
                 {"role": "user", "content": prompt}
             ],
@@ -228,6 +367,8 @@ def generate_athlete_ai_report(
             max_tokens=3000
         )
         report_md = completion.choices[0].message.content.strip()
+        import re
+        report_md = re.sub(r'[\U00010000-\U0010ffff\u2600-\u26ff\u2700-\u27bf]', '', report_md)
 
         workouts = ctx.get("recent_workouts", [])
         nutrition = ctx.get("nutrition_logs", [])
@@ -236,10 +377,14 @@ def generate_athlete_ai_report(
 
         data_transparency = {
             "workouts_analyzed": len(workouts),
+            "has_workouts": len(workouts) > 0,
             "total_volume_kg": sum(w.get("total_volume", 0) for w in workouts),
             "nutrition_days_analyzed": len(nutrition),
+            "has_nutrition": len(nutrition) > 0,
             "sleep_nights_analyzed": len(sleep),
-            "active_injuries": len(injuries)
+            "has_sleep": len(sleep) > 0,
+            "active_injuries": len(injuries),
+            "has_injuries": len(injuries) > 0
         }
 
         return {
