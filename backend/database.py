@@ -78,7 +78,12 @@ CREATE TABLE IF NOT EXISTS users (
     role         TEXT    DEFAULT 'athlete',
     created_at   TIMESTAMPTZ DEFAULT NOW(),
     updated_at   TIMESTAMPTZ DEFAULT NOW(),
-    avatar_url   TEXT
+    avatar_url   TEXT,
+    onboarding_completed BOOLEAN DEFAULT FALSE,
+    onboarding_data JSONB DEFAULT '{}'::jsonb,
+    coach_verified BOOLEAN DEFAULT FALSE,
+    verification_status TEXT DEFAULT 'unsubmitted',
+    rejection_reason TEXT
 );
 
 -- ── Body parts ───────────────────────────────────────────────
@@ -489,6 +494,23 @@ CREATE TABLE IF NOT EXISTS nutrition_targets (
 );
 CREATE INDEX IF NOT EXISTS idx_nutrition_targets_user ON nutrition_targets(user_id, created_at DESC);
 
+-- ── Coach Schedule Items (Sessions, Availability, Events) ──────
+CREATE TABLE IF NOT EXISTS coach_schedule_items (
+    id              BIGSERIAL PRIMARY KEY,
+    coach_id        BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    athlete_id      BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    title           TEXT NOT NULL,
+    item_type       TEXT DEFAULT 'session', -- 'session', 'availability_block', 'event'
+    start_time      TIMESTAMPTZ NOT NULL,
+    end_time        TIMESTAMPTZ NOT NULL,
+    location        TEXT DEFAULT 'Gym',
+    recurrence_rule TEXT DEFAULT NULL, -- 'weekly', 'biweekly', 'daily', null
+    status          TEXT DEFAULT 'scheduled', -- 'scheduled', 'completed', 'cancelled'
+    created_at      TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_coach_schedule_coach_dates ON coach_schedule_items(coach_id, start_time, end_time);
+CREATE INDEX IF NOT EXISTS idx_coach_schedule_athlete ON coach_schedule_items(athlete_id, start_time);
+
 -- ALTER TABLE custom_exercises ENABLE ROW LEVEL SECURITY;
 -- CREATE POLICY custom_exercises_own ON custom_exercises FOR ALL
 --   USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
@@ -730,6 +752,11 @@ def _do_init_db() -> None:
                 cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS cv_url TEXT")
                 cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS approved BOOLEAN DEFAULT FALSE")
                 cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS bio TEXT")
+                cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_completed BOOLEAN DEFAULT FALSE")
+                cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS onboarding_data JSONB DEFAULT '{}'::jsonb")
+                cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS coach_verified BOOLEAN DEFAULT FALSE")
+                cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS verification_status TEXT DEFAULT 'unsubmitted'")
+                cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS rejection_reason TEXT")
                 
                 # --- COACH RELATIONSHIPS MIGRATIONS ---
                 cur.execute("ALTER TABLE coach_relationships ADD COLUMN IF NOT EXISTS initiated_by TEXT DEFAULT 'coach'")

@@ -40,7 +40,8 @@ class UserRepository(BaseRepository):
         fields, values = [], []
 
         for col in ("name", "bodyweight", "sex", "age", "height_cm",
-                    "experience", "goal", "hypertension", "diabetes", "avatar_url"):
+                    "experience", "goal", "hypertension", "diabetes", "avatar_url",
+                    "onboarding_completed", "onboarding_data"):
             if col in data and data[col] is not None:
                 fields.append(f"{col} = %s")
                 values.append(data[col])

@@ -17,6 +17,7 @@ export function useAuthProvider() {
           nickname: res.nickname, 
           role: res.role, 
           avatar_url: res.avatar_url,
+          onboarding_completed: res.onboarding_completed ?? res.profile?.onboarding_completed ?? false,
           profile: res.profile 
         };
         token.setUser(userData);
@@ -31,7 +32,12 @@ export function useAuthProvider() {
     try {
       const res = await authApi.login(nickname, password);
       await token.set(res.access_token);
-      const userData = { user_id: res.user_id, nickname: res.nickname, avatar_url: res.avatar_url };
+      const userData = { 
+        user_id: res.user_id, 
+        nickname: res.nickname, 
+        avatar_url: res.avatar_url,
+        onboarding_completed: res.onboarding_completed ?? res.profile?.onboarding_completed ?? false
+      };
       await token.setUser(userData);
       setUser(userData);
       if (navigate) {
@@ -50,7 +56,12 @@ export function useAuthProvider() {
     try {
       const res = await authApi.googleLogin(googleToken);
       await token.set(res.access_token);
-      const userData = { user_id: res.user_id, nickname: res.nickname, avatar_url: res.avatar_url };
+      const userData = { 
+        user_id: res.user_id, 
+        nickname: res.nickname, 
+        avatar_url: res.avatar_url,
+        onboarding_completed: res.onboarding_completed ?? res.profile?.onboarding_completed ?? false
+      };
       await token.setUser(userData);
       setUser(userData);
       if (navigate) {
@@ -73,7 +84,12 @@ export function useAuthProvider() {
     try {
       const res = await authApi.verifyOtp(email, otp);
       await token.set(res.access_token);
-      const userData = { user_id: res.user_id, nickname: res.nickname, avatar_url: res.avatar_url };
+      const userData = { 
+        user_id: res.user_id, 
+        nickname: res.nickname, 
+        avatar_url: res.avatar_url,
+        onboarding_completed: res.onboarding_completed ?? res.profile?.onboarding_completed ?? false
+      };
       await token.setUser(userData);
       setUser(userData);
       if (navigate) {
@@ -92,13 +108,19 @@ export function useAuthProvider() {
     try {
       const res = await authApi.register(nickname, password, email, role);
       await token.set(res.access_token);
-      const userData = { user_id: res.user_id, nickname: res.nickname, role, avatar_url: res.avatar_url };
+      const userData = { 
+        user_id: res.user_id, 
+        nickname: res.nickname, 
+        role, 
+        avatar_url: res.avatar_url,
+        onboarding_completed: false
+      };
       await token.setUser(userData);
       setUser(userData);
       if (navigate) {
-        navigate("/");
+        navigate("/onboarding");
       } else {
-        window.history.pushState({}, "", "/");
+        window.history.pushState({}, "", "/onboarding");
       }
       return res;
     } catch (err) {
@@ -111,7 +133,12 @@ export function useAuthProvider() {
     try {
       const res = await api.updateUser(data);
 
-      const newUser = { ...user, ...res };
+      const newUser = { 
+        ...user, 
+        ...res, 
+        onboarding_completed: res?.onboarding_completed ?? data?.onboarding_completed ?? user?.onboarding_completed ?? true,
+        profile: { ...user?.profile, ...res }
+      };
       token.setUser(newUser);
       setUser(newUser);
       return res;

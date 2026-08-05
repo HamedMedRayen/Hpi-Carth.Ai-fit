@@ -33,6 +33,7 @@ class ProfileUpdate(BaseModel):
     hypertension: Optional[str] = None
     diabetes: Optional[str] = None
     role: Optional[str] = None
+    onboarding_completed: Optional[bool] = None
 
 
 def _repo(db=Depends(get_db)):

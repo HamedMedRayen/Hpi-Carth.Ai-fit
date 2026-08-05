@@ -289,6 +289,21 @@ export const api = {
   calculateNutritionTargets: (payload) => req("/nutrition/calculate-targets", { method: "POST", body: JSON.stringify(payload) }),
   saveNutritionTargets: (payload) => req("/nutrition/save-targets", { method: "POST", body: JSON.stringify(payload) }),
   getLatestNutritionTargets: () => req("/nutrition/targets/latest"),
+
+  // Coach Schedule / Calendar
+  getCoachSchedule: (startDate, endDate) => {
+    const params = new URLSearchParams();
+    if (startDate) params.append("start_date", startDate);
+    if (endDate) params.append("end_date", endDate);
+    return req(`/coach/schedule?${params.toString()}`);
+  },
+  createScheduleItem: (data) => req("/coach/schedule", { method: "POST", body: JSON.stringify(data) }),
+  updateScheduleItem: (itemId, data) => req(`/coach/schedule/${itemId}`, { method: "PATCH", body: JSON.stringify(data) }),
+  deleteScheduleItem: (itemId) => req(`/coach/schedule/${itemId}`, { method: "DELETE" }),
+  getMySessions: () => req("/coach/my-sessions"),
+  generateAthleteAiReport: (athleteId, payload) => req(`/coach/athlete/${athleteId}/ai-report`, { method: "POST", body: JSON.stringify(payload) }),
+  saveOnboarding: (answers) => req("/onboarding/save", { method: "POST", body: JSON.stringify({ answers }) }),
+  getCoachVerificationStatus: () => req("/coach/verification-status"),
 };
 
 

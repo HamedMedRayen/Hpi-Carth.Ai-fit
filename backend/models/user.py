@@ -35,6 +35,12 @@ class UserRead(UserBase):
     hypertension: Optional[str] = "No"
     diabetes: Optional[str] = "No"
     avatar_url: Optional[str] = None
+    cv_url: Optional[str] = None
+    onboarding_completed: Optional[bool] = False
+    onboarding_data: Optional[dict] = None
+    coach_verified: Optional[bool] = False
+    verification_status: Optional[str] = "unsubmitted"
+    rejection_reason: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
