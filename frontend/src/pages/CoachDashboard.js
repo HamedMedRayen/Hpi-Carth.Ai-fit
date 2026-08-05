@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { Users, UserPlus, Check, X, Search, Activity, ChevronRight, Dumbbell, TrendingUp, Calendar, AlertCircle, MessageSquare, Award, Heart, MapPin, Navigation, ShieldAlert, FileText, Sliders, ClipboardList, Camera, Download, Star } from "lucide-react";
 import Header from "../components/layout/Header";
 import { api } from "../utils/api";
@@ -10,6 +11,11 @@ import BodySilhouette from "../components/BodySilhouette";
 import BodyMapWidget from "../components/widgets/BodyMapWidget";
 import { useAuth } from "../utils/auth";
 import { resolveBackendUrl } from "../utils/config";
+import RequireCoachRole from "../components/auth/RequireCoachRole";
+import CoachWorkspaceNav from "../components/coach/CoachWorkspaceNav";
+import ScheduleSection from "../components/coach/ScheduleSection";
+import AiReportsSection from "../components/coach/AiReportsSection";
+import EventsSection from "../components/coach/EventsSection";
 
 const GOAL_LABELS = {
   muscle_gain: "Muscle Gain & Hypertrophy",
@@ -52,12 +58,14 @@ const getCoachBio = (c) => {
 
 export default function CoachDashboard() {
   const { user } = useAuth();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState("roster"); // 'roster' | 'my-coach'
   const [selectedCoachForInfo, setSelectedCoachForInfo] = useState(null);
   const [selectedGoal, setSelectedGoal] = useState("all");
   const [athletes, setAthletes] = useState([]);
   const [coaches, setCoaches] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState(null);
   const [role, setRole] = useState("athlete");
 
   // Coach action states
@@ -104,7 +112,7 @@ export default function CoachDashboard() {
 
     try {
       await api.submitCoachOnboarding(fd);
-      window.location.reload(); 
+      await fetchVerification();
     } catch (err) {
       setOnboardError(err.message || "Failed to submit onboarding.");
     } finally {
@@ -113,9 +121,11 @@ export default function CoachDashboard() {
   };
 
   const renderCoachOnboarding = () => {
-    const hasSubmitted = user && user.profile && user.profile.cv_url;
+    const isApproved = profile?.approved || profile?.coach_verified || profile?.verification_status === "approved";
+    const isPending = profile?.verification_status === "pending" || (!isApproved && profile?.cv_url);
+    const isRejected = profile?.verification_status === "rejected";
 
-    if (hasSubmitted) {
+    if (isPending) {
       return (
         <div style={{
           background: "var(--bg-glass)", border: "1px solid var(--border-card)", borderRadius: 28,
@@ -129,9 +139,9 @@ export default function CoachDashboard() {
           }}>
             <ShieldAlert size={42} />
           </div>
-          <h2 style={{ fontSize: 24, fontWeight: 900, color: "#fff", margin: "0 0 12px" }}>Application Under Review</h2>
+          <h2 style={{ fontSize: 24, fontWeight: 900, color: "#fff", margin: "0 0 12px" }}>Your Profile is Under Review</h2>
           <p style={{ fontSize: 14, color: "var(--color-text-2)", lineHeight: 1.6, margin: "0 0 24px" }}>
-            Thank you for submitting your CV and qualifications. Our administrative team is currently verifying your details. You will be notified and granted access to the Athlete Roster and Gym Map as soon as your account is approved.
+            Thank you for submitting your CV and qualifications. Our administrative team is currently verifying your details. You will be notified and granted access to the Athlete Roster as soon as your account is approved.
           </p>
           <div style={{
             background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16,
@@ -139,23 +149,47 @@ export default function CoachDashboard() {
           }}>
             <div style={{ fontSize: 12, color: "var(--color-text-3)", textTransform: "uppercase", fontWeight: 700, borderBottom: "1px solid rgba(255,255,255,0.04)", paddingBottom: 6 }}>Submitted Profile Info:</div>
             <div style={{ fontSize: 13, color: "var(--color-text)" }}>
-              <strong>Specialty:</strong> {GOAL_LABELS[user.profile.goal?.toLowerCase()] || user.profile.goal?.toUpperCase()}
+              <strong>Specialty:</strong> {GOAL_LABELS[profile?.goal?.toLowerCase()] || profile?.goal?.toUpperCase() || "General Fitness"}
             </div>
             <div style={{ fontSize: 13, color: "var(--color-text)" }}>
-              <strong>Experience:</strong> {EXP_LABELS[user.profile.experience?.toLowerCase()] || user.profile.experience?.toUpperCase()}
+              <strong>Experience:</strong> {EXP_LABELS[profile?.experience?.toLowerCase()] || profile?.experience?.toUpperCase() || "Certified Instructor"}
             </div>
             <div style={{ fontSize: 13, color: "var(--color-text)" }}>
-              <strong>Age / Sex:</strong> {user.profile.age} years / {user.profile.sex === 'M' ? 'Male' : 'Female'}
+              <strong>Age / Sex:</strong> {profile?.age || 25} years / {profile?.sex === 'M' ? 'Male' : 'Female'}
             </div>
-            {user.profile.bio && (
+            {profile?.bio && (
               <div style={{ fontSize: 13, color: "var(--color-text)" }}>
-                <strong>Bio:</strong> {user.profile.bio}
+                <strong>Bio:</strong> {profile.bio}
               </div>
             )}
-            <div style={{ fontSize: 13, color: "var(--color-text)", wordBreak: "break-all" }}>
-              <strong>CV Document:</strong> <a href={user.profile.cv_url} target="_blank" rel="noreferrer" style={{ color: "var(--aura-cyan)", textDecoration: "none", fontWeight: 700 }}>View Uploaded CV</a>
-            </div>
+            {profile?.cv_url && (
+              <div style={{ fontSize: 13, color: "var(--color-text)", wordBreak: "break-all" }}>
+                <strong>CV Document:</strong> <a href={resolveBackendUrl(profile.cv_url)} target="_blank" rel="noreferrer" style={{ color: "var(--aura-cyan)", textDecoration: "none", fontWeight: 700 }}>View Uploaded CV</a>
+              </div>
+            )}
           </div>
+        </div>
+      );
+    }
+
+    if (isRejected) {
+      return (
+        <div style={{
+          background: "var(--bg-glass)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: 28,
+          padding: 40, maxWidth: 600, margin: "40px auto", textAlign: "center",
+          boxShadow: "0 20px 40px rgba(0,0,0,0.4)", backdropFilter: "blur(16px)"
+        }}>
+          <div style={{
+            background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.2)",
+            width: 80, height: 80, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+            margin: "0 auto 24px", color: "#ef4444"
+          }}>
+            <AlertCircle size={42} />
+          </div>
+          <h2 style={{ fontSize: 24, fontWeight: 900, color: "#fff", margin: "0 0 12px" }}>Application Needs Revision</h2>
+          <p style={{ fontSize: 14, color: "var(--color-text-2)", lineHeight: 1.6, margin: "0 0 24px" }}>
+            {profile?.rejection_reason || "Your verification application could not be approved. Please review your credentials and resubmit updated verification documents below."}
+          </p>
         </div>
       );
     }
@@ -384,14 +418,31 @@ export default function CoachDashboard() {
     document.body.appendChild(script);
   }, []);
 
+  const fetchVerification = async () => {
+    setLoading(true);
+    try {
+      const data = await api.getCoachVerificationStatus();
+      setProfile(data);
+      if (data?.role) {
+        setRole(data.role);
+        if (data.role === "coach") setActiveTab("roster");
+        else setActiveTab("my-coach");
+      }
+    } catch (err) {
+      console.error("Failed to load coach verification status:", err);
+      if (user?.profile) {
+        setProfile(user.profile);
+        if (user.profile.role) setRole(user.profile.role);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchData();
-    api.getCoachRole().then(res => {
-      setRole(res?.role || "athlete");
-      if (res?.role === "coach") setActiveTab("roster");
-      else setActiveTab("my-coach");
-    });
-  }, []);
+    fetchVerification();
+  }, [location.pathname]);
 
   const loadGyms = async () => {
     try {
@@ -1431,9 +1482,9 @@ export default function CoachDashboard() {
         {loadingStats ? (
           <div style={{ padding: 40, textAlign: "center", color: "var(--color-text-3)" }}>Loading stats...</div>
         ) : athleteStats ? (
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 24, alignItems: "start" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.8fr) minmax(0, 1fr)", gap: 24, alignItems: "start", width: "100%", maxWidth: "100%", boxSizing: "border-box" }}>
             {/* Left Column: Metrics and Logs Cards */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 16, minWidth: 0 }}>
               {/* TRAINING SUMMARY */}
               <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 16, padding: 20 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--aura-accent)", marginBottom: 12 }}>
@@ -1815,7 +1866,11 @@ export default function CoachDashboard() {
               flexDirection: "column",
               gap: 16,
               position: "sticky",
-              top: 20
+              top: 20,
+              minWidth: 0,
+              maxWidth: "100%",
+              boxSizing: "border-box",
+              overflow: "hidden"
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--aura-accent)", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: 10 }}>
                 <Activity size={18} /> <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.05em", textTransform: "uppercase" }}>CLIENT BODY MAP</span>
@@ -1851,33 +1906,25 @@ export default function CoachDashboard() {
       <div className="page-inner" style={{ maxWidth: 1000, margin: "0 auto", display: "flex", flexDirection: "column", gap: 24 }}>
 
         {loading ? (
-          <div style={{ textAlign: "center", color: "var(--color-text-3)", padding: 40 }}>Loading...</div>
-        ) : role === 'coach' && user && user.profile && !user.profile.approved ? (
+          <div style={{ textAlign: "center", color: "var(--color-text-3)", padding: 60 }}>
+            <div style={{ fontSize: 14, fontWeight: 700 }}>Loading verification profile...</div>
+          </div>
+        ) : role === 'coach' && !(profile?.approved || profile?.coach_verified || profile?.verification_status === "approved") ? (
           renderCoachOnboarding()
-        ) : (
-          <>
-            {/* Tab Selector */}
-            <div style={{ display: "flex", gap: 8, background: "var(--bg-card)", padding: 6, borderRadius: 16, border: "1px solid var(--border-card)", width: "fit-content", marginBottom: 20 }}>
-              {role === 'coach' && (
-                <button onClick={() => { setActiveTab("roster"); setSelectedAthlete(null); }} style={{
-                  background: activeTab === "roster" ? "var(--aura-accent)" : "transparent",
-                  color: activeTab === "roster" ? "#000" : "var(--color-text)",
-                  border: "none", padding: "8px 24px", borderRadius: 12, fontWeight: 700, fontSize: 13, cursor: "pointer", transition: "all 0.2s"
-                }}>
-                  Athlete Roster
-                </button>
-              )}
-              <button onClick={() => { setActiveTab("my-coach"); setSelectedAthlete(null); }} style={{
-                background: activeTab === "my-coach" ? "var(--aura-accent)" : "transparent",
-                color: activeTab === "my-coach" ? "#000" : "var(--color-text)",
-                border: "none", padding: "8px 24px", borderRadius: 12, fontWeight: 700, fontSize: 13, cursor: "pointer", transition: "all 0.2s"
-              }}>
-                My Coach
-              </button>
-            </div>
+        ) : role === 'coach' ? (
+          <RequireCoachRole>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <CoachWorkspaceNav athleteCount={athletes.length} />
 
-            <div style={{ display: activeTab === "roster" ? "block" : "none" }}>
-              {selectedAthlete ? renderAthleteDetail() : (
+              {location.pathname.startsWith("/coach/schedule") ? (
+                <ScheduleSection />
+              ) : location.pathname.startsWith("/coach/ai-reports") ? (
+                <AiReportsSection />
+              ) : location.pathname.startsWith("/coach/events") ? (
+                <EventsSection />
+              ) : (
+                <div>
+                  {selectedAthlete ? renderAthleteDetail() : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
               {/* Roster Top Options Grid */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 20, alignItems: "start" }}>
@@ -2091,8 +2138,11 @@ export default function CoachDashboard() {
             </div>
           )}
         </div>
-
-            <div style={{ display: activeTab === "my-coach" ? "flex" : "none", flexDirection: "column", gap: 24 }}>
+      )}
+    </div>
+  </RequireCoachRole>
+) : (
+    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             {/* Active Coaches */}
             <div>
               <h2 style={{ fontSize: 14, fontWeight: 800, margin: "0 0 16px", display: "flex", alignItems: "center", gap: 8, color: "var(--color-text)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
@@ -2563,7 +2613,6 @@ export default function CoachDashboard() {
               )}
             </div>
           </div>
-        </>
       )}
 
       </div>

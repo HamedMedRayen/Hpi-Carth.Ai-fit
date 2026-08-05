@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { 
   Users, UserPlus, Check, X, Search, Activity, 
   ChevronRight, Dumbbell, Calendar, AlertCircle, 
-  MessageSquare, Send, ArrowLeft, Plus, Trash2, Award, Heart, ShieldAlert, FileText, MapPin, Star
+  MessageSquare, Send, ArrowLeft, Plus, Trash2, Award, Heart, ShieldAlert, FileText, MapPin, Star, Sliders, TrendingUp
 } from "lucide-react";
 import { api } from "../../utils/api";
 import { resolveBackendUrl } from "../../utils/config";
@@ -10,6 +11,11 @@ import { useToast } from "../../components/Toast";
 import { fmt } from "../../utils/formatters";
 import { useAuth } from "../../utils/auth";
 import CoachProfileModal from "../../components/CoachProfileModal";
+import MobileCoachWorkspaceNav from "../components/MobileCoachWorkspaceNav";
+import RequireCoachRole from "../../components/auth/RequireCoachRole";
+import ScheduleSection from "../../components/coach/ScheduleSection";
+import AiReportsSection from "../../components/coach/AiReportsSection";
+import EventsSection from "../../components/coach/EventsSection";
 
 const GOAL_LABELS = {
   muscle_gain: "Muscle Gain & Hypertrophy",
@@ -33,6 +39,7 @@ const EXP_LABELS = {
 
 export default function MobileCoachingZone() {
   const { user } = useAuth();
+  const location = useLocation();
   const [role, setRole] = useState("athlete");
   const [activeTab, setActiveTab] = useState("my-coach"); // 'roster' | 'my-coach'
   const [athletes, setAthletes] = useState([]);
@@ -50,6 +57,8 @@ export default function MobileCoachingZone() {
   const [onboardCVFile, setOnboardCVFile] = useState(null);
   const [onboardError, setOnboardError] = useState(null);
   const [onboardSubmitting, setOnboardSubmitting] = useState(false);
+
+  const [profile, setProfile] = useState(null);
 
   const handleOnboardSubmit = async (e) => {
     e.preventDefault();
@@ -70,7 +79,7 @@ export default function MobileCoachingZone() {
 
     try {
       await api.submitCoachOnboarding(fd);
-      window.location.reload(); 
+      await fetchInitialData();
     } catch (err) {
       setOnboardError(err.message || "Failed to submit onboarding.");
     } finally {
@@ -79,9 +88,11 @@ export default function MobileCoachingZone() {
   };
 
   const renderCoachOnboarding = () => {
-    const hasSubmitted = user && user.profile && user.profile.cv_url;
+    const isApproved = profile?.approved || profile?.coach_verified || profile?.verification_status === "approved";
+    const isPending = profile?.verification_status === "pending" || (!isApproved && profile?.cv_url);
+    const isRejected = profile?.verification_status === "rejected";
 
-    if (hasSubmitted) {
+    if (isPending) {
       return (
         <div style={{
           background: "var(--bg-glass)", border: "1px solid var(--color-border)", borderRadius: 20,
@@ -95,7 +106,7 @@ export default function MobileCoachingZone() {
           }}>
             <ShieldAlert size={32} />
           </div>
-          <h2 style={{ fontSize: 18, fontWeight: 900, color: "#fff", margin: "0 0 8px" }}>Application Under Review</h2>
+          <h2 style={{ fontSize: 18, fontWeight: 900, color: "#fff", margin: "0 0 8px" }}>Your Profile is Under Review</h2>
           <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5, margin: "0 0 20px" }}>
             Thank you for submitting your CV. Our team is verifying your credentials. You will be notified and granted roster access once approved.
           </p>
@@ -105,23 +116,47 @@ export default function MobileCoachingZone() {
           }}>
             <div style={{ fontSize: 11, color: "var(--text-secondary)", textTransform: "uppercase", fontWeight: 700, borderBottom: "1px solid rgba(255,255,255,0.04)", paddingBottom: 4 }}>Submitted Info:</div>
             <div style={{ fontSize: 12, color: "var(--color-text)" }}>
-              <strong>Specialty:</strong> {GOAL_LABELS[user.profile.goal?.toLowerCase()] || user.profile.goal?.toUpperCase()}
+              <strong>Specialty:</strong> {GOAL_LABELS[profile?.goal?.toLowerCase()] || profile?.goal?.toUpperCase() || "General Fitness"}
             </div>
             <div style={{ fontSize: 12, color: "var(--color-text)" }}>
-              <strong>Experience:</strong> {EXP_LABELS[user.profile.experience?.toLowerCase()] || user.profile.experience?.toUpperCase()}
+              <strong>Experience:</strong> {EXP_LABELS[profile?.experience?.toLowerCase()] || profile?.experience?.toUpperCase() || "Certified Instructor"}
             </div>
             <div style={{ fontSize: 12, color: "var(--color-text)" }}>
-              <strong>Age / Sex:</strong> {user.profile.age} years / {user.profile.sex === 'M' ? 'Male' : 'Female'}
+              <strong>Age / Sex:</strong> {profile?.age || 25} years / {profile?.sex === 'M' ? 'Male' : 'Female'}
             </div>
-            {user.profile.bio && (
+            {profile?.bio && (
               <div style={{ fontSize: 12, color: "var(--color-text)" }}>
-                <strong>Bio:</strong> {user.profile.bio}
+                <strong>Bio:</strong> {profile.bio}
               </div>
             )}
-            <div style={{ fontSize: 12, color: "var(--color-text)", wordBreak: "break-all" }}>
-              <strong>CV:</strong> <a href={user.profile.cv_url} target="_blank" rel="noreferrer" style={{ color: "var(--aura-cyan)", textDecoration: "none", fontWeight: 700 }}>View CV Document</a>
-            </div>
+            {profile?.cv_url && (
+              <div style={{ fontSize: 12, color: "var(--color-text)", wordBreak: "break-all" }}>
+                <strong>CV Document:</strong> <a href={resolveBackendUrl(profile.cv_url)} target="_blank" rel="noreferrer" style={{ color: "var(--aura-cyan)", textDecoration: "none", fontWeight: 700 }}>View Uploaded CV</a>
+              </div>
+            )}
           </div>
+        </div>
+      );
+    }
+
+    if (isRejected) {
+      return (
+        <div style={{
+          background: "var(--bg-glass)", border: "1px solid rgba(239, 68, 68, 0.3)", borderRadius: 20,
+          padding: 24, margin: "20px 0", textAlign: "center",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.3)"
+        }}>
+          <div style={{
+            background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.2)",
+            width: 64, height: 64, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+            margin: "0 auto 16px", color: "#ef4444"
+          }}>
+            <AlertCircle size={32} />
+          </div>
+          <h2 style={{ fontSize: 18, fontWeight: 900, color: "#fff", margin: "0 0 8px" }}>Application Needs Revision</h2>
+          <p style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5, margin: "0 0 20px" }}>
+            {profile?.rejection_reason || "Your verification documents could not be approved. Please review your credentials and resubmit updated verification documents below."}
+          </p>
         </div>
       );
     }
@@ -463,27 +498,37 @@ export default function MobileCoachingZone() {
 
   useEffect(() => {
     fetchInitialData();
-  }, []);
+  }, [location.pathname]);
 
   const fetchInitialData = async () => {
     setLoading(true);
     try {
-      const [roleData, aths, coachesList] = await Promise.all([
-        api.getCoachRole().catch(() => ({ role: "athlete" })),
+      const [vStatus, aths, coachesList] = await Promise.all([
+        api.getCoachVerificationStatus().catch(() => null),
         api.getMyAthletes().catch(() => []),
         api.getAllCoaches().catch(() => [])
       ]);
       
-      const userRole = roleData?.role || "athlete";
-      setRole(userRole);
+      if (vStatus) {
+        setProfile(vStatus);
+        setRole(vStatus.role || "athlete");
+        if (vStatus.role === "coach") {
+          setActiveTab("roster");
+        } else {
+          setActiveTab("my-coach");
+        }
+      } else {
+        const userRole = user?.role || user?.profile?.role || "athlete";
+        setRole(userRole);
+        if (userRole === "coach") {
+          setActiveTab("roster");
+        } else {
+          setActiveTab("my-coach");
+        }
+      }
+
       setAthletes(aths || []);
       setCoaches(coachesList || []);
-
-      if (userRole === "coach") {
-        setActiveTab("roster");
-      } else {
-        setActiveTab("my-coach");
-      }
     } catch (e) {
       console.error(e);
       toast.error("Failed to load coaching data");
@@ -1609,7 +1654,7 @@ export default function MobileCoachingZone() {
   const browseCoaches = coaches.filter(c => !c.status || c.status === 'declined');
 
   // ── Main Page Layout ────────────────────────────────────────────
-  if (role === 'coach' && user && user.profile && !user.profile.approved) {
+  if (role === 'coach' && !(profile?.approved || profile?.coach_verified || profile?.verification_status === "approved")) {
     return (
       <div className="mobile-page" style={{ paddingBottom: 100 }}>
         {/* Header */}
@@ -1630,37 +1675,19 @@ export default function MobileCoachingZone() {
         <p style={{ color: "var(--text-secondary)", fontSize: 13, margin: 0 }}>Roster management, training suggestions, and client interactions.</p>
       </div>
 
-      {/* Role-Based Tab Switcher */}
-      <div style={{ display: "flex", gap: 6, background: "var(--color-surface)", padding: 4, borderRadius: 14, marginBottom: 20 }}>
-        {role === 'coach' && (
-          <button 
-            onClick={() => setActiveTab("roster")} 
-            style={{
-              flex: 1, padding: "10px 0", borderRadius: 10, border: "none",
-              background: activeTab === "roster" ? "var(--aura-cyan)" : "transparent",
-              color: activeTab === "roster" ? "#000" : "var(--text-secondary)",
-              fontWeight: 700, fontSize: 12, transition: "all 0.2s"
-            }}
-          >
-            Athlete Roster
-          </button>
-        )}
-        <button 
-          onClick={() => setActiveTab("my-coach")} 
-          style={{
-            flex: 1, padding: "10px 0", borderRadius: 10, border: "none",
-            background: activeTab === "my-coach" ? "var(--aura-cyan)" : "transparent",
-            color: activeTab === "my-coach" ? "#000" : "var(--text-secondary)",
-            fontWeight: 700, fontSize: 12, transition: "all 0.2s"
-          }}
-        >
-          My Coach
-        </button>
-      </div>
+      {role === 'coach' ? (
+        <RequireCoachRole>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <MobileCoachWorkspaceNav />
 
-      {/* TAB 1: ATHLETE ROSTER (Coach Role Only) */}
-      {activeTab === "roster" && role === 'coach' && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            {location.pathname.startsWith("/coach/schedule") ? (
+              <ScheduleSection />
+            ) : location.pathname.startsWith("/coach/ai-reports") ? (
+              <AiReportsSection />
+            ) : location.pathname.startsWith("/coach/events") ? (
+              <EventsSection />
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {/* Invite Section */}
           <div className="mobile-card" style={{ padding: 16 }}>
             <h3 style={{ fontSize: 12, fontWeight: 800, color: "var(--aura-cyan)", letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
@@ -1804,9 +1831,9 @@ export default function MobileCoachingZone() {
           </div>
         </div>
       )}
-
-      {/* TAB 2: MY COACH (Athlete View or Coach View Coach Assigned) */}
-      {activeTab === "my-coach" && (
+    </div>
+  </RequireCoachRole>
+) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {/* Active / Pending Coach Relationships */}
           <div>

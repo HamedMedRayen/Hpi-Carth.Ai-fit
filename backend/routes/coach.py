@@ -123,7 +123,7 @@ def get_all_coaches(current_user_id: int = Depends(get_current_user_id), db=Depe
               ON r.coach_id = u.id AND r.athlete_id = %s
             LEFT JOIN coach_reviews rev
               ON rev.coach_id = u.id
-            WHERE u.role = 'coach' AND u.approved = TRUE
+            WHERE u.role = 'coach' AND (u.approved = TRUE OR u.coach_verified = TRUE OR u.verification_status = 'approved')
             GROUP BY u.id, u.name, u.email, u.avatar_url, u.experience, u.goal, u.age, u.sex, u.bio, r.id, r.status, r.initiated_by
             ORDER BY u.name ASC
         """, (current_user_id,))
@@ -752,10 +752,48 @@ async def coach_onboarding(
 
         cur.execute("""
             UPDATE users 
-            SET goal = %s, experience = %s, age = %s, sex = %s, bio = %s, cv_url = %s, approved = FALSE, updated_at = NOW()
+            SET goal = %s, experience = %s, age = %s, sex = %s, bio = %s, cv_url = %s, 
+                approved = FALSE, coach_verified = FALSE, verification_status = 'pending', updated_at = NOW()
             WHERE id = %s
         """, (specialty, experience, age, sex, bio, cv_url, current_user_id))
     
     db.commit()
-    return {"success": True, "message": "Onboarding submitted successfully. An administrator will review your application."}
+    return {"success": True, "message": "Verification documents submitted successfully. Your profile is now under review."}
+
+
+@router.get("/verification-status")
+def get_verification_status(current_user_id: int = Depends(get_current_user_id), db=Depends(get_db)):
+    """Fetch fresh coach verification status."""
+    with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute("""
+            SELECT id, role, approved, coach_verified, cv_url, verification_status, rejection_reason, bio, goal, experience, age, sex
+            FROM users WHERE id = %s
+        """, (current_user_id,))
+        row = cur.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        status = row.get("verification_status")
+        if not status:
+            if row.get("coach_verified") or row.get("approved"):
+                status = "approved"
+            elif row.get("cv_url"):
+                status = "pending"
+            else:
+                status = "unsubmitted"
+
+        return {
+            "user_id": current_user_id,
+            "role": row.get("role", "athlete"),
+            "approved": bool(row.get("approved") or row.get("coach_verified")),
+            "coach_verified": bool(row.get("coach_verified") or row.get("approved")),
+            "verification_status": status,
+            "cv_url": row.get("cv_url"),
+            "rejection_reason": row.get("rejection_reason"),
+            "bio": row.get("bio"),
+            "goal": row.get("goal"),
+            "experience": row.get("experience"),
+            "age": row.get("age"),
+            "sex": row.get("sex")
+        }
 

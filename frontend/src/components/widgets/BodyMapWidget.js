@@ -79,22 +79,22 @@ export default function BodyMapWidget({ latestProp, previousProp, injuriesProp }
     <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 12 }}>
       {/* Top summary row */}
       <div style={{
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-        padding: "8px 12px", background: "var(--color-bg-hover)",
-        border: "1px solid var(--color-border)", borderRadius: 12, fontSize: 12
+        display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap",
+        gap: 8, padding: "8px 12px", background: "var(--color-bg-hover)",
+        border: "1px solid var(--color-border)", borderRadius: 12, fontSize: 11, boxSizing: "border-box", width: "100%"
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <span style={{ display: "flex", alignItems: "center", gap: 5, color: "var(--color-text-2)", fontWeight: 600 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", flex: 1, minWidth: 0 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 4, color: "var(--color-text-2)", fontWeight: 600, whiteSpace: "nowrap" }}>
             <Ruler size={13} color="var(--aura-accent2)" />
-            {latest ? "Measurements Logged" : "No measurements"}
+            {latest ? "Logged" : "No measurements"}
           </span>
-          <span style={{ display: "flex", alignItems: "center", gap: 5, color: activeInjuries.length > 0 ? "var(--aura-accent3)" : "var(--color-text-2)", fontWeight: 600 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 4, color: activeInjuries.length > 0 ? "var(--aura-accent3)" : "var(--color-text-2)", fontWeight: 600, whiteSpace: "nowrap" }}>
             <AlertCircle size={13} />
-            {activeInjuries.length} Active {activeInjuries.length === 1 ? 'Injury' : 'Injuries'}
+            {activeInjuries.length} {activeInjuries.length === 1 ? 'Injury' : 'Injuries'}
           </span>
         </div>
 
-        <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
           <Link to="/measurements" style={{ color: "var(--aura-accent)", textDecoration: "none", fontWeight: 700, fontSize: 11, display: "flex", alignItems: "center", gap: 2 }}>
             Sizing <ChevronRight size={12} />
           </Link>
