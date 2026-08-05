@@ -291,7 +291,9 @@ def log_nutrition(payload: MealLogCreate, user_id: int = Depends(get_current_use
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING *
         """, (user_id, payload.meal_name, category, cals, protein, carbs, fat, fiber, log_date))
-        return cur.fetchone()
+        res = cur.fetchone()
+        db.commit()
+        return res
 
 @router.post("/log/quick")
 def quick_add(payload: QuickAddRequest, user_id: int = Depends(get_current_user_id), db=Depends(get_db)):
@@ -303,7 +305,9 @@ def quick_add(payload: QuickAddRequest, user_id: int = Depends(get_current_user_
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING *
         """, (user_id, payload.meal_name, category, payload.calories, payload.protein_g or 0, payload.carbs_g or 0, payload.fat_g or 0, log_date))
-        return cur.fetchone()
+        res = cur.fetchone()
+        db.commit()
+        return res
 
 @router.delete("/log/{log_id}")
 def delete_log(log_id: int, user_id: int = Depends(get_current_user_id), db=Depends(get_db)):
@@ -356,6 +360,7 @@ def copy_meals(payload: CopyMealRequest, user_id: int = Depends(get_current_user
             FROM nutrition_logs
             WHERE user_id = %s AND date = %s
         """, (payload.to_date, user_id, payload.from_date))
+        db.commit()
         return {"message": "Meals copied successfully"}
 
 @router.post("/scan")
@@ -400,7 +405,9 @@ Be accurate based on typical serving sizes."""
                 data.get("protein_g", 0), data.get("carbs_g", 0), data.get("fat_g", 0),
                 data.get("fiber_g", 0), payload.description, log_date
             ))
-            return cur.fetchone()
+            res = cur.fetchone()
+            db.commit()
+            return res
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -595,6 +602,7 @@ Return ONLY the JSON object."""
                     totals.get("fiber_g", 0), description
                 ))
                 logged_record = cur.fetchone()
+                db.commit()
 
         return {
             "success": True,
