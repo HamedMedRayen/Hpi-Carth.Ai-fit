@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Search, X, Plus, ChevronRight, Brain } from "lucide-react";
 import { api } from "../../utils/api";
-import { useToast } from "../Toast";
+import { useToast } from "../common/Toast";
 
 export default function FoodSearchModal({ onClose, onLog, onSwitchToCustom, initialCategory = "Breakfast", targetDate }) {
   const [query, setQuery] = useState("");

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import BodySilhouette from "../components/BodySilhouette";
+import BodySilhouette from "../components/cards/BodySilhouette";
 import { api } from "../utils/api";
 import { AlertTriangle, CheckCircle, Trash2 } from "lucide-react";
 

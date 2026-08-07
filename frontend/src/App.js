@@ -11,18 +11,18 @@ import { useAuth } from "./utils/auth";
 import IdentityPanel from "./components/layout/IdentityPanel";
 import SubNav from "./components/layout/SubNav";
 import BottomNav from "./components/layout/BottomNav";
-import ErrorBoundary from "./components/ErrorBoundary";
-import { ToastProvider } from "./components/Toast";
-import { SkeletonStyles } from "./components/SkeletonLoader";
-import Skeleton from "./components/SkeletonLoader";
+import ErrorBoundary from "./components/common/ErrorBoundary";
+import { ToastProvider } from "./components/common/Toast";
+import { SkeletonStyles } from "./components/common/SkeletonLoader";
+import Skeleton from "./components/common/SkeletonLoader";
 
 // Background effects — always loaded
-import FireBackground from "./components/FireBackground";
-import FlowerBackground from "./components/FlowerBackground";
-import LeafBackground from "./components/LeafBackground";
-import NightBackground from "./components/NightBackground";
-import SkyBackground from "./components/SkyBackground";
-import MonochromeBackground from "./components/MonochromeBackground";
+import FireBackground from "./components/backgrounds/FireBackground";
+import FlowerBackground from "./components/backgrounds/FlowerBackground";
+import LeafBackground from "./components/backgrounds/LeafBackground";
+import NightBackground from "./components/backgrounds/NightBackground";
+import SkyBackground from "./components/backgrounds/SkyBackground";
+import MonochromeBackground from "./components/backgrounds/MonochromeBackground";
 import HpiChat from "./components/HpiChat/HpiChat";
 import IncomingCallListener from "./components/video/IncomingCallListener";
 

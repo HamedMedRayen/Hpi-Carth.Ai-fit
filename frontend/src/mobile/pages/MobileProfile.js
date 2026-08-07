@@ -10,7 +10,7 @@ import {
   TrendingUp, Scale, Star, LogOut, Check, Calendar, Activity, CheckCircle,
   Moon, Sun, Sparkles, Users
 } from "lucide-react";
-import { useToast } from "../../components/Toast";
+import { useToast } from "../../components/common/Toast";
 import { resolveBackendUrl } from "../../utils/config";
 import "../styles/mobile.css";
 

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { X, Camera, ShieldCheck, Video, VideoOff, Upload, Layers, Flame, Check, RefreshCw, Clock, Sunrise, Sun, Moon, Cookie } from "lucide-react";
 import { api } from "../../utils/api";
-import { useToast } from "../Toast";
+import { useToast } from "../common/Toast";
 
 const MEAL_CATEGORIES = [
   { id: "Breakfast", label: "Breakfast", icon: Sunrise },

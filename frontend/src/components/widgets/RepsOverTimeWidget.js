@@ -3,7 +3,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { api } from "../../utils/api";
 import { useChartColors } from "../../hooks/useChartColors";
 import { useTheme } from '../../utils/theme';
-import ExercisePicker from "../ExercisePicker";
+import ExercisePicker from "../widgets/ExercisePicker";
 
 export default function RepsOverTimeWidget() {
   const cc = useChartColors();

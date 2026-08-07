@@ -174,8 +174,6 @@ export const api = {
   // Analytics
   getDashboard: () => req(`/analytics/users/${uid()}/dashboard`),
   getDashboardAnalytics: (id) => req(`/analytics/users/${id || uid()}/dashboard`),
-  getPCA: (n = 2) => req(`/analytics/users/${uid()}/pca?n_components=${n}`),
-  getGBDT: () => req(`/analytics/users/${uid()}/gbdt`),
   getMetrics: (limit = 200) => req(`/metrics/users/${uid()}?limit=${limit}`),
 
   // AI Recommendations

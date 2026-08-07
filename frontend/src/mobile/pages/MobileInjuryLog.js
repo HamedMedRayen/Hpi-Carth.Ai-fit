@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import BodySilhouette from "../../components/BodySilhouette";
+import BodySilhouette from "../../components/cards/BodySilhouette";
 import { api } from "../../utils/api";
 import MobileBottomSheet from "../components/MobileBottomSheet";
 import { AlertTriangle, CheckCircle, Trash2, Calendar, ShieldAlert } from "lucide-react";

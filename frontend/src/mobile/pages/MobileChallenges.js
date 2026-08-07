@@ -5,7 +5,7 @@ import {
   BarChart3, Clock, AlertCircle, Heart 
 } from "lucide-react";
 import { api } from "../../utils/api";
-import { useToast } from "../../components/Toast";
+import { useToast } from "../../components/common/Toast";
 
 export default function MobileChallenges() {
   const [challenges, setChallenges] = useState([]);

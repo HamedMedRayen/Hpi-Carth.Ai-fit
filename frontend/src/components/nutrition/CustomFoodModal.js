@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { X, Save, Clipboard } from "lucide-react";
 import { api } from "../../utils/api";
-import { useToast } from "../Toast";
+import { useToast } from "../common/Toast";
 
 export default function CustomFoodModal({ onClose, onSave }) {
   const [form, setForm] = useState({

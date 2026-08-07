@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/layout/Header";
-import BodyMap from "../components/BodyMap";
+import BodyMap from "../components/cards/BodyMap";
 import { api } from "../utils/api";
 import { Search, Filter, ChevronUp, ChevronDown } from "lucide-react";
 import { resolveBackendUrl } from "../utils/config";

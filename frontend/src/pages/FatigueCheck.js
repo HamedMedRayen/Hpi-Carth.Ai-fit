@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Header from "../components/layout/Header";
-import FatigueQuiz from "../components/FatigueQuiz";
-import FatigueResult from "../components/FatigueResult";
+import FatigueQuiz from "../components/widgets/FatigueQuiz";
+import FatigueResult from "../components/widgets/FatigueResult";
 import { computeFatigueScore } from "../utils/fatigueScoring";
 import { api } from "../utils/api";
 

@@ -3,7 +3,7 @@ import { ComposedChart, Line, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, C
 import { api } from "../../utils/api";
 import { useChartColors } from "../../hooks/useChartColors";
 import { useTheme } from '../../utils/theme';
-import ExercisePicker from "../ExercisePicker";
+import ExercisePicker from "../widgets/ExercisePicker";
 
 export default function WeightRepsWidget() {
   const cc = useChartColors();

@@ -151,7 +151,6 @@ Hpi/
 │   ├── images/                   ← Anatomical Muscle Highlight SVGs
 │   └── videos/                   ← Exercise Execution GIFs
 │
-├── data/                         ← Database seed scripts & initial datasets
 ├── docs/                         ← Documentation & project specifications
-└── HPI_Logo_Pack/                ← Brand logos and transparent PNG assets
+└── scripts/                      ← Workspace utility scripts
 ```

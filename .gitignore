@@ -56,3 +56,11 @@ backend/uploads/
 frontend/android/
 frontend/build/
 frontend/.env.*
+
+# IDE
+.idea/
+
+# Large Datasets & Vectors
+backend/data/vectors/
+exercises-dataset-main/
+

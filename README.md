@@ -2,7 +2,7 @@
 
 <br />
 
-<img src="./HPI_Logo_Pack/hpi-logo-white-bg.png" alt="HPI Logo" height="180" />
+<img src="./frontend/public/logo/hpi-logo-white-bg.png" alt="HPI Logo" height="180" />
 
 <p><strong>Intelligent Cross-Platform Fitness Tracking, AI-Powered Coaching & Advanced Recovery Analytics</strong></p>
 

@@ -4,11 +4,11 @@ import { Users, UserPlus, Check, X, Search, Activity, ChevronRight, Dumbbell, Tr
 import Header from "../components/layout/Header";
 import { api } from "../utils/api";
 import { fmt } from "../utils/formatters";
-import SuggestWorkoutModal from "../components/SuggestWorkoutModal";
-import CoachChatModal from "../components/CoachChatModal";
-import CoachProfileModal from "../components/CoachProfileModal";
+import SuggestWorkoutModal from "../components/modals/SuggestWorkoutModal";
+import CoachChatModal from "../components/modals/CoachChatModal";
+import CoachProfileModal from "../components/modals/CoachProfileModal";
 import VideoCallScreen from "../components/video/VideoCallScreen";
-import BodySilhouette from "../components/BodySilhouette";
+import BodySilhouette from "../components/cards/BodySilhouette";
 import BodyMapWidget from "../components/widgets/BodyMapWidget";
 import { useAuth } from "../utils/auth";
 import { resolveBackendUrl } from "../utils/config";

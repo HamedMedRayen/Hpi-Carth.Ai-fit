@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Plus, Moon, AlertTriangle, Activity, Settings2, Trash2 } from "lucide-react";
 import { useWidgets } from "../../hooks/useWidgets";
-import AddWidgetModal from "../../components/AddWidgetModal";
-import WidgetCard from "../../components/WidgetCard";
+import AddWidgetModal from "../../components/modals/AddWidgetModal";
+import WidgetCard from "../../components/widgets/WidgetCard";
 
 import VolumeProgressionWidget from "../../components/widgets/VolumeProgressionWidget";
 import WeeklyVolumeWidget from "../../components/widgets/WeeklyVolumeWidget";

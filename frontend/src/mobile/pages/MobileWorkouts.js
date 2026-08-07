@@ -5,12 +5,12 @@ import {
   TrendingUp, X, FolderOpen, Heart, Info, CheckCircle2, ChevronRight
 } from "lucide-react";
 import { api } from "../../utils/api";
-import { useToast } from "../../components/Toast";
+import { useToast } from "../../components/common/Toast";
 import { fmt } from "../../utils/formatters";
 import { resolveBackendUrl } from "../../utils/config";
 import MobileBottomSheet from "../components/MobileBottomSheet";
-import ExerciseDetailSheet from "../../components/ExerciseDetailSheet";
-import BodyMap from "../../components/BodyMap";
+import ExerciseDetailSheet from "../../components/widgets/ExerciseDetailSheet";
+import BodyMap from "../../components/cards/BodyMap";
 
 const EQUIPMENT_CHIPS = [
   "All", "barbell", "dumbbell", "cable", "body weight",

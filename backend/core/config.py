@@ -21,8 +21,8 @@ class Settings:
 
 
     # ── Data paths ──────────────────────────────────────────
-    DATA_DIR: str = str(_ROOT / "data")
-    CSV_PATH: str = os.getenv("CSV_PATH", str(_ROOT / "data" / "strong_raw.csv"))
+    DATA_DIR: str = str(_BACKEND_DIR / "data")
+    CSV_PATH: str = os.getenv("CSV_PATH", str(_BACKEND_DIR / "data" / "strong_raw.csv"))
 
     API_PREFIX: str  = "/api"
     _frontend_url = os.getenv("FRONTEND_URL", "")

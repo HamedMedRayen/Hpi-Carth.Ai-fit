@@ -5,7 +5,7 @@ import WorkoutCard from "../components/cards/WorkoutCard";
 import { useWorkouts, useWorkoutDetail } from "../hooks/useWorkouts";
 import { api } from "../utils/api";
 import { fmt } from "../utils/formatters";
-import { useToast } from "../components/Toast";
+import { useToast } from "../components/common/Toast";
 import { SearchIcon, BackIcon, TrashIcon } from "../utils/icons";
 
 function Spinner() {

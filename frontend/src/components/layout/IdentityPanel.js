@@ -3,13 +3,13 @@ import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../utils/auth";
 import { useTheme } from "../../utils/theme";
 import { api } from "../../utils/api";
-import StatRing from "../StatRing";
+import StatRing from "../charts/StatRing";
 import {
   Moon, Sun, Leaf, Flame, Contrast, LogOut, Zap,
   ChevronRight, Trophy, Settings,
   LayoutDashboard, Sword, Dna, MessageCircle, Users
 } from "lucide-react";
-import OrbThemeSwitcher from "../OrbThemeSwitcher";
+import OrbThemeSwitcher from "../layout/OrbThemeSwitcher";
 
 /* ── Rose icon for Queen theme ─────────────────────────── */
 const RoseIcon = ({ size = 16 }) => (
