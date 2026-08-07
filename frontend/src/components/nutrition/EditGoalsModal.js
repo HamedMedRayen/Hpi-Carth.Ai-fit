@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { X, Save, Target, Flame } from "lucide-react";
 import { api } from "../../utils/api";
 import { setItem } from "../../utils/storage";
-import { useToast } from "../Toast";
+import { useToast } from "../common/Toast";
 
 export default function EditGoalsModal({ currentTargets, onClose, onSave }) {
   const [calories, setCalories] = useState(currentTargets.calories || 2000);

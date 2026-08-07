@@ -7,10 +7,10 @@ import {
 } from "lucide-react";
 import { api } from "../../utils/api";
 import { resolveBackendUrl } from "../../utils/config";
-import { useToast } from "../../components/Toast";
+import { useToast } from "../../components/common/Toast";
 import { fmt } from "../../utils/formatters";
 import { useAuth } from "../../utils/auth";
-import CoachProfileModal from "../../components/CoachProfileModal";
+import CoachProfileModal from "../../components/modals/CoachProfileModal";
 import MobileCoachWorkspaceNav from "../components/MobileCoachWorkspaceNav";
 import RequireCoachRole from "../../components/auth/RequireCoachRole";
 import ScheduleSection from "../../components/coach/ScheduleSection";

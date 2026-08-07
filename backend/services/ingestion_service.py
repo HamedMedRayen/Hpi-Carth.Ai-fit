@@ -19,8 +19,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 import math
 
-# Resolve project root
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Resolve backend directory
+sys.path.insert(0, str(Path(__file__).parent.parent))
 from data_engine.engine import MathUtils, StatEngine
 
 

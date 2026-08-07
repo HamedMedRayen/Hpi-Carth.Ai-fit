@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { CheckCircle2, ChevronRight, Trophy, Flame, Dumbbell, Zap } from "lucide-react";
 import { api } from "../../utils/api";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "../Toast";
+import { useToast } from "../common/Toast";
 
 export default function ChallengeCheckinWidget() {
   const navigate = useNavigate();

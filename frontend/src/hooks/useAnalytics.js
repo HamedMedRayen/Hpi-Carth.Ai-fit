@@ -18,31 +18,7 @@ export function useDashboard() {
   return { data, stats, loading, error, reload: load };
 }
 
-export function usePCA() {
-  const [data, setData]     = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]   = useState(null);
-  useEffect(() => {
-    api.getPCA(2)
-      .then(d => { setData(d); setError(null); })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  }, []);
-  return { data, loading, error };
-}
 
-export function useGBDT() {
-  const [data, setData]     = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError]   = useState(null);
-  useEffect(() => {
-    api.getGBDT()
-      .then(d => { setData(d); setError(null); })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  }, []);
-  return { data, loading, error };
-}
 
 export function useVolume() {
   const [data, setData]     = useState(null);

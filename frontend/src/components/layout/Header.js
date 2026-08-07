@@ -1,7 +1,7 @@
 import React from "react";
 import { HpiLogo, SunIcon, MoonIcon } from "../../utils/icons";
 import { useTheme } from "../../utils/theme";
-import NotificationCenter from "../NotificationCenter";
+import NotificationCenter from "../layout/NotificationCenter";
 
 export default function Header({ title, subtitle, right, showLogo }) {
   const { theme, toggle } = useTheme();

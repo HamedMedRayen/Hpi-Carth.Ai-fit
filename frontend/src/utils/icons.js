@@ -215,7 +215,7 @@ export function HpiLogo({ size = 32, showText = true, style = {}, forceWhite = f
   if (size >= 35) {
     return (
       <img 
-        src="/hpi-logo-transparent.png" 
+        src="/logo/hpi-logo-transparent.png" 
         alt="HPI Logo" 
         style={{
           height: size,

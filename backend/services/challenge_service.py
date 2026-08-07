@@ -5,7 +5,7 @@ from typing import List, Dict, Any
 
 class ChallengeService:
     def __init__(self):
-        self.data_path = Path(__file__).parent.parent.parent / "data" / "fitness_challenges.json"
+        self.data_path = Path(__file__).parent.parent / "data" / "fitness_challenges.json"
         self._cache = None
 
     def get_all_challenges(self) -> Dict[str, Any]:

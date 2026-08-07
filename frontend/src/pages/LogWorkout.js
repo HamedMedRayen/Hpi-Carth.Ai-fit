@@ -3,14 +3,14 @@ import { useLocation, Link } from "react-router-dom";
 import { useTheme } from "../utils/theme";
 
 import Header from "../components/layout/Header";
-import ExercisePicker from "../components/ExercisePicker";
-import TemplateModal from "../components/TemplateModal";
-import PlanPickerModal from "../components/PlanPickerModal";
-import ProgressiveOverloadSuggestion from "../components/ProgressiveOverloadSuggestion";
+import ExercisePicker from "../components/widgets/ExercisePicker";
+import TemplateModal from "../components/modals/TemplateModal";
+import PlanPickerModal from "../components/modals/PlanPickerModal";
+import ProgressiveOverloadSuggestion from "../components/widgets/ProgressiveOverloadSuggestion";
 import { api } from "../utils/api";
 import { fmt } from "../utils/formatters";
 import { Trophy, ClipboardList, CheckCircle, TrendingUp, FolderOpen, Save, Link2, X, Heart, ChevronRight, Info, Trash2, Plus } from "lucide-react";
-import ExerciseDetailSheet from "../components/ExerciseDetailSheet";
+import ExerciseDetailSheet from "../components/widgets/ExerciseDetailSheet";
 import { getSyncItem, setItem } from "../utils/storage";
 import { API_BASE_URL } from "../utils/config";
 

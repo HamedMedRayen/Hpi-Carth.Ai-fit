@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { AlertCircle, Ruler, ChevronRight } from "lucide-react";
-import BodySilhouette from "../BodySilhouette";
+import BodySilhouette from "../cards/BodySilhouette";
 import { api } from "../../utils/api";
 
 export default function BodyMapWidget({ latestProp, previousProp, injuriesProp }) {

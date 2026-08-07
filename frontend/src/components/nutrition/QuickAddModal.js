@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { X, Zap } from "lucide-react";
 import { api } from "../../utils/api";
-import { useToast } from "../Toast";
+import { useToast } from "../common/Toast";
 
 export default function QuickAddModal({ onClose, onLog, initialCategory = "Breakfast", targetDate }) {
   const [calories, setCalories] = useState("");

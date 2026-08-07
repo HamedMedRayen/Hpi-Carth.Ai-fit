@@ -7,8 +7,8 @@ import {
   Mail, ShieldCheck, User, Lock, ArrowRight, Dumbbell, Users, Server, Check, RefreshCw
 } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
-import OrbThemeSwitcher from "../components/OrbThemeSwitcher";
-import GrowthBackground from "../components/GrowthBackground";
+import OrbThemeSwitcher from "../components/layout/OrbThemeSwitcher";
+import GrowthBackground from "../components/backgrounds/GrowthBackground";
 
 export default function AuthPage() {
   const navigate = useNavigate();

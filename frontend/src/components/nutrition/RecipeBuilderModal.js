@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { X, Plus, Trash2, Search, Utensils } from "lucide-react";
 import { api } from "../../utils/api";
-import { useToast } from "../Toast";
+import { useToast } from "../common/Toast";
 
 export default function RecipeBuilderModal({ onClose, onSave }) {
   const [name, setName] = useState("");

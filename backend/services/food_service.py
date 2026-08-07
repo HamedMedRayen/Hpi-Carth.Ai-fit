@@ -20,7 +20,7 @@ def seed_food_items(conn):
     except Exception as e:
         log.warning(f"[SEED] Could not verify existing food count: {e}")
 
-    food_dir = os.path.join(os.path.dirname(__file__), "..", "..", "data", "food")
+    food_dir = os.path.join(os.path.dirname(__file__), "..", "data", "food")
     
     # 1. calories.csv
     calories_csv = os.path.join(food_dir, "calories.csv")

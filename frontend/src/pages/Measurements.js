@@ -6,7 +6,7 @@ import {
 } from "recharts";
 import { useChartColors } from "../hooks/useChartColors";
 import { useTheme } from "../utils/theme";
-import BodySilhouette from "../components/BodySilhouette";
+import BodySilhouette from "../components/cards/BodySilhouette";
 import { API_BASE_URL } from "../utils/config";
 import { getSyncItem } from "../utils/storage";
 

@@ -16,7 +16,7 @@ import {
   Dumbbell
 } from "lucide-react";
 import { api } from "../../utils/api";
-import { useToast } from "../Toast";
+import { useToast } from "../common/Toast";
 
 export default function NutritionCalculator({ onSaveSuccess }) {
   const [loading, setLoading] = useState(false);

@@ -9,10 +9,10 @@ import {
 } from "lucide-react";
 import { useWidgets } from "../hooks/useWidgets";
 import { useTheme } from "../utils/theme";
-import AddWidgetModal from "../components/AddWidgetModal";
-import WidgetCard from "../components/WidgetCard";
+import AddWidgetModal from "../components/modals/AddWidgetModal";
+import WidgetCard from "../components/widgets/WidgetCard";
 import ChallengeCheckinWidget from "../components/widgets/ChallengeCheckinWidget";
-import InlineHpiChat from "../components/InlineHpiChat";
+import InlineHpiChat from "../components/coach/InlineHpiChat";
 
 import VolumeProgressionWidget from "../components/widgets/VolumeProgressionWidget";
 import WeeklyVolumeWidget from "../components/widgets/WeeklyVolumeWidget";

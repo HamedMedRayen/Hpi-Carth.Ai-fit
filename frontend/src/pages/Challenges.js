@@ -3,7 +3,7 @@ import { Trophy, Target, Calendar, Dumbbell, Zap, Flame, CheckCircle2, ChevronRi
 import { useTheme } from "../utils/theme";
 import { api } from "../utils/api";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "../components/Toast";
+import { useToast } from "../components/common/Toast";
 
 export default function Challenges() {
   const { theme } = useTheme();
