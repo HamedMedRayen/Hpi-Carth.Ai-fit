@@ -12,12 +12,22 @@ class WorkoutRepository(BaseRepository):
     # ── Exercises ─────────────────────────────────────────────
 
     def get_or_create_exercise(self, name: str, muscle_group: str = "unknown") -> int:
-        row = self._fetchone("SELECT id FROM exercises WHERE name = %s", (name,))
+        clean_name = name.strip() if name else ""
+        row = self._fetchone("SELECT id FROM exercises WHERE LOWER(name) = LOWER(%s)", (clean_name,))
         if row:
             return row["id"]
+
+        try:
+            from services.exercise_service import get_exercise_by_id_or_name
+            matched = get_exercise_by_id_or_name(self.db, clean_name)
+            if matched and matched.get("id"):
+                return matched["id"]
+        except Exception:
+            pass
+
         cur = self._execute(
             "INSERT INTO exercises (name, muscle_group) VALUES (%s, %s) RETURNING id",
-            (name, muscle_group)
+            (clean_name, muscle_group)
         )
         return cur.fetchone()["id"]
 

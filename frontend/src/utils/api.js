@@ -184,6 +184,7 @@ export const api = {
   getLastSet: (name) => req(`/exercises/${encodeURIComponent(name)}/last-set`),
   getExercisePR: (name) => req(`/exercises/${encodeURIComponent(name)}/pr`),
   getExerciseHistory: (name) => req(`/exercises/history/${encodeURIComponent(name)}`),
+  lookupExercise: (query) => req(`/exercises/lookup?query=${encodeURIComponent(query)}`),
 
 
   // Templates (new)
