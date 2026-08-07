@@ -1,14 +1,14 @@
 import React from "react";
-import { Edit3, Target, Flame, Footprints, Activity, Utensils } from "lucide-react";
+import { Edit3, Target, Flame, Utensils, Footprints, Activity } from "lucide-react";
 
-export default function CalorieRingHeader({ 
-  targets, 
-  foodCalories, 
-  exerciseBurned, 
-  remainingCalories, 
-  todayData, 
+export default function CalorieRingHeader({
+  targets,
+  foodCalories,
+  exerciseBurned,
+  remainingCalories,
+  todayData,
   onSetGoal,
-  onEditGoals 
+  onEditGoals
 }) {
   const goalKcal = targets?.calories || 2000;
   const eatenKcal = Math.round(foodCalories || 0);
@@ -22,12 +22,12 @@ export default function CalorieRingHeader({
   const offset = circumference - (pct / 100) * circumference;
 
   return (
-    <div 
-      className="card" 
-      style={{ 
-        padding: "24px", 
-        marginBottom: "24px", 
-        background: "var(--color-bg-card, #0d1117)", 
+    <div
+      className="card"
+      style={{
+        padding: "24px",
+        marginBottom: "24px",
+        background: "var(--color-bg-card, #0d1117)",
         borderRadius: "24px",
         border: "1px solid var(--color-border, rgba(255,255,255,0.08))"
       }}
@@ -37,10 +37,10 @@ export default function CalorieRingHeader({
         <span style={{ fontSize: 13, fontWeight: 800, color: "var(--color-text-3, #aaa)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
           Daily Calorie Summary
         </span>
-        
+
         <div style={{ display: "flex", gap: 8 }}>
           {/* Button 1: Set Goal (Old Questionnaire Form) */}
-          <button 
+          <button
             onClick={onSetGoal}
             style={{
               background: "linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)",
@@ -61,7 +61,7 @@ export default function CalorieRingHeader({
           </button>
 
           {/* Button 2: Edit Goal (Direct Quick Edit) */}
-          <button 
+          <button
             onClick={onEditGoals}
             style={{
               background: "rgba(255, 255, 255, 0.05)",
@@ -97,29 +97,29 @@ export default function CalorieRingHeader({
         <div style={{ position: "relative", width: 130, height: 130, cursor: "pointer" }} onClick={onEditGoals}>
           <svg width="130" height="130" style={{ transform: "rotate(-90deg)" }}>
             <circle cx="65" cy="65" r={radius} stroke="rgba(255,255,255,0.08)" strokeWidth="9" fill="transparent" />
-            <circle 
-              cx="65" 
-              cy="65" 
-              r={radius} 
-              stroke={pct >= 100 ? "#ff4d4f" : "#8ce99a"} 
-              strokeWidth="9" 
-              fill="transparent" 
-              strokeDasharray={circumference} 
-              strokeDashoffset={offset} 
-              strokeLinecap="round" 
-              style={{ 
+            <circle
+              cx="65"
+              cy="65"
+              r={radius}
+              stroke={pct >= 100 ? "#ff4d4f" : "#8ce99a"}
+              strokeWidth="9"
+              fill="transparent"
+              strokeDasharray={circumference}
+              strokeDashoffset={offset}
+              strokeLinecap="round"
+              style={{
                 transition: "stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1)",
                 filter: "drop-shadow(0 0 6px rgba(140, 233, 154, 0.5))"
-              }} 
+              }}
             />
           </svg>
-          <div style={{ 
-            position: "absolute", 
-            inset: 0, 
-            display: "flex", 
-            flexDirection: "column", 
-            alignItems: "center", 
-            justifyContent: "center" 
+          <div style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center"
           }}>
             <span style={{ fontSize: 26, fontWeight: 900, color: leftKcal < 0 ? "#ff4d4f" : "#fff", lineHeight: 1 }}>
               {leftKcal}
@@ -144,23 +144,23 @@ export default function CalorieRingHeader({
           Eaten Macros Breakdown
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, textAlign: "center" }}>
-          <MacroCircleItem 
-            label="Carbs" 
-            current={todayData?.totals?.carbs_g || 0} 
-            target={targets?.carbs || 220} 
-            color="#ff5252" 
+          <MacroCircleItem
+            label="Carbs"
+            current={todayData?.totals?.carbs_g || 0}
+            target={targets?.carbs || 220}
+            color="#ff5252"
           />
-          <MacroCircleItem 
-            label="Protein" 
-            current={todayData?.totals?.protein_g || 0} 
-            target={targets?.protein || 150} 
-            color="#ff922b" 
+          <MacroCircleItem
+            label="Protein"
+            current={todayData?.totals?.protein_g || 0}
+            target={targets?.protein || 150}
+            color="#ff922b"
           />
-          <MacroCircleItem 
-            label="Fat" 
-            current={todayData?.totals?.fat_g || 0} 
-            target={targets?.fat || 65} 
-            color="#4facfe" 
+          <MacroCircleItem
+            label="Fat"
+            current={todayData?.totals?.fat_g || 0}
+            target={targets?.fat || 65}
+            color="#4facfe"
           />
         </div>
       </div>
@@ -204,20 +204,20 @@ function MacroCircleItem({ label, current, target, color }) {
       <div style={{ position: "relative", width: 76, height: 76, marginBottom: 6 }}>
         <svg width="76" height="76" style={{ transform: "rotate(-90deg)" }}>
           <circle cx="38" cy="38" r={radius} stroke="rgba(255,255,255,0.08)" strokeWidth="6" fill="transparent" />
-          <circle 
-            cx="38" 
-            cy="38" 
-            r={radius} 
-            stroke={color} 
-            strokeWidth="6" 
-            fill="transparent" 
-            strokeDasharray={circumference} 
-            strokeDashoffset={offset} 
-            strokeLinecap="round" 
-            style={{ 
+          <circle
+            cx="38"
+            cy="38"
+            r={radius}
+            stroke={color}
+            strokeWidth="6"
+            fill="transparent"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            style={{
               transition: "stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1)",
               filter: `drop-shadow(0 0 4px ${color}60)`
-            }} 
+            }}
           />
         </svg>
         <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>

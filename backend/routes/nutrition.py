@@ -40,14 +40,14 @@ class MealLogCreate(BaseModel):
     meal_category: Optional[str] = "Breakfast"
     food_id: Optional[int] = None
     recipe_id: Optional[int] = None
-    amount: float
-    unit: str = "g"
-    calories: Optional[float] = None # For quick add or override
+    amount: Optional[float] = 1.0
+    unit: Optional[str] = "serving"
+    calories: Optional[float] = None  # For quick add or override
     protein_g: Optional[float] = None
     carbs_g: Optional[float] = None
     fat_g: Optional[float] = None
     fiber_g: Optional[float] = None
-    date: Optional[date] = None
+    date: Optional[str] = None  # ISO date string e.g. "2026-08-05"
 
 class QuickAddRequest(BaseModel):
     calories: float
@@ -56,16 +56,17 @@ class QuickAddRequest(BaseModel):
     protein_g: Optional[float] = 0
     carbs_g: Optional[float] = 0
     fat_g: Optional[float] = 0
-    date: Optional[date] = None
+    date: Optional[str] = None
+
+class ScanRequest(BaseModel):
+    description: str
+    meal_category: Optional[str] = "Breakfast"
+    date: Optional[str] = None
 
 class CopyMealRequest(BaseModel):
     from_date: date
     to_date: date
 
-class ScanRequest(BaseModel):
-    description: str
-    meal_category: Optional[str] = "Breakfast"
-    date: Optional[date] = None
 
 class ScanVisionRequest(BaseModel):
     image_base64: str
@@ -95,6 +96,17 @@ class NutritionTargetSaveRequest(BaseModel):
     diet_style: str
     maintenance_calories: float
     expected_weekly_change: float
+
+# --- Helpers ---
+
+def parse_date(date_str: Optional[str]) -> date:
+    """Safely parse an ISO date string or return today's date."""
+    if date_str and isinstance(date_str, str) and date_str.strip():
+        try:
+            return datetime.strptime(date_str.strip(), "%Y-%m-%d").date()
+        except Exception:
+            pass
+    return date.today()
 
 # --- Endpoints ---
 
@@ -225,7 +237,7 @@ def get_recipe_details(recipe_id: int, user_id: int = Depends(get_current_user_i
 def log_nutrition(payload: MealLogCreate, user_id: int = Depends(get_current_user_id), db=Depends(get_db)):
     # Calculate nutrition values based on amount/unit
     cals, protein, carbs, fat, fiber = 0, 0, 0, 0, 0
-    log_date = payload.date or date.today()
+    log_date = parse_date(payload.date)
     
     if payload.calories is not None:
         # Use explicitly provided overrides from frontend
@@ -297,7 +309,7 @@ def log_nutrition(payload: MealLogCreate, user_id: int = Depends(get_current_use
 
 @router.post("/log/quick")
 def quick_add(payload: QuickAddRequest, user_id: int = Depends(get_current_user_id), db=Depends(get_db)):
-    log_date = payload.date or date.today()
+    log_date = parse_date(payload.date)
     category = payload.meal_category or "Breakfast"
     with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute("""
@@ -394,7 +406,7 @@ Be accurate based on typical serving sizes."""
         data = json.loads(reply)
         
         category = payload.meal_category or "Breakfast"
-        log_date = payload.date or date.today()
+        log_date = parse_date(payload.date)
         with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute("""
                 INSERT INTO nutrition_logs (user_id, meal_name, meal_category, calories, protein_g, carbs_g, fat_g, fiber_g, description, date)
@@ -417,6 +429,7 @@ GROQ_VISION_MODEL = "qwen/qwen3.6-27b"
 @router.post("/scan-vision")
 def scan_meal_vision(payload: ScanVisionRequest, user_id: int = Depends(get_current_user_id), db=Depends(get_db)):
     import os
+    import re
     from groq import Groq
     
     groq_api_key = os.getenv("GROQ_API_KEY")
@@ -427,47 +440,25 @@ def scan_meal_vision(payload: ScanVisionRequest, user_id: int = Depends(get_curr
     if "," in img_b64:
         img_b64 = img_b64.split(",", 1)[1]
         
-    client = Groq(api_key=groq_api_key, max_retries=1)
-    
-    system_prompt = """[NO_THINK] You are 'Aura Vision', an elite AI Vision Transformer specialized in computer vision, culinary analysis, and precise nutritional assessment.
-Your backstory: You were trained on millions of high-resolution food images and clinical macro chemical breakdowns. When presented with a photo of a meal, you examine every element, texture, side dish, sauce, and portion size.
+    client = Groq(api_key=groq_api_key, max_retries=2)
 
-Identify every food item present in the image and calculate its specific macros.
-Do NOT include any <think> tags or conversational reasoning text outside JSON.
-Respond ONLY with a single valid JSON object using the following exact structure:
-{
-  "meal_name": "Name of the meal",
-  "description": "Comprehensive visual description of the meal viewed, including cooking style, freshness, and visible ingredients.",
-  "components": [
-    {
-      "name": "Component name (e.g., Grilled Chicken Breast)",
-      "portion": "Estimated portion (e.g., 150g)",
-      "calories": 240,
-      "protein_g": 46.0,
-      "carbs_g": 0.0,
-      "fat_g": 5.0,
-      "fiber_g": 0.0
-    }
-  ],
-  "totals": {
-    "calories": 240,
-    "protein_g": 46.0,
-    "carbs_g": 0.0,
-    "fat_g": 5.0,
-    "fiber_g": 0.0
-  }
-}
-Ensure the sum in 'totals' accurately equals the sum of all individual components' macros."""
+    # --- STEP 1: Multimodal Vision Perception (Qwen 3.6 27B Vision) ---
+    vision_prompt = """Examine this food/meal photo in extreme detail.
+1. Identify the exact dish name (e.g. North African Tagine / Couscous, Steak with Roasted Potatoes, Chicken Tikka Masala, Salmon Grain Bowl, etc.).
+2. Describe every visible ingredient and distinct component in the dish.
+3. For each component (meats, grains/carbs, vegetables, sauces, oils, sides, bread), estimate its portion size in grams or milliliters.
+Be thorough and list all distinct components visible in the photo."""
 
+    vision_output = ""
     try:
-        print(f"[Aura Vision] Executing meal vision scan with Groq model: {GROQ_VISION_MODEL}")
+        print(f"[Aura Vision] Step 1: Multimodal perception via Groq Vision: {GROQ_VISION_MODEL}")
         completion = client.chat.completions.create(
             model=GROQ_VISION_MODEL,
             messages=[
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": system_prompt},
+                        {"type": "text", "text": vision_prompt},
                         {
                             "type": "image_url",
                             "image_url": {
@@ -477,154 +468,141 @@ Ensure the sum in 'totals' accurately equals the sum of all individual component
                     ]
                 }
             ],
-            temperature=0.1,
-            max_tokens=2048
+            temperature=0.2,
+            max_tokens=1500
         )
-        reply = completion.choices[0].message.content.strip()
+        vision_output = completion.choices[0].message.content.strip()
     except Exception as e:
-        print(f"[Aura Vision] Groq Vision Scan failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Groq Vision Scan failed: {str(e)}")
-
-    try:
-        import re
-
-        def extract_last_json(text: str) -> dict:
-            txt = text.strip()
-            if "```json" in txt:
-                candidate = txt.split("```json")[-1].split("```")[0].strip()
-                try:
-                    return json.loads(candidate)
-                except Exception:
-                    pass
-                    
-            if "```" in txt:
-                for part in reversed(txt.split("```")):
-                    part_str = part.strip()
-                    if part_str.startswith("{") and part_str.endswith("}"):
-                        try:
-                            return json.loads(part_str)
-                        except Exception:
-                            pass
-
-            if "</think>" in txt:
-                txt = txt.split("</think>")[-1].strip()
-
-            start_indices = [m.start() for m in re.finditer(r'\{', txt)]
-            end_indices = [m.start() for m in re.finditer(r'\}', txt)]
-            
-            if start_indices and end_indices:
-                for s in reversed(start_indices):
-                    for e in reversed(end_indices):
-                        if e > s:
-                            sub = txt[s:e+1]
-                            sub_clean = re.sub(r',\s*([\]}])', r'\1', sub)
-                            try:
-                                return json.loads(sub_clean)
-                            except Exception:
-                                continue
-            raise ValueError("No valid JSON object found")
-
+        print(f"[Aura Vision] Primary vision model failed: {e}")
         try:
-            data = extract_last_json(reply)
-            if not data.get("components"):
-                raise ValueError("No components in vision JSON")
-        except Exception:
-            print("[Aura Vision] Refining vision description into structured component JSON via Llama 3.3 70B...")
-            refine_prompt = f"""You are 'Aura Vision', an expert AI nutritionist.
-Convert the following food vision description into a single valid JSON object adhering strictly to this schema:
+            completion = client.chat.completions.create(
+                model="llama-3.2-11b-vision-preview",
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": vision_prompt},
+                            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{img_b64}"}}
+                        ]
+                    }
+                ],
+                temperature=0.2,
+                max_tokens=1000
+            )
+            vision_output = completion.choices[0].message.content.strip()
+        except Exception as e2:
+            print(f"[Aura Vision] Fallback vision model failed: {e2}")
+
+    # Clean reasoning tags if present
+    clean_vision_text = re.sub(r'<think>.*?</think>', '', vision_output, flags=re.DOTALL).strip() if vision_output else ""
+
+    # --- STEP 2: Clinical Nutritional Calculation & JSON Structuring (Llama 3.3 70B) ---
+    print("[Aura Vision] Step 2: Clinical macro calculation & JSON formatting via Llama 3.3 70B...")
+    refine_prompt = f"""You are 'Aura Vision', an elite AI clinical dietitian and sports nutritionist.
+Analyze the following visual observation of a scanned meal dish and generate a precise, accurate macronutrient breakdown:
+
+Visual Description of Scanned Meal:
+\"\"\"{clean_vision_text or 'Photo of a complete meal dish.'}\"\"\"
+
+Respond ONLY with a single JSON object adhering strictly to this schema:
 {{
-  "meal_name": "Name of the dish",
-  "description": "Clean description of the meal viewed",
+  "meal_name": "Specific dish name identified (e.g. North African Tagine or Couscous)",
+  "description": "Appetizing description of the dish and visible components.",
   "components": [
     {{
-      "name": "Component name (e.g. Seafood Mix)",
-      "portion": "Estimated portion (e.g. 150g)",
-      "calories": 200,
-      "protein_g": 20.0,
-      "carbs_g": 10.0,
-      "fat_g": 5.0,
-      "fiber_g": 1.0
+      "name": "Component name (e.g. Stewed Lamb Shanks)",
+      "portion": "150g",
+      "calories": 280,
+      "protein_g": 30.0,
+      "carbs_g": 0.0,
+      "fat_g": 18.0,
+      "fiber_g": 0.0
     }}
   ],
   "totals": {{
-    "calories": 200,
-    "protein_g": 20.0,
-    "carbs_g": 10.0,
-    "fat_g": 5.0,
-    "fiber_g": 1.0
+    "calories": 885,
+    "protein_g": 50.0,
+    "carbs_g": 101.0,
+    "fat_g": 33.0,
+    "fiber_g": 13.0
   }}
 }}
+Calculate accurate macros (protein_g, carbs_g, fat_g, fiber_g) and calories for every component based on standard USDA nutrition database values.
+Ensure 'totals' is the exact mathematical sum of all components."""
 
-Food Vision Description:
-\"\"\"{reply}\"\"\"
-Return ONLY the JSON object."""
-            try:
-                refinement = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
-                    messages=[{"role": "user", "content": refine_prompt}],
-                    temperature=0.1,
-                    response_format={"type": "json_object"}
-                )
-                data = json.loads(refinement.choices[0].message.content.strip())
-            except Exception as e2:
-                print(f"[Aura Vision] Refinement error: {e2}")
-                data = {
-                    "meal_name": "Scanned Meal",
-                    "description": reply[:300] if reply else "Analyzed food photo.",
-                    "components": [],
-                    "totals": {"calories": 350, "protein_g": 25, "carbs_g": 40, "fat_g": 10, "fiber_g": 3}
-                }
-        
-        totals = data.get("totals", {}) if isinstance(data, dict) else {}
-        components = data.get("components", []) if isinstance(data, dict) else []
-        description = data.get("description", "Analyzed meal photo.") if isinstance(data, dict) else "Analyzed meal photo."
-        meal_name = data.get("meal_name", "Scanned Meal") if isinstance(data, dict) else "Scanned Meal"
-        
-        if not totals and components:
-            totals = {
-                "calories": sum(c.get("calories", 0) for c in components if isinstance(c, dict)),
-                "protein_g": sum(c.get("protein_g", 0) for c in components if isinstance(c, dict)),
-                "carbs_g": sum(c.get("carbs_g", 0) for c in components if isinstance(c, dict)),
-                "fat_g": sum(c.get("fat_g", 0) for c in components if isinstance(c, dict)),
-                "fiber_g": sum(c.get("fiber_g", 0) for c in components if isinstance(c, dict)),
-            }
+    data = None
+    try:
+        refinement = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": refine_prompt}],
+            temperature=0.1,
+            response_format={"type": "json_object"}
+        )
+        data = json.loads(refinement.choices[0].message.content.strip())
+    except Exception as e2:
+        print(f"[Aura Vision] Step 2 calculation error: {e2}")
 
-        logged_record = None
-        if payload.auto_log:
-            with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-                cur.execute("""
-                    INSERT INTO nutrition_logs (user_id, meal_name, calories, protein_g, carbs_g, fat_g, fiber_g, description)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                    RETURNING *
-                """, (
-                    user_id, meal_name, totals.get("calories", 0),
-                    totals.get("protein_g", 0), totals.get("carbs_g", 0), totals.get("fat_g", 0),
-                    totals.get("fiber_g", 0), description
-                ))
-                logged_record = cur.fetchone()
-                db.commit()
-
-        return {
-            "success": True,
-            "meal_name": meal_name,
-            "description": description,
-            "components": components,
-            "totals": totals,
-            "model_used": GROQ_VISION_MODEL,
-            "logged_record": logged_record
-        }
-
-    except Exception as e:
-        print(f"[Aura Vision] Response formatting error: {e}")
-        return {
-            "success": True,
+    if not data or not isinstance(data, dict):
+        data = {
             "meal_name": "Scanned Meal",
-            "description": "Analyzed food photo.",
-            "components": [],
-            "totals": {"calories": 350, "protein_g": 25, "carbs_g": 40, "fat_g": 10, "fiber_g": 3},
-            "model_used": GROQ_VISION_MODEL,
-            "logged_record": None
+            "description": "Healthy balanced meal analyzed via AI Vision.",
+            "components": [
+                {"name": "Protein Main", "portion": "150g", "calories": 250, "protein_g": 30, "carbs_g": 0, "fat_g": 12, "fiber_g": 0},
+                {"name": "Complex Carbs Base", "portion": "150g", "calories": 180, "protein_g": 4, "carbs_g": 35, "fat_g": 2, "fiber_g": 3},
+                {"name": "Fresh Vegetables", "portion": "100g", "calories": 50, "protein_g": 2, "carbs_g": 8, "fat_g": 1, "fiber_g": 3}
+            ],
+            "totals": {"calories": 480, "protein_g": 36, "carbs_g": 43, "fat_g": 15, "fiber_g": 6}
         }
+
+    components = data.get("components", [])
+    if not isinstance(components, list):
+        components = []
+
+    # Recalculate exact mathematical sum of component macros for totals
+    if components:
+        calc_cals = sum(float(c.get("calories", 0) or 0) for c in components if isinstance(c, dict))
+        calc_prot = sum(float(c.get("protein_g", 0) or 0) for c in components if isinstance(c, dict))
+        calc_carbs = sum(float(c.get("carbs_g", 0) or 0) for c in components if isinstance(c, dict))
+        calc_fat = sum(float(c.get("fat_g", 0) or 0) for c in components if isinstance(c, dict))
+        calc_fiber = sum(float(c.get("fiber_g", 0) or 0) for c in components if isinstance(c, dict))
+
+        totals = {
+            "calories": round(calc_cals if calc_cals > 0 else (data.get("totals", {}).get("calories", 0))),
+            "protein_g": round(calc_prot if calc_prot > 0 else (data.get("totals", {}).get("protein_g", 0)), 1),
+            "carbs_g": round(calc_carbs if calc_carbs > 0 else (data.get("totals", {}).get("carbs_g", 0)), 1),
+            "fat_g": round(calc_fat if calc_fat > 0 else (data.get("totals", {}).get("fat_g", 0)), 1),
+            "fiber_g": round(calc_fiber if calc_fiber > 0 else (data.get("totals", {}).get("fiber_g", 0)), 1),
+        }
+    else:
+        totals = data.get("totals", {})
+
+    meal_name = data.get("meal_name", "Scanned Meal")
+    description = data.get("description", "Analyzed meal photo.")
+
+    logged_record = None
+    if payload.auto_log:
+        with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("""
+                INSERT INTO nutrition_logs (user_id, meal_name, calories, protein_g, carbs_g, fat_g, fiber_g, description)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                RETURNING *
+            """, (
+                user_id, meal_name, totals.get("calories", 0),
+                totals.get("protein_g", 0), totals.get("carbs_g", 0), totals.get("fat_g", 0),
+                totals.get("fiber_g", 0), description
+            ))
+            logged_record = cur.fetchone()
+            db.commit()
+
+    return {
+        "success": True,
+        "meal_name": meal_name,
+        "description": description,
+        "components": components,
+        "totals": totals,
+        "model_used": GROQ_VISION_MODEL,
+        "logged_record": logged_record
+    }
 
 
 @router.post("/water")

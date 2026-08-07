@@ -24,6 +24,7 @@ import NightBackground from "./components/NightBackground";
 import SkyBackground from "./components/SkyBackground";
 import MonochromeBackground from "./components/MonochromeBackground";
 import HpiChat from "./components/HpiChat/HpiChat";
+import IncomingCallListener from "./components/video/IncomingCallListener";
 
 // ── Lazy-loaded pages — code-split for faster initial load ──
 const AuthPage = React.lazy(() => import("./pages/AuthPage"));
@@ -227,6 +228,7 @@ function AppContent() {
         {isNative ? <MobileAppShell /> : <AppShell />}
       </Suspense>
       {!isAuth && <HpiChat />}
+      {!isAuth && <IncomingCallListener />}
 
       {!isNative && (
         <style>{`

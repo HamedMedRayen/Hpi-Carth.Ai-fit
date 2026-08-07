@@ -269,11 +269,23 @@ PRE-CALCULATED DATA QUALITY & RELIABILITY AUDIT (AUTHORITATIVE):
 {json.dumps(audit, indent=2)}
 
 MANDATORY FORMATTING & VISUAL LAYOUT RULES (CRITICAL FOR APP RENDERING):
-1. Use Markdown Headers (`#`, `##`, `###`) to demarcate every section clearly.
-2. ALWAYS use GFM Markdown Tables (`| Header | Header |`) for structured data, itemized lists (like active injuries, recommendations, metrics, data audit). DO NOT output plain unformatted text lists for tabular data.
-3. Use GFM Blockquotes (`> ! Alert title — details`, `> ? Question title — details`, `> ~ Warning title — details`) for alerts, suspicious values, and follow-up questions.
+1. Structure the output into standard Executive Markdown sections using `#` for main title and `##` for section titles:
+   - `# EXECUTIVE ATHLETE PERFORMANCE & DATA RELIABILITY REPORT`
+   - `## 1. Executive Summary & Reliability Status`
+   - `## 2. Data Grounding Audit & Reliability Bands`
+   - `## 3. Training & Volume Progression`
+   - `## 4. Nutrition & Recovery Synchronization`
+   - `## 5. Fatigue & Injury Risk Protocol`
+   - `## 6. Actionable Coaching Directives & Next Steps`
+2. ALWAYS use GFM Markdown Tables (`| Header | Header |`) for structured category audits, metrics, workouts, and itemized lists.
+3. Use GFM Callout Blockquotes for highlights and warnings:
+   - `> ! Alert title — details` for critical flags or incomplete data alerts.
+   - `> ~ Warning title — details` for fatigue or injury risk warnings.
+   - `> ? Question title — details` for questions needing athlete confirmation.
+   - `> i Insight title — details` for positive progress or key observations.
 4. Use `**Bold**` for emphasis on key terms, verdicts, and severity metrics.
-5. NO EMOJIS anywhere. Use standard text symbols (●, ◐, ○, ×, !, ?, ▲, ▼) if needed.
+5. NO EMOJIS anywhere in the output. Use clean technical Markdown.
+6. DO NOT output empty blank lines between rows in Markdown tables. Keep all rows of a table (`| col | col |`) on immediately consecutive lines. Always start section titles with `## `.
 
 MANDATORY DATA QUALITY & COACHING DIRECTIVES:
 1. ABSENCE OF DATA IS NOT ABSENCE OF BEHAVIOR.

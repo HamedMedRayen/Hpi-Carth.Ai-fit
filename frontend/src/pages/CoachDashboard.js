@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { Users, UserPlus, Check, X, Search, Activity, ChevronRight, Dumbbell, TrendingUp, Calendar, AlertCircle, MessageSquare, Award, Heart, MapPin, Navigation, ShieldAlert, FileText, Sliders, ClipboardList, Camera, Download, Star } from "lucide-react";
+import { Users, UserPlus, Check, X, Search, Activity, ChevronRight, Dumbbell, TrendingUp, Calendar, AlertCircle, MessageSquare, Award, Heart, MapPin, Navigation, ShieldAlert, FileText, Sliders, ClipboardList, Camera, Download, Star, Video } from "lucide-react";
 import Header from "../components/layout/Header";
 import { api } from "../utils/api";
 import { fmt } from "../utils/formatters";
 import SuggestWorkoutModal from "../components/SuggestWorkoutModal";
 import CoachChatModal from "../components/CoachChatModal";
 import CoachProfileModal from "../components/CoachProfileModal";
+import VideoCallScreen from "../components/video/VideoCallScreen";
 import BodySilhouette from "../components/BodySilhouette";
 import BodyMapWidget from "../components/widgets/BodyMapWidget";
 import { useAuth } from "../utils/auth";
@@ -344,6 +345,7 @@ export default function CoachDashboard() {
   const [loadingStats, setLoadingStats] = useState(false);
   const [showSuggestModal, setShowSuggestModal] = useState(false);
   const [chatRecipient, setChatRecipient] = useState(null);
+  const [activeVideoCall, setActiveVideoCall] = useState(null);
 
   // Clicked Workout Detail
   const [selectedWorkoutDetail, setSelectedWorkoutDetail] = useState(null);
@@ -1449,6 +1451,13 @@ export default function CoachDashboard() {
             <MessageSquare size={16} /> Chat
           </button>
           <button 
+            onClick={() => setActiveVideoCall({ athleteId: selectedAthlete.athlete_id, coachId: user?.id || user?.user_id, role: 'coach' })}
+            className="btn-secondary"
+            style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700, background: "rgba(99, 102, 241, 0.15)", color: "#818cf8", border: "1px solid rgba(99, 102, 241, 0.3)" }}
+          >
+            <Video size={16} /> Video Call
+          </button>
+          <button 
             onClick={handleDownloadReport}
             className="btn-secondary"
             style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700 }}
@@ -2211,6 +2220,13 @@ export default function CoachDashboard() {
                           >
                             <MessageSquare size={16} /> Chat
                           </button>
+                          <button 
+                            onClick={() => setActiveVideoCall({ athleteId: user?.id || user?.user_id, coachId: c.coach_id, role: 'athlete' })}
+                            className="btn-secondary" 
+                            style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700, background: "rgba(99, 102, 241, 0.15)", color: "#818cf8", border: "1px solid rgba(99, 102, 241, 0.3)" }}
+                          >
+                            <Video size={16} /> Video Call
+                          </button>
                           <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(34, 197, 94, 0.1)", color: "#22C55E", padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700 }}>
                             <Check size={16} /> Active Coach
                           </div>
@@ -2631,6 +2647,18 @@ export default function CoachDashboard() {
         <CoachChatModal 
           recipient={chatRecipient} 
           onClose={() => setChatRecipient(null)} 
+        />
+      )}
+
+      {activeVideoCall && (
+        <VideoCallScreen
+          athleteId={activeVideoCall.athleteId}
+          coachId={activeVideoCall.coachId}
+          currentUserId={user?.id || user?.user_id}
+          currentUserName={user?.name || user?.full_name || 'User'}
+          userRole={activeVideoCall.role}
+          mode="caller"  /* ← CALLER: getOrCreate + join + send invite signal */
+          onCallEnd={() => setActiveVideoCall(null)}
         />
       )}
 

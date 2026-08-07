@@ -337,99 +337,48 @@ Athlete Performance & Recovery Report
 ### Header + status strip
 
 ```text
-ATHLETE PERFORMANCE & RECOVERY REPORT
-Athlete: [Name]   Period: [start] – [end] ([n] days)   Generated: [date]
+## PART 6 — MANDATORY EXECUTIVE REPORT STRUCTURE
 
-Training ●   Nutrition ○   Sleep ○   Recovery ◐   Injuries ×
+Every report generated MUST use the following exact section hierarchy and GFM Markdown formatting:
+
+```markdown
+# EXECUTIVE ATHLETE PERFORMANCE & DATA RELIABILITY REPORT
+
+## 1. Executive Summary & Reliability Status
+High-level executive verdict on athlete status, performance trajectory, primary bottlenecks, and overall data reliability confidence.
+
+## 2. Data Grounding Audit & Reliability Bands
+| Category | Expected | Logged Unique Days | Coverage | Reliability | Action Required |
+| --- | --- | --- | --- | --- | --- |
+| Training | 14 days | [x] | [x]% | HIGH / MODERATE / LOW / NO DATA | [Action] |
+| Nutrition | 14 days | [x] | [x]% | HIGH / MODERATE / LOW / NO DATA | [Action] |
+| Sleep | 14 days | [x] | [x]% | HIGH / MODERATE / LOW / NO DATA | [Action] |
+| Injuries | Event-based | [x] active | 100% | HIGH | [Action] |
+
+> ! Alert Title — Critical logging alert or data anomaly note.
+> ~ Warning Title — Recovery deficit or fatigue risk flag.
+> ? Question Title — Critical question for coach/athlete confirmation.
+> i Insight Title — Key positive progress observation.
+
+## 3. Training & Volume Progression
+Analysis of recorded workouts, set volume, exercise distribution, top PRs, and progression trends.
+| Lift / Exercise | Top Load / 1RM Est | Volume (kg) | Progression Status | Confidence |
+| --- | --- | --- | --- | --- |
+
+## 4. Nutrition & Recovery Synchronization
+Detailed evaluation of calories, macros, sleep duration average, and energy balance.
+| Metric | Recorded Avg | Target / Optimal | Status / Compliance | Reliability |
+| --- | --- | --- | --- | --- |
+
+## 5. Fatigue & Injury Risk Protocol
+Active injuries, pain ratings, affected movement patterns, and required exercise substitutions.
+
+## 6. Actionable Coaching Directives & Next Steps
+Prioritized, numbered coaching prescriptions proportional to data reliability.
+1. **[Directives]** - Description and rationale.
+2. **[Directives]** - Description and rationale.
+3. **[Directives]** - Description and rationale.
 ```
-
-### Executive Summary
-
-Five short paragraphs or lines: athlete status, main performance trend, main recovery concern, injury concerns, major data-quality limitations. Never hide a data-quality limitation to make the summary read cleaner.
-
-### 1. Data Quality & Logging Status — `database`
-
-| Category | Expected | Logged | Coverage | Trend vs. prior | Reliability |
-| --- | --- | --- | --- | --- | --- |
-| Training | 8 sessions | 7 | 88% | ▬ | `●` HIGH |
-| Nutrition | 14 days | 6 | 43% | ▼ | `○` LOW |
-| Sleep | 14 nights | 5 | 36% | ▼ | `○` LOW |
-| Recovery | 14 days | 9 | 64% | ▬ | `◐` MODERATE |
-| Body measurements | 2 entries | 1 | 50% | ▬ | `◐` MODERATE |
-
-Injuries are reported separately in section 6 — never given a fabricated daily coverage figure.
-
-### 2. Logging Alerts — `bell-ring`
-
-> `!` **Nutrition Logging Drop-Off** — Coverage fell from 12/14 to 6/14 days versus the prior period. Actual intake cannot be reliably determined.
-
-> `!` **Sleep Logging Alert** — 5 of 14 nights recorded; typical sleep duration cannot be characterized.
-
-> `~` **Suspicious Value** — Recorded 904 kcal/day average is physiologically unusual and likely reflects incomplete logging.
-
-Cover: missing logging, interruptions, drop-offs, partial logging, suspicious values.
-
-### 3. Performance Trends — `trending-up`
-
-| Metric | Prior | Current | Change | Trend | Confidence |
-| --- | --- | --- | --- | --- | --- |
-| Est. 1RM — Squat | 140 kg | 147.5 kg | +5.4% | ▲ | `●` |
-| Est. 1RM — Bench | 100 kg | 100 kg | 0% | ▬ | `●` |
-| Weekly volume | 21,400 kg | 22,359 kg | +4.5% | ▲ | `◐` |
-| Session RPE | 7.8 | 8.6 | +0.8 | ▲ | `◐` |
-
-State plainly: what improved, what declined, what held stable, what cannot be determined.
-
-### 4. Nutrition — `utensils`
-
-State what is known, what is unknown, the reliability level, and explicitly whether calorie or macronutrient recommendations are justified at this reliability level.
-
-### 5. Sleep & Recovery — `moon`
-
-State available data, coverage, reliability, and recovery implications — with strength of claim matched to coverage.
-
-### 6. Injury & Risk Flags — `heart-pulse`
-
-| Injury | Region | Severity | Duration | Pain | Training conflict | Flag |
-| --- | --- | --- | --- | --- | --- | --- |
-| Patellar tendinopathy | Right knee | High | 6 weeks | 6/10 | Back squat, lunges | `×` |
-| Shoulder impingement | Left shoulder | Moderate | 2 weeks | 3/10 | Overhead press | `!` |
-
-### 7. Coaching Recommendations — `clipboard-list`
-
-| # | Priority | Recommendation | Evidence basis |
-| --- | --- | --- | --- |
-| 1 | Safety | Remove loaded knee flexion; seek assessment for the high-severity knee injury | `●` Injury records |
-| 2 | Data quality | Restore daily nutrition and sleep logging for 14 days before any dietary change | `○` Coverage 43% / 36% |
-| 3 | Performance | Maintain current squat progression; hold bench volume | `●` Trend data |
-| 4 | Nutrition | Deferred — reassess after logging is restored | `○` Insufficient data |
-
-Recommendations must be proportional to the evidence. Never prescribe from unreliable data.
-
-### 8. Coach Follow-Up Questions — `message-circle-question`
-
-> `?` **Nutrition** — "Have you been eating normally but not recording your meals?"
-
-> `?` **Sleep** — "Have you stopped tracking sleep, or has your sleep actually changed?"
-
-> `?` **Training** — "Have you been training less, or are workouts simply missing from the app?"
-
-> `?` **Injury** — "Which movements currently aggravate the affected area?"
-
-The purpose is to resolve uncertainty, not to guess around it.
-
-### 9. Data Confidence — `gauge`
-
-| Category | Confidence | Notes |
-| --- | --- | --- |
-| Training | `●` HIGH | Sessions logged consistently |
-| Nutrition | `○` LOW | Coverage 43%, drop-off detected |
-| Sleep | `○` LOW | 5 of 14 nights |
-| Recovery | `◐` MODERATE | Coverage 64% |
-| Injuries | `●` HIGH | Detailed records, recently updated |
-| **Overall** | `◐` MODERATE | Training and injury conclusions are reliable; nutrition and sleep conclusions are not |
-
-One weak category must not drag the whole report to LOW. State which conclusions are high-confidence and which are uncertain.
 
 ---
 

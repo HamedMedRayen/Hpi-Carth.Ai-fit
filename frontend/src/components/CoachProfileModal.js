@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { 
+import {
   X, Star, Users, MapPin, Award, Send, CheckCircle2, Clock, MessageSquare, AlertCircle, Sparkles
 } from "lucide-react";
 import { api } from "../utils/api";
@@ -28,7 +28,7 @@ export default function CoachProfileModal({ coach, onClose, onHireCoach }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview"); // "overview" or "reviews"
-  
+
   // New review state
   const [newRating, setNewRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
@@ -100,7 +100,7 @@ export default function CoachProfileModal({ coach, onClose, onHireCoach }) {
   const isPending = displayData.status === 'pending';
 
   return (
-    <div 
+    <div
       style={{
         position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
         background: "rgba(0, 0, 0, 0.85)", zIndex: 9999, display: "flex",
@@ -111,7 +111,7 @@ export default function CoachProfileModal({ coach, onClose, onHireCoach }) {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div 
+      <div
         style={{
           background: "#111622", border: "1px solid rgba(255, 255, 255, 0.12)",
           borderRadius: 24, maxWidth: 540, width: "100%", maxHeight: "90vh",
@@ -128,7 +128,7 @@ export default function CoachProfileModal({ coach, onClose, onHireCoach }) {
           <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--aura-cyan, #06b6d4)", fontWeight: 700 }}>
             <Sparkles size={16} /> CERTIFIED COACH PROFILE
           </div>
-          <button 
+          <button
             onClick={onClose}
             style={{
               background: "rgba(255, 255, 255, 0.08)", border: "none", color: "#94a3b8",
@@ -143,20 +143,20 @@ export default function CoachProfileModal({ coach, onClose, onHireCoach }) {
 
         {/* Scrollable Body */}
         <div style={{ overflowY: "auto", padding: "24px", display: "flex", flexDirection: "column", gap: 20 }}>
-          
+
           {/* Main Coach Info Header */}
           <div style={{ display: "flex", gap: 20, alignItems: "center" }}>
-            <div style={{ 
+            <div style={{
               width: 90, height: 90, borderRadius: "50%", background: "#1e293b",
               border: "3px solid #06b6d4", overflow: "hidden", flexShrink: 0,
               boxShadow: "0 0 24px rgba(6, 182, 212, 0.35)", display: "flex",
               alignItems: "center", justifyContent: "center"
             }}>
               {displayData.coach_avatar || displayData.avatar_url ? (
-                <img 
-                  src={displayData.coach_avatar || displayData.avatar_url} 
-                  alt={displayData.coach_name || displayData.name} 
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+                <img
+                  src={displayData.coach_avatar || displayData.avatar_url}
+                  alt={displayData.coach_name || displayData.name}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 />
               ) : (
                 <span style={{ fontSize: 32, fontWeight: 900, color: "#06b6d4" }}>
@@ -172,7 +172,7 @@ export default function CoachProfileModal({ coach, onClose, onHireCoach }) {
               <span style={{ fontSize: 13, color: "#94a3b8" }}>
                 {displayData.coach_email || displayData.email}
               </span>
-              
+
               <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 6 }}>
                 <span style={{
                   background: "rgba(6, 182, 212, 0.12)", color: "#06b6d4",
@@ -295,7 +295,7 @@ export default function CoachProfileModal({ coach, onClose, onHireCoach }) {
           {/* TAB 2: Ratings & Comments */}
           {activeTab === "reviews" && (
             <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-              
+
               {/* Add Review Form */}
               <form onSubmit={handleSubmitReview} style={{
                 background: "rgba(255, 255, 255, 0.03)", borderRadius: 16, padding: "16px",
@@ -381,8 +381,8 @@ export default function CoachProfileModal({ coach, onClose, onHireCoach }) {
                   </div>
                 ) : displayData.reviews && displayData.reviews.length > 0 ? (
                   displayData.reviews.map((rev) => (
-                    <div 
-                      key={rev.id} 
+                    <div
+                      key={rev.id}
                       style={{
                         background: "rgba(255, 255, 255, 0.02)", border: "1px solid rgba(255, 255, 255, 0.06)",
                         borderRadius: 16, padding: 14, display: "flex", flexDirection: "column", gap: 8
@@ -415,11 +415,11 @@ export default function CoachProfileModal({ coach, onClose, onHireCoach }) {
                         {/* Stars */}
                         <div style={{ display: "flex", gap: 2 }}>
                           {[...Array(5)].map((_, i) => (
-                            <Star 
-                              key={i} 
-                              size={14} 
-                              color={i < rev.rating ? "#f59e0b" : "rgba(255, 255, 255, 0.15)"} 
-                              fill={i < rev.rating ? "#f59e0b" : "none"} 
+                            <Star
+                              key={i}
+                              size={14}
+                              color={i < rev.rating ? "#f59e0b" : "rgba(255, 255, 255, 0.15)"}
+                              fill={i < rev.rating ? "#f59e0b" : "none"}
                             />
                           ))}
                         </div>

@@ -54,7 +54,7 @@ export default function NotificationCenter() {
     try {
       const programName = notification.data.program_name || "Suggested Program";
       const workouts = notification.data.workouts || [];
-      
+
       for (const w of workouts) {
         const templateData = {
           name: `${programName} - ${w.name}`,
@@ -62,7 +62,7 @@ export default function NotificationCenter() {
         };
         await api.saveTemplate(templateData);
       }
-      
+
       await api.markNotificationRead(notification.id);
       fetchNotifications();
       navigate('/workouts');
@@ -73,7 +73,7 @@ export default function NotificationCenter() {
 
   return (
     <div style={{ position: "relative" }}>
-      <button 
+      <button
         onClick={handleToggle}
         style={{
           background: "none", border: "none", position: "relative", cursor: "pointer",
@@ -85,8 +85,8 @@ export default function NotificationCenter() {
         <Bell size={20} />
         {unreadCount > 0 && (
           <div style={{
-            position: "absolute", top: 4, right: 4, background: "#EF4444", 
-            color: "white", fontSize: 10, fontWeight: 800, width: 16, height: 16, 
+            position: "absolute", top: 4, right: 4, background: "#EF4444",
+            color: "white", fontSize: 10, fontWeight: 800, width: 16, height: 16,
             borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
             boxShadow: "0 0 0 2px var(--color-bg)"
           }}>
@@ -97,9 +97,9 @@ export default function NotificationCenter() {
 
       {open && (
         <>
-          <div 
-            onClick={() => setOpen(false)} 
-            style={{ position: "fixed", inset: 0, zIndex: 90 }} 
+          <div
+            onClick={() => setOpen(false)}
+            style={{ position: "fixed", inset: 0, zIndex: 90 }}
           />
           <div style={{
             position: "absolute", top: "100%", right: 0, marginTop: 8,
@@ -108,19 +108,19 @@ export default function NotificationCenter() {
             boxShadow: "var(--shadow-card)", zIndex: 100, overflow: "hidden",
             display: "flex", flexDirection: "column", maxHeight: 400
           }}>
-            <div style={{ 
-              padding: "16px", borderBottom: "1px solid var(--border-card)", 
-              display: "flex", justifyContent: "space-between", alignItems: "center" 
+            <div style={{
+              padding: "16px", borderBottom: "1px solid var(--border-card)",
+              display: "flex", justifyContent: "space-between", alignItems: "center"
             }}>
               <h3 style={{ margin: 0, fontSize: 14, fontWeight: 700 }}>Notifications</h3>
-              <button 
+              <button
                 onClick={() => setOpen(false)}
                 style={{ background: "none", border: "none", color: "var(--color-text-3)", cursor: "pointer" }}
               >
                 <X size={16} />
               </button>
             </div>
-            
+
             <div style={{ overflowY: "auto", flex: 1, padding: "8px 0" }}>
               {notifications.length === 0 ? (
                 <div style={{ padding: "32px 16px", textAlign: "center", color: "var(--color-text-3)", fontSize: 13 }}>
@@ -128,10 +128,10 @@ export default function NotificationCenter() {
                 </div>
               ) : (
                 notifications.map(n => (
-                  <div 
-                    key={n.id} 
-                    style={{ 
-                      padding: "12px 16px", 
+                  <div
+                    key={n.id}
+                    style={{
+                      padding: "12px 16px",
                       borderBottom: "1px solid var(--border-card)",
                       background: n.is_read ? "transparent" : "rgba(var(--aura-accent-rgb), 0.05)",
                       display: "flex", gap: 12, alignItems: "flex-start",
@@ -146,7 +146,7 @@ export default function NotificationCenter() {
                     }}>
                       {n.type === 'workout_suggestion' ? <Dumbbell size={16} /> : <AlertCircle size={16} />}
                     </div>
-                    
+
                     <div style={{ flex: 1 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
                         <div style={{ fontSize: 13, fontWeight: n.is_read ? 600 : 700, color: "var(--color-text)", lineHeight: 1.2 }}>
@@ -166,9 +166,9 @@ export default function NotificationCenter() {
                           "{n.data.program_note}"
                         </div>
                       )}
-                      
+
                       {n.type === 'workout_suggestion' && n.data && (
-                        <button 
+                        <button
                           onClick={() => handleAddWorkout(n)}
                           style={{
                             background: "var(--aura-accent)", color: "#000", border: "none",
@@ -180,13 +180,13 @@ export default function NotificationCenter() {
                         </button>
                       )}
                     </div>
-                    
+
                     <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "flex-end" }}>
                       <div style={{ fontSize: 10, color: "var(--color-text-3)", whiteSpace: "nowrap" }}>
                         {new Date(n.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                       </div>
                       {!n.is_read && (
-                        <button 
+                        <button
                           onClick={() => handleMarkRead(n.id)}
                           style={{ background: "none", border: "none", color: "var(--aura-accent)", cursor: "pointer", padding: 4 }}
                           title="Mark as read"

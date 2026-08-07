@@ -96,7 +96,10 @@ async function req(path, opts = {}) {
 
   if (res.status === 204) return null;
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.detail || data.error || `HTTP ${res.status}`);
+  if (!res.ok) {
+    console.error(`[API] ${opts.method || 'GET'} ${path} → ${res.status}`, data);
+    throw new Error(data.detail || data.error || `HTTP ${res.status}`);
+  }
   return data;
 }
 

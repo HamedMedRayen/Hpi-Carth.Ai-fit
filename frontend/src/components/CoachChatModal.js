@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
-import { X, Send, User, MessageSquare, Trash2 } from "lucide-react";
-import { api } from "../utils/api";
+import { X, Send, User, MessageSquare, Trash2, Video } from "lucide-react";
+import { api, token } from "../utils/api";
 import { useAuth } from "../utils/auth";
+import VideoCallScreen from "./video/VideoCallScreen";
 
 export default function CoachChatModal({ recipient, onClose }) {
   const { user } = useAuth();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showVideoCall, setShowVideoCall] = useState(false);
   const scrollRef = useRef(null);
+
 
   useEffect(() => {
     if (recipient) {
@@ -107,8 +110,30 @@ export default function CoachChatModal({ recipient, onClose }) {
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <button 
-              onClick={handleClearChat} 
+            <button
+              onClick={() => setShowVideoCall(true)}
+              title="Start 1:1 Video Call"
+              style={{
+                background: "rgba(99, 102, 241, 0.15)",
+                border: "1px solid rgba(99, 102, 241, 0.3)",
+                color: "#818cf8",
+                width: 32, height: 32, borderRadius: 10,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer", transition: "all 0.2s"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#6366f1";
+                e.currentTarget.style.color = "#fff";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(99, 102, 241, 0.15)";
+                e.currentTarget.style.color = "#818cf8";
+              }}
+            >
+              <Video size={18} />
+            </button>
+            <button
+              onClick={handleClearChat}
               title="Clear Conversation"
               style={{
                 background: "rgba(255,255,255,0.05)", border: "none", color: "var(--color-text)",
@@ -131,7 +156,7 @@ export default function CoachChatModal({ recipient, onClose }) {
         </div>
 
         {/* Messages */}
-        <div 
+        <div
           ref={scrollRef}
           style={{
             flex: 1, overflowY: "auto", padding: 20,
@@ -193,6 +218,28 @@ export default function CoachChatModal({ recipient, onClose }) {
           </button>
         </form>
       </div>
+
+      {showVideoCall && (() => {
+        const recipientId = recipient.id || recipient.athlete_id || recipient.coach_id;
+        const isCoach = user?.role === 'coach' || user?.is_coach;
+        const currentUserId = user?.id || user?.user_id || token.userId();
+
+        const athleteId = isCoach ? recipientId : currentUserId;
+        const coachId = isCoach ? currentUserId : recipientId;
+
+        return (
+          <VideoCallScreen
+            athleteId={athleteId}
+            coachId={coachId}
+            currentUserId={currentUserId}
+            currentUserName={user?.name || user?.full_name || 'User'}
+            userRole={isCoach ? 'coach' : 'athlete'}
+            mode="caller"  /* ← CALLER: this is a user-initiated outgoing call */
+            onCallEnd={() => setShowVideoCall(false)}
+          />
+        );
+      })()}
+
       <style>{`
         @keyframes modalIn {
           from { opacity: 0; transform: scale(0.95) translateY(10px); }
