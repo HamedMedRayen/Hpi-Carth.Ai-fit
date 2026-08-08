@@ -411,7 +411,7 @@ CREATE TABLE IF NOT EXISTS coach_notes (
     id          BIGSERIAL PRIMARY KEY,
     coach_id    BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     athlete_id  BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    session_id  BIGINT NOT NULL REFERENCES workouts(id) ON DELETE CASCADE,
+    session_id  BIGINT REFERENCES workouts(id) ON DELETE CASCADE,
     note        TEXT NOT NULL,
     created_at  TIMESTAMPTZ DEFAULT NOW()
 );
@@ -1139,9 +1139,10 @@ def _do_init_db() -> None:
                         created_at  TIMESTAMPTZ DEFAULT NOW()
                     )
                 """)
-                # --- EVENTS MIGRATIONS ---
+                # --- EVENTS & COACH NOTES MIGRATIONS ---
                 cur.execute("ALTER TABLE events ADD COLUMN IF NOT EXISTS cost_tnd REAL DEFAULT 0.0")
                 cur.execute("ALTER TABLE events ADD COLUMN IF NOT EXISTS target_audience TEXT DEFAULT 'public'")
+                cur.execute("ALTER TABLE coach_notes ALTER COLUMN session_id DROP NOT NULL")
 
                 conn.commit()
 
