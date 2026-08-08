@@ -242,51 +242,42 @@ export const VideoCallScreen = ({
               athleteId: String(athleteId),
               coachId: String(coachId),
             }),
-          }),
-          15000, 'Fetch token'
+      const resolvedUserId = String(currentUserId || athleteId);
+      console.log(`[${ts()}][${mode.toUpperCase()}_INIT] START for user "${resolvedUserId}"...`);
+
+      try {
+        const apiBase = getApiBaseUrl();
+        const tokenRes = await withTimeout(
+          fetch(`${apiBase}/stream/token?user_id=${resolvedUserId}`),
+          10000, 'Fetch Stream token'
         );
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.detail || errData.error || `Token server returned ${res.status}`);
+        if (!tokenRes.ok) {
+          throw new Error(`Token endpoint returned ${tokenRes.status}`);
         }
-        const data = await res.json();
-        if (!data.token) throw new Error('No token returned from backend.');
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] STEP 1 ✅ Token OK`);
+        const tokenData = await tokenRes.json();
+        if (!tokenData.token) throw new Error('No token returned');
 
-        // STEP 2: Create client
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] STEP 2: Creating client...`);
-        const videoClient = new StreamVideoClient({ apiKey });
-
-        // STEP 3: connectUser
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] STEP 3: connectUser("${resolvedUserId}")...`);
-        await withTimeout(
-          videoClient.connectUser(
-            { id: resolvedUserId, name: currentUserName || (userRole === 'coach' ? 'Coach' : 'Athlete') },
-            data.token
-          ),
-          15000, 'connectUser()'
-        );
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] STEP 3 ✅ Connected`);
-
-        // Store in refs immediately so cleanup can access them
+        const videoClient = new StreamVideoClient({
+          apiKey,
+          user: {
+            id: resolvedUserId,
+            name: currentUserName || (userRole === 'coach' ? 'Coach' : 'Athlete'),
+            image: currentUserAvatar || undefined,
+          },
+          token: tokenData.token,
+        });
         clientRef.current = videoClient;
 
-        // STEP 4: Create call reference
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] STEP 4: Creating call ref...`);
         const activeCall = videoClient.call('default', callId);
         callRef.current = activeCall;
 
-        // STEP 5: Join call
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] STEP 5: join({ create: true })...`);
         await withTimeout(activeCall.join({ create: true }), 15000, 'call.join()');
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] STEP 5 ✅ Joined!`);
+        callStartTimeRef.current = Date.now();
 
-        // STEP 6 (CALLER ONLY): Send invite
         if (mode === 'caller') {
           const targetReceiverId = String(
             String(resolvedUserId) === String(athleteId) ? coachId : athleteId
           );
-          console.log(`[${ts()}][CALLER_INIT] STEP 6: Invite → "${targetReceiverId}"...`);
           try {
             await withTimeout(
               fetch(`${apiBase}/stream/invite`, {
@@ -303,28 +294,20 @@ export const VideoCallScreen = ({
               }),
               10000, 'Send invite'
             );
-            console.log(`[${ts()}][CALLER_INIT] STEP 6 ✅ Invite sent`);
           } catch (inviteErr) {
             console.warn(`[${ts()}][CALLER_INIT] STEP 6 ⚠️ Non-blocking:`, inviteErr.message);
           }
         }
 
-        // ── SET STATE ──
-        // Use isMountedRef (a ref, not a local var) so it reflects the
-        // CURRENT mount state even after StrictMode unmount+remount.
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] 🎉 DONE. isMounted=${isMountedRef.current}`);
         if (isMountedRef.current) {
           setClient(videoClient);
           setCall(activeCall);
           setLoading(false);
-          console.log(`[${ts()}][${mode.toUpperCase()}_INIT] ✅ State updated — UI should render call.`);
         } else {
-          console.warn(`[${ts()}][${mode.toUpperCase()}_INIT] Component unmounted — skipping state update, cleaning up.`);
           activeCall.leave().catch(() => {});
           videoClient.disconnectUser().catch(() => {});
         }
       } catch (err) {
-        console.error(`[${ts()}][${mode.toUpperCase()}_INIT] ❌ FAILED:`, err.message);
         if (isMountedRef.current) {
           setError(err.message || 'Failed to connect to video call.');
           setLoading(false);
@@ -342,22 +325,34 @@ export const VideoCallScreen = ({
     }
 
     return () => {
-      console.log(`[${ts()}][${mode.toUpperCase()}_CLEANUP] Unmounting.`);
       isMountedRef.current = false;
-      // Don't clean up resources here if init is still running —
-      // the refs are null at this point. The second mount's cleanup
-      // (or the init's own error handler) will handle it.
     };
   }, []);
 
   const handleEndCall = async () => {
     console.log(`[${ts()}][${mode.toUpperCase()}_END] Ending call.`);
+    
+    let durationSeconds = 0;
+    if (callStartTimeRef.current) {
+      durationSeconds = Math.floor((Date.now() - callStartTimeRef.current) / 1000);
+    }
+
     try {
       const apiBase = getApiBaseUrl();
-      await fetch(`${apiBase}/stream/invite/cancel`, {
+      const resolvedUserId = String(currentUserId || athleteId);
+      const targetReceiverId = String(
+        String(resolvedUserId) === String(athleteId) ? coachId : athleteId
+      );
+
+      await fetch(`${apiBase}/stream/call/end_log`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ callId }),
+        body: JSON.stringify({
+          callId,
+          callerId: resolvedUserId,
+          receiverId: targetReceiverId,
+          durationSeconds
+        }),
       });
     } catch (e) {}
 
@@ -371,6 +366,7 @@ export const VideoCallScreen = ({
     }
     if (onCallEnd) onCallEnd();
   };
+  handleEndCallRef.current = handleEndCall;
 
   if (loading) {
     return (

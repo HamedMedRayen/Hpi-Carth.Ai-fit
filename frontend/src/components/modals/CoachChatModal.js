@@ -171,6 +171,28 @@ export default function CoachChatModal({ recipient, onClose }) {
               <div style={{ fontSize: 14 }}>No messages yet. Start the conversation!</div>
             </div>
           ) : messages.map(m => {
+            const isSystemCall = m.message?.startsWith("📹") || m.message?.startsWith("📞");
+            if (isSystemCall) {
+              const isNegative = m.message.includes("declined") || m.message.includes("Missed") || m.message.includes("Cancelled");
+              return (
+                <div key={m.id} style={{
+                  alignSelf: "center",
+                  margin: "6px 0",
+                  padding: "6px 16px",
+                  borderRadius: 20,
+                  background: isNegative ? "rgba(239, 68, 68, 0.12)" : "rgba(99, 102, 241, 0.12)",
+                  border: isNegative ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid rgba(99, 102, 241, 0.3)",
+                  color: isNegative ? "#f87171" : "#818cf8",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+                  textAlign: "center"
+                }}>
+                  {m.message} <span style={{ opacity: 0.6, fontSize: 10, marginLeft: 6 }}>{new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                </div>
+              );
+            }
+
             const isMe = m.sender_id === (user?.id || user?.user_id);
             return (
               <div key={m.id} style={{

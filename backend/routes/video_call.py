@@ -165,12 +165,37 @@ async def create_call_invite(body: InviteCallRequest):
     return {"success": True, "invite": invite_data}
 
 
+def save_system_chat_message(sender_id: str, receiver_id: str, message_text: str):
+    """Helper to save a video call system event notification into chat_messages table"""
+    try:
+        from database import get_connection
+        conn = get_connection()
+        with conn.cursor() as cur:
+            s_id = int(sender_id) if str(sender_id).isdigit() else 0
+            r_id = int(receiver_id) if str(receiver_id).isdigit() else 0
+            if s_id and r_id:
+                cur.execute("""
+                    INSERT INTO chat_messages (sender_id, receiver_id, message)
+                    VALUES (%s, %s, %s)
+                """, (s_id, r_id, message_text))
+                conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"[VIDEO_CALL] Error inserting system chat message: {e}", flush=True)
+
+
 @router.get("/invite/check")
 async def check_call_invite(userId: str):
     """Checks if there is an active ringing video call invite for the user"""
     now = time.time()
     for call_id, invite in list(ACTIVE_CALL_INVITES.items()):
-        if now - invite.get("timestamp", 0) > 45:
+        if now - invite.get("timestamp", 0) > 40:
+            if invite.get("status") == "ringing":
+                save_system_chat_message(
+                    sender_id=invite.get("callerId"),
+                    receiver_id=invite.get("receiverId"),
+                    message_text="📞 Missed Video Call"
+                )
             ACTIVE_CALL_INVITES.pop(call_id, None)
             continue
         if (
@@ -183,6 +208,19 @@ async def check_call_invite(userId: str):
     return {"active": False}
 
 
+@router.get("/invite/status")
+async def check_invite_status(callId: str):
+    """Allows caller to poll if the callee accepted, declined, or missed the call"""
+    invite = ACTIVE_CALL_INVITES.get(callId)
+    if not invite:
+        return {"status": "none"}
+    return {
+        "status": invite.get("status", "ringing"),
+        "callerId": invite.get("callerId"),
+        "receiverId": invite.get("receiverId")
+    }
+
+
 class CancelInviteRequest(BaseModel):
     callId: str
 
@@ -192,6 +230,13 @@ async def cancel_call_invite(body: CancelInviteRequest):
     """Removes active ringing invite when call is ended or cancelled"""
     call_id = body.callId
     if call_id in ACTIVE_CALL_INVITES:
+        invite = ACTIVE_CALL_INVITES.get(call_id)
+        if invite and invite.get("status") == "ringing":
+            save_system_chat_message(
+                sender_id=invite.get("callerId"),
+                receiver_id=invite.get("receiverId"),
+                message_text="📞 Missed Video Call"
+            )
         ACTIVE_CALL_INVITES.pop(call_id, None)
         return {"success": True, "cancelled": True}
     return {"success": True, "cancelled": False}
@@ -202,10 +247,49 @@ async def respond_to_invite(body: RespondInviteRequest):
     """Allows recipient to accept or decline an incoming call invite"""
     call_id = body.callId
     if call_id in ACTIVE_CALL_INVITES:
+        invite = ACTIVE_CALL_INVITES[call_id]
         status = body.action
-        ACTIVE_CALL_INVITES.pop(call_id, None)
+        invite["status"] = status
+        
+        if status == "decline":
+            save_system_chat_message(
+                sender_id=invite.get("receiverId"),
+                receiver_id=invite.get("callerId"),
+                message_text="📹 Video call declined"
+            )
         return {"success": True, "status": status}
     return {"success": False, "message": "Invite not found or expired"}
+
+
+class EndCallLogRequest(BaseModel):
+    callId: str
+    callerId: str
+    receiverId: str
+    durationSeconds: int = 0
+
+
+@router.post("/call/end_log")
+async def log_ended_call(body: EndCallLogRequest):
+    """Logs completed video call duration into chat_messages table"""
+    mins = body.durationSeconds // 60
+    secs = body.durationSeconds % 60
+    dur_str = f"{mins:02d}:{secs:02d}"
+
+    if body.durationSeconds > 3:
+        msg = f"📹 Video Call Ended • Duration: {dur_str}"
+    else:
+        msg = "📞 Missed Video Call"
+
+    save_system_chat_message(
+        sender_id=body.callerId,
+        receiver_id=body.receiverId,
+        message_text=msg
+    )
+    
+    if body.callId in ACTIVE_CALL_INVITES:
+        ACTIVE_CALL_INVITES.pop(body.callId, None)
+
+    return {"success": True, "duration": dur_str, "message": msg}
 
 
 def format_call_id(athlete_id: str, coach_id: str) -> str:
