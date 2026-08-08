@@ -232,7 +232,8 @@ export default function CoachChatModal({ recipient, onClose }) {
             athleteId={athleteId}
             coachId={coachId}
             currentUserId={currentUserId}
-            currentUserName={user?.name || user?.full_name || 'User'}
+            currentUserName={user?.name || user?.nickname || user?.display_name || user?.full_name || 'User'}
+            currentUserAvatar={user?.avatar_url || user?.profile?.avatar_url}
             userRole={isCoach ? 'coach' : 'athlete'}
             mode="caller"  /* ← CALLER: this is a user-initiated outgoing call */
             onCallEnd={() => setShowVideoCall(false)}

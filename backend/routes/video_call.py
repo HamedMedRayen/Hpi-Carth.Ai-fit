@@ -108,6 +108,7 @@ ACTIVE_CALL_INVITES: Dict[str, dict] = {}
 class InviteCallRequest(BaseModel):
     callerId: str
     callerName: Optional[str] = "Coach"
+    callerAvatar: Optional[str] = None
     receiverId: str
     athleteId: str
     coachId: str
@@ -122,10 +123,38 @@ class RespondInviteRequest(BaseModel):
 @router.post("/invite")
 async def create_call_invite(body: InviteCallRequest):
     call_id = format_call_id(body.athleteId, body.coachId)
+    
+    caller_name = body.callerName
+    caller_avatar = body.callerAvatar
+
+    # Query DB to get caller's real profile name and avatar
+    try:
+        from database import get_connection
+        conn = get_connection()
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            caller_num = int(body.callerId) if body.callerId.isdigit() else 0
+            cur.execute("""
+                SELECT u.name, u.avatar_url, a.nickname 
+                FROM users u 
+                LEFT JOIN auth_users a ON u.auth_id = a.id 
+                WHERE u.id = %s OR u.auth_id = %s
+            """, (caller_num, caller_num))
+            user_row = cur.fetchone()
+            if user_row:
+                real_name = user_row.get("name") or user_row.get("nickname")
+                if real_name and (not caller_name or caller_name in ("User", "Coach", "Athlete")):
+                    caller_name = real_name
+                if not caller_avatar and user_row.get("avatar_url"):
+                    caller_avatar = user_row.get("avatar_url")
+        conn.close()
+    except Exception as e:
+        print(f"[VIDEO_CALL] Error resolving caller info from DB: {e}", flush=True)
+
     invite_data = {
         "callId": call_id,
         "callerId": str(body.callerId),
-        "callerName": body.callerName or "User",
+        "callerName": caller_name or "Coach",
+        "callerAvatar": caller_avatar,
         "receiverId": str(body.receiverId),
         "athleteId": str(body.athleteId),
         "coachId": str(body.coachId),

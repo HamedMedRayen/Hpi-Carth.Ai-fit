@@ -2655,7 +2655,8 @@ export default function CoachDashboard() {
           athleteId={activeVideoCall.athleteId}
           coachId={activeVideoCall.coachId}
           currentUserId={user?.id || user?.user_id}
-          currentUserName={user?.name || user?.full_name || 'User'}
+          currentUserName={user?.name || user?.nickname || user?.display_name || user?.full_name || 'Coach'}
+          currentUserAvatar={user?.avatar_url || user?.profile?.avatar_url}
           userRole={activeVideoCall.role}
           mode="caller"  /* ← CALLER: getOrCreate + join + send invite signal */
           onCallEnd={() => setActiveVideoCall(null)}

@@ -156,6 +156,7 @@ export const VideoCallScreen = ({
   coachId,
   currentUserId,
   currentUserName = 'User',
+  currentUserAvatar = null,
   userRole = 'athlete',
   mode = 'caller',
   onCallEnd,
@@ -294,6 +295,7 @@ export const VideoCallScreen = ({
                 body: JSON.stringify({
                   callerId: resolvedUserId,
                   callerName: currentUserName || (userRole === 'coach' ? 'Coach' : 'Athlete'),
+                  callerAvatar: currentUserAvatar || null,
                   receiverId: targetReceiverId,
                   athleteId: String(athleteId),
                   coachId: String(coachId),
