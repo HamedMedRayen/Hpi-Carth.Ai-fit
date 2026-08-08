@@ -32,7 +32,7 @@ class BodyWeightLogRead(BaseModel):
 
 @router.post("", response_model=BodyWeightLogRead, status_code=201)
 def log_body_weight(payload: BodyWeightLogCreate, user_id: int = Depends(get_current_user_id), db=Depends(get_db)):
-    """Log body weight for today (upsert by day)"""
+    """Log body weight for today (upsert by day) and update user bodyweight profile"""
     today_date = datetime.now().date()
     
     with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
@@ -45,6 +45,9 @@ def log_body_weight(payload: BodyWeightLogCreate, user_id: int = Depends(get_cur
             RETURNING id, user_id, weight_kg, logged_at, created_at
         """, (user_id, today_date, payload.weight_kg))
         result = cur.fetchone()
+
+        # Keep users.bodyweight in sync
+        cur.execute("UPDATE users SET bodyweight = %s, updated_at = NOW() WHERE id = %s", (payload.weight_kg, user_id))
     
     db.commit()
     return result

@@ -347,6 +347,8 @@ export default function Profile() {
     try {
       const converted = units.weight === 'lb' ? w / 2.20462 : w;
       await api.logBodyWeight(converted);
+      setProfile(p => ({ ...p, bodyweight: converted }));
+      await updateProfile({ bodyweight: converted });
       setLogWeight("");
       fetchWeightHistory();
     } catch (e) {
