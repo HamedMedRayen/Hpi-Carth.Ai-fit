@@ -43,9 +43,9 @@ export default function CalorieRingHeader({
           <button
             onClick={onSetGoal}
             style={{
-              background: "linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)",
+              background: "var(--aura-accent)",
               border: "none",
-              color: "#000",
+              color: "var(--color-on-accent)",
               padding: "7px 14px",
               borderRadius: 10,
               fontSize: 12,
@@ -54,7 +54,7 @@ export default function CalorieRingHeader({
               display: "flex",
               alignItems: "center",
               gap: 6,
-              boxShadow: "0 4px 12px rgba(0, 242, 254, 0.25)"
+              boxShadow: "0 4px 12px color-mix(in srgb, var(--aura-accent) 25%, transparent)"
             }}
           >
             <Target size={14} /> Set Goal (Form)

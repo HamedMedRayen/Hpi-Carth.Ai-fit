@@ -16,6 +16,17 @@ const GOALS = [
 const LEVELS = ["beginner", "intermediate", "advanced"];
 const DAYS_OPTIONS = [2, 3, 4, 5, 6];
 
+export const COACH_BACKSTORY = `You are Coach Rurik, an AI fitness recommender coach. Background: trained in a hospital cardiac rehab wing before commercial gyms, so you never run programming on autopilot — you actually read every input on a person's profile.
+
+Non-negotiable coaching principles:
+- Sex-aware programming: women are on average more prone to ACL injury in cutting/landing movements due to hip-to-knee alignment and ligament laxity, so cue landing mechanics and progress plyometrics conservatively rather than skipping them. Bone density drops faster in women post-menopause, so lean into progressive loaded resistance training. Treat any disclosed pregnancy/postpartum status as a reason to avoid heavy Valsalva holds, supine heavy loading, and high-impact plyometrics, and recommend clearing it with a doctor.
+- Hypertension changes exercise SELECTION, not just intensity: avoid max-effort isometric holds and heavy 1-3 rep maxes requiring breath-holding, favor continuous moderate-intensity work, avoid strict inversions, progress load gradually.
+- Diabetes changes exercise TIMING and monitoring: avoid very long fasted high-intensity sessions, note the person should have a fast-acting carb source nearby, and watch for hypoglycemia symptoms mid-session.
+- If hypertension or diabetes is 'Yes' or has free-text detail, factor it into exercise selection and add one short safety note. If 'No', skip the note.
+- Never give medical diagnoses; recommend clearing new programs with a doctor when a condition is disclosed.
+
+Output ONLY valid JSON matching: { splitName, weeklySummary, days: [{ day, focus, exercises: [{ name, sets, reps, rest }] }], safetyNote, coachNote }.`;
+
 function Field({ label, children }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -35,9 +46,10 @@ function Field({ label, children }) {
   );
 }
 
-function PillButton({ selected, onClick, children }) {
+function PillButton({ selected, onClick, children, type = "button" }) {
   return (
     <button
+      type={type}
       onClick={onClick}
       style={{
         height: 40,
@@ -58,9 +70,10 @@ function PillButton({ selected, onClick, children }) {
   );
 }
 
-function Chip({ selected, onClick, children }) {
+function Chip({ selected, onClick, children, type = "button" }) {
   return (
     <button
+      type={type}
       onClick={onClick}
       style={{
         padding: "8px 16px",
@@ -646,7 +659,10 @@ export default function Recommend() {
     days_available: 4,
     hypertension: "No",
     diabetes: "No",
+    other: "No",
   });
+
+  const [otherIllness, setOtherIllness] = useState("");
 
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -656,11 +672,19 @@ export default function Recommend() {
 
   const set = (key, val) => setForm((f) => ({ ...f, [key]: val }));
 
+  const resolveOther = () => {
+    if (form.other === "Yes") {
+      return otherIllness && otherIllness.trim() !== "" ? otherIllness.trim() : "Other (unspecified)";
+    }
+    return "No";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     try {
+      const otherResolved = resolveOther();
       const payload = {
         goal: form.goal,
         experience: form.experience,
@@ -668,7 +692,11 @@ export default function Recommend() {
         gender: form.sex === "F" ? "Female" : "Male",
         age: null,
         injuries: [],
-        extra_notes: `Hypertension: ${form.hypertension}, Diabetes: ${form.diabetes}`
+        hypertension: form.hypertension,
+        diabetes: form.diabetes,
+        other_illness: otherResolved,
+        extra_notes: `Hypertension: ${form.hypertension}, Diabetes: ${form.diabetes}, Other Illness: ${otherResolved}`,
+        system: COACH_BACKSTORY,
       };
       const res = await api.getRecommendation(payload);
       setResult(res);
@@ -683,6 +711,7 @@ export default function Recommend() {
     setLoading(true);
     setError(null);
     try {
+      const otherResolved = resolveOther();
       const payload = {
         goal: form.goal,
         experience: form.experience,
@@ -690,7 +719,11 @@ export default function Recommend() {
         gender: form.sex === "F" ? "Female" : "Male",
         age: null,
         injuries: [],
-        extra_notes: `Hypertension: ${form.hypertension}, Diabetes: ${form.diabetes}. User wants a DIFFERENT plan than previous.`
+        hypertension: form.hypertension,
+        diabetes: form.diabetes,
+        other_illness: otherResolved,
+        extra_notes: `Hypertension: ${form.hypertension}, Diabetes: ${form.diabetes}, Other Illness: ${otherResolved}. User wants a DIFFERENT plan than previous.`,
+        system: COACH_BACKSTORY,
       };
       const res = await api.getRecommendation(payload);
       setResult(res);
@@ -827,6 +860,7 @@ export default function Recommend() {
                     const isSelected = form.goal === goal.id;
                     return (
                       <button
+                        type="button"
                         key={goal.id}
                         onClick={() => set("goal", goal.id)}
                         style={{
@@ -874,33 +908,77 @@ export default function Recommend() {
               </Field>
 
               {/* Health Conditions */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                <Field label="Hypertension">
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <Chip
-                      selected={form.hypertension === "No"}
-                      onClick={() => set("hypertension", "No")}
-                    >
-                      No
-                    </Chip>
-                    <Chip
-                      selected={form.hypertension === "Yes"}
-                      onClick={() => set("hypertension", "Yes")}
-                    >
-                      Yes
-                    </Chip>
-                  </div>
-                </Field>
-                <Field label="Diabetes">
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <Chip selected={form.diabetes === "No"} onClick={() => set("diabetes", "No")}>
-                      No
-                    </Chip>
-                    <Chip selected={form.diabetes === "Yes"} onClick={() => set("diabetes", "Yes")}>
-                      Yes
-                    </Chip>
-                  </div>
-                </Field>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+                  <Field label="Hypertension">
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <Chip
+                        selected={form.hypertension === "No"}
+                        onClick={() => set("hypertension", "No")}
+                      >
+                        No
+                      </Chip>
+                      <Chip
+                        selected={form.hypertension === "Yes"}
+                        onClick={() => set("hypertension", "Yes")}
+                      >
+                        Yes
+                      </Chip>
+                    </div>
+                  </Field>
+                  <Field label="Diabetes">
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <Chip
+                        selected={form.diabetes === "No"}
+                        onClick={() => set("diabetes", "No")}
+                      >
+                        No
+                      </Chip>
+                      <Chip
+                        selected={form.diabetes === "Yes"}
+                        onClick={() => set("diabetes", "Yes")}
+                      >
+                        Yes
+                      </Chip>
+                    </div>
+                  </Field>
+                  <Field label="Other">
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <Chip
+                        selected={form.other === "No"}
+                        onClick={() => set("other", "No")}
+                      >
+                        No
+                      </Chip>
+                      <Chip
+                        selected={form.other === "Yes"}
+                        onClick={() => set("other", "Yes")}
+                      >
+                        Yes
+                      </Chip>
+                    </div>
+                  </Field>
+                </div>
+
+                {form.other === "Yes" && (
+                  <input
+                    type="text"
+                    placeholder="Type here"
+                    value={otherIllness}
+                    onChange={(e) => setOtherIllness(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px 14px",
+                      borderRadius: 12,
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-bg-secondary)",
+                      color: "var(--color-text)",
+                      fontSize: 13,
+                      outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                )}
               </div>
 
               {error && (

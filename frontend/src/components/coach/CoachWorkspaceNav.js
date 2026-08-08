@@ -29,11 +29,11 @@ export default function CoachWorkspaceNav({ athleteCount }) {
       justifyContent: "space-between",
       padding: "12px 20px",
       margin: "0 0 20px 0",
-      background: "var(--bg-glass, rgba(15, 23, 42, 0.75))",
-      border: "1px solid var(--border-card, rgba(255, 255, 255, 0.08))",
+      background: "var(--bg-card)",
+      border: "1px solid var(--border-card)",
       borderRadius: "18px",
       backdropFilter: "blur(16px)",
-      boxShadow: "0 8px 32px rgba(0, 0, 0, 0.25)",
+      boxShadow: "var(--shadow-card)",
       gap: 16,
       flexWrap: "wrap",
     }}>
@@ -43,20 +43,20 @@ export default function CoachWorkspaceNav({ athleteCount }) {
           width: 38,
           height: 38,
           borderRadius: 12,
-          background: "linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)",
-          border: "1px solid rgba(6, 182, 212, 0.3)",
+          background: "color-mix(in srgb, var(--aura-accent) 15%, transparent)",
+          border: "1px solid var(--color-border)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "var(--aura-cyan, #06b6d4)",
+          color: "var(--aura-accent)",
         }}>
           <ShieldCheck size={20} />
         </div>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 800, color: "#fff", letterSpacing: "0.3px", display: "flex", alignItems: "center", gap: 6 }}>
+          <div style={{ fontSize: 14, fontWeight: 800, color: "var(--color-text)", letterSpacing: "0.3px", display: "flex", alignItems: "center", gap: 6 }}>
             Coach Workspace
           </div>
-          <div style={{ fontSize: 11, color: "var(--color-text-3, rgba(255,255,255,0.5))", fontWeight: 600 }}>
+          <div style={{ fontSize: 11, color: "var(--color-text-3)", fontWeight: 600 }}>
             {athleteCount !== undefined ? `${athleteCount} Active Athletes` : "Trainer Control Center"}
           </div>
         </div>
@@ -67,10 +67,10 @@ export default function CoachWorkspaceNav({ athleteCount }) {
         display: "flex",
         alignItems: "center",
         gap: 6,
-        background: "rgba(0, 0, 0, 0.3)",
+        background: "var(--color-surface-h)",
         padding: 4,
         borderRadius: 14,
-        border: "1px solid rgba(255, 255, 255, 0.04)",
+        border: "1px solid var(--border-card)",
       }}>
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
@@ -94,20 +94,20 @@ export default function CoachWorkspaceNav({ athleteCount }) {
                 borderRadius: 10,
                 fontSize: 13,
                 fontWeight: isActive ? 800 : 600,
-                color: isActive ? "#fff" : "var(--color-text-2, rgba(255,255,255,0.65))",
+                color: isActive ? "var(--color-text)" : "var(--color-text-2)",
                 textDecoration: "none",
                 background: isActive
-                  ? "linear-gradient(135deg, rgba(6, 182, 212, 0.25) 0%, rgba(59, 130, 246, 0.25) 100%)"
+                  ? "color-mix(in srgb, var(--aura-accent) 20%, transparent)"
                   : "transparent",
                 border: isActive
-                  ? "1px solid rgba(6, 182, 212, 0.4)"
+                  ? "1px solid var(--aura-accent)"
                   : "1px solid transparent",
-                boxShadow: isActive ? "0 0 16px rgba(6, 182, 212, 0.25)" : "none",
+                boxShadow: isActive ? "0 0 12px color-mix(in srgb, var(--aura-accent) 25%, transparent)" : "none",
                 transition: "all 0.2s ease-in-out",
                 position: "relative",
               }}
             >
-              <Icon size={16} style={{ color: isActive ? "var(--aura-cyan, #06b6d4)" : "inherit" }} />
+              <Icon size={16} style={{ color: isActive ? "var(--aura-accent)" : "inherit" }} />
               <span>{item.label}</span>
 
               {item.badge && (
@@ -117,8 +117,8 @@ export default function CoachWorkspaceNav({ athleteCount }) {
                   textTransform: "uppercase",
                   padding: "2px 6px",
                   borderRadius: 6,
-                  background: isActive ? "rgba(6, 182, 212, 0.4)" : "rgba(255, 255, 255, 0.1)",
-                  color: isActive ? "#fff" : "var(--aura-cyan, #06b6d4)",
+                  background: isActive ? "var(--aura-accent)" : "var(--color-surface)",
+                  color: isActive ? "var(--color-on-accent)" : "var(--color-text-2)",
                   letterSpacing: "0.5px",
                 }}>
                   {item.badge}

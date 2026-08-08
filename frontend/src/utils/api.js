@@ -11,7 +11,13 @@ export const token = {
   },
   userId: () => {
     const raw = getSyncItem("aura_user");
-    return raw ? JSON.parse(raw).user_id : null;
+    if (!raw) return null;
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed.user_id || parsed.id || null;
+    } catch (e) {
+      return null;
+    }
   },
   user: () => {
     const raw = getSyncItem("aura_user");
@@ -184,6 +190,7 @@ export const api = {
   getLastSet: (name) => req(`/exercises/${encodeURIComponent(name)}/last-set`),
   getExercisePR: (name) => req(`/exercises/${encodeURIComponent(name)}/pr`),
   getExerciseHistory: (name) => req(`/exercises/history/${encodeURIComponent(name)}`),
+  lookupExercise: (query) => req(`/exercises/lookup?query=${encodeURIComponent(query)}`),
 
 
   // Templates (new)
@@ -192,7 +199,7 @@ export const api = {
   deleteTemplate: (id) => req(`/workouts/templates/${id}`, { method: "DELETE" }),
 
   // Body weight (new)
-  logBodyWeight: (weight_kg) => req("/bodyweight", { method: "POST", body: JSON.stringify({ weight_kg }) }),
+  logBodyWeight: (weight_kg, dateStr) => req("/bodyweight", { method: "POST", body: JSON.stringify({ weight_kg, date: dateStr }) }),
   getBodyWeightLog: (days = 30) => req(`/bodyweight?days=${days}`),
 
   // Analytics - new endpoints (new)
@@ -306,6 +313,26 @@ export const api = {
   generateAthleteAiReport: (athleteId, payload) => req(`/coach/athlete/${athleteId}/ai-report`, { method: "POST", body: JSON.stringify(payload) }),
   saveOnboarding: (answers) => req("/onboarding/save", { method: "POST", body: JSON.stringify({ answers }) }),
   getCoachVerificationStatus: () => req("/coach/verification-status"),
+
+  // Generic REST methods
+  get: (path) => req(path, { method: "GET" }),
+  post: (path, body, opts = {}) => {
+    const isFormData = body instanceof FormData;
+    return req(path, {
+      method: "POST",
+      body: isFormData ? body : (typeof body === "string" || !body ? body : JSON.stringify(body)),
+      ...opts
+    });
+  },
+  delete: (path) => req(path, { method: "DELETE" }),
+
+  // Community Events
+  getEvents: (eventType = "all") => req(`/events${eventType && eventType !== "all" ? `?event_type=${eventType}` : ""}`),
+  registerEvent: (eventId) => req(`/events/${eventId}/register`, { method: "POST" }),
+  unregisterEvent: (eventId) => req(`/events/${eventId}/unregister`, { method: "POST" }),
+  createEvent: (payload) => req("/events", { method: "POST", body: JSON.stringify(payload) }),
+  deleteEvent: (eventId) => req(`/events/${eventId}`, { method: "DELETE" }),
+  uploadEventPoster: (formData) => req("/events/upload-poster", { method: "POST", body: formData }),
 };
 
 

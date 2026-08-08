@@ -669,11 +669,20 @@ export default function LogWorkout({ onSaved }) {
     api.getPlans().then(plans => setUserPlans(plans.filter(p => p.is_custom))).catch(() => { });
   }, []);
 
-  const handleViewDetail = (blockIdx) => {
+  const handleViewDetail = async (blockIdx) => {
     const block = blocks[blockIdx];
     if (!block || !block.exercise_name) return;
-    const ex = block.fullDetail || exerciseMap[block.exercise_name] || { name: block.exercise_name };
-    setDetailExercise({ ...ex, blockIdx });
+    let ex = block.fullDetail || exerciseMap[block.exercise_name];
+    if (!ex || (!ex.gif_url && !ex.video_url && !ex.instructions && !ex.image_url)) {
+      try {
+        const fetched = await api.lookupExercise(block.exercise_name);
+        if (fetched) {
+          ex = fetched;
+          setBlocks(b => b.map((bl, i) => i === blockIdx ? { ...bl, fullDetail: fetched, exercise_name: fetched.name || bl.exercise_name } : bl));
+        }
+      } catch (err) { }
+    }
+    setDetailExercise({ ...(ex || { name: block.exercise_name }), blockIdx });
   };
 
   const handleUnitChange = (index, newUnit) => {
@@ -724,6 +733,25 @@ export default function LogWorkout({ onSaved }) {
     setSelectedBlockIdx(null);
   };
 
+  const resolveBlocksCatalogDetails = (blocksList) => {
+    blocksList.forEach((b, idx) => {
+      if (b.exercise_name) {
+        api.lookupExercise(b.exercise_name)
+          .then(full => {
+            if (full) {
+              setBlocks(prev => prev.map((bl, i) => i === idx ? {
+                ...bl,
+                exercise_name: full.name || bl.exercise_name,
+                fullDetail: full,
+                unit: full.unit || getSyncItem(`weight_unit_${full.id}`) || "kg"
+              } : bl));
+            }
+          })
+          .catch(() => { });
+      }
+    });
+  };
+
   const handleLoadTemplate = (exercises, templateName) => {
     if (templateName) {
       setName("Custom");
@@ -754,6 +782,7 @@ export default function LogWorkout({ onSaved }) {
       };
     });
     setBlocks(newBlocks);
+    resolveBlocksCatalogDetails(newBlocks);
   };
 
   const handleLoadPlan = (plan, session) => {
@@ -778,18 +807,20 @@ export default function LogWorkout({ onSaved }) {
     }));
 
     setBlocks(newBlocks);
+    resolveBlocksCatalogDetails(newBlocks);
     setLoadedPlan(plan);
     setPlanPickerOpen(false);
   };
 
   // Load plan from recommendation if passed via navigation
   useEffect(() => {
+    let prefilledList = [];
     if (location.state?.prefill) {
       const { workout_name, exercises } = location.state.prefill;
       setName("Custom");
       setCustom(workout_name);
       setPrefillSource(workout_name);
-      setBlocks(exercises.map((ex, i) => {
+      prefilledList = exercises.map((ex, i) => {
         const setCount = ex.sets?.length || 0;
         return {
           id: Date.now() + i,
@@ -797,7 +828,8 @@ export default function LogWorkout({ onSaved }) {
           restTimers: Array(Math.max(0, setCount - 1)).fill("1m30"),
           sets: ex.sets,
         };
-      }));
+      });
+      setBlocks(prefilledList);
     } else if (location.state?.plan && location.state?.session) {
       const plan = location.state.plan;
       const session = location.state.session;
@@ -806,9 +838,10 @@ export default function LogWorkout({ onSaved }) {
       setCustom(`${plan.name} — ${session.label}`);
       setPrefillSource(`${plan.name} — ${session.label}`);
 
-      const newBlocks = session.exercises.map(ex => ({
+      prefilledList = session.exercises.map((ex, i) => ({
+        id: Date.now() + i,
         exercise_name: ex.name,
-        restTimers: Array(2).fill("1m30"), // 3 sets -> 2 gaps
+        restTimers: Array(2).fill("1m30"),
         sets: Array(3).fill(null).map(() => {
           const repsStr = String(ex.reps).includes("-")
             ? ex.reps.split("-")[0]
@@ -822,8 +855,12 @@ export default function LogWorkout({ onSaved }) {
         })
       }));
 
-      setBlocks(newBlocks);
+      setBlocks(prefilledList);
       setLoadedPlan(plan);
+    }
+
+    if (prefilledList.length > 0) {
+      resolveBlocksCatalogDetails(prefilledList);
     }
   }, []);
 

@@ -9,6 +9,8 @@ import { AuthContext, useAuthProvider } from "./utils/auth";
 import { useAuth } from "./utils/auth";
 
 import IdentityPanel from "./components/layout/IdentityPanel";
+import MainSidebar from "./components/layout/MainSidebar";
+import MainHeader from "./components/layout/MainHeader";
 import SubNav from "./components/layout/SubNav";
 import BottomNav from "./components/layout/BottomNav";
 import ErrorBoundary from "./components/common/ErrorBoundary";
@@ -22,6 +24,7 @@ import FlowerBackground from "./components/backgrounds/FlowerBackground";
 import LeafBackground from "./components/backgrounds/LeafBackground";
 import NightBackground from "./components/backgrounds/NightBackground";
 import SkyBackground from "./components/backgrounds/SkyBackground";
+import MainBackground from "./components/backgrounds/MainBackground";
 import MonochromeBackground from "./components/backgrounds/MonochromeBackground";
 import HpiChat from "./components/HpiChat/HpiChat";
 import IncomingCallListener from "./components/video/IncomingCallListener";
@@ -106,11 +109,15 @@ function AppShell() {
     );
   }
 
+  const { theme, previewTheme } = useTheme();
+  const activeTheme = previewTheme || theme;
+  const isMainArchitecture = activeTheme === 'main' || activeTheme === 'dark';
+
   return (
     <div className="app-shell">
-      <IdentityPanel />
+      {isMainArchitecture ? <MainSidebar /> : <IdentityPanel />}
       <main className="main-content">
-        <SubNav />
+        {isMainArchitecture ? <MainHeader /> : <SubNav />}
         <PageWrap>
           <Suspense fallback={<PageLoader />}>
             <ErrorBoundary title="Page Error" message="This page encountered an error. Try refreshing." fullPage>
@@ -137,7 +144,7 @@ function AppShell() {
             </ErrorBoundary>
           </Suspense>
         </PageWrap>
-        <BottomNav />
+        {activeTheme !== 'main' && <BottomNav />}
       </main>
     </div>
   );
@@ -187,6 +194,7 @@ export default function App() {
               <LeafBackground />
               <NightBackground />
               <SkyBackground />
+              <MainBackground />
               <MonochromeBackground />
               <ThemeOverlays />
             </>
@@ -238,8 +246,15 @@ function AppContent() {
             backdrop-filter: blur(12px) !important;
             -webkit-backdrop-filter: blur(12px) !important;
           }
-          .input-base, .themed-input, input[type="text"], input[type="number"], select {
+          .input-base, .themed-input, input[type="text"]:not(.main-search-input), input[type="number"]:not(.main-search-input), select {
             border: 1.5px solid var(--border-input) !important;
+          }
+          .main-search-input {
+            border: none !important;
+            border-style: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
           }
           hr {
             border-top: 1.5px solid var(--border-card) !important;

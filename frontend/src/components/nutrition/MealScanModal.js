@@ -218,7 +218,7 @@ export default function MealScanModal({ onClose, onLog }) {
       display: "flex", 
       justifyContent: "center", 
       alignItems: "center",
-      background: "rgba(0, 0, 0, 0.8)",
+      background: "var(--overlay-bg, rgba(0, 0, 0, 0.8))",
       backdropFilter: "blur(14px)",
       WebkitBackdropFilter: "blur(14px)"
     }}>
@@ -228,10 +228,10 @@ export default function MealScanModal({ onClose, onLog }) {
         maxHeight: "88vh", 
         overflowY: "auto",
         borderRadius: 22, 
-        border: "1px solid rgba(255, 255, 255, 0.15)",
-        background: "#0c1017",
+        border: "1px solid var(--border-card)",
+        background: "var(--bg-card)",
         padding: 18,
-        boxShadow: "0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(0, 242, 254, 0.15)"
+        boxShadow: "var(--shadow-raise)"
       }}>
 
         {/* Modal Top Header Bar */}
@@ -239,22 +239,22 @@ export default function MealScanModal({ onClose, onLog }) {
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ 
               width: 34, height: 34, borderRadius: 10, 
-              background: "linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(186, 85, 211, 0.2))",
-              border: "1px solid rgba(0, 242, 254, 0.3)",
-              display: "flex", justifyContent: "center", alignItems: "center", color: "#00f2fe"
+              background: "color-mix(in srgb, var(--aura-accent) 15%, transparent)",
+              border: "1px solid var(--color-border)",
+              display: "flex", justifyContent: "center", alignItems: "center", color: "var(--aura-accent)"
             }}>
               <Camera size={18} />
             </div>
             <div>
-              <h2 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: "#fff", letterSpacing: "-0.3px" }}>
-                Aura Vision Transformer
+              <h2 style={{ fontSize: 16, fontWeight: 800, margin: 0, color: "var(--color-text)", letterSpacing: "-0.3px" }}>
+                AI Photo Meal Scanner
               </h2>
-              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
-                <ShieldCheck size={12} color="#00f2fe" /> AI Nutrition Vision Analysis
+              <div style={{ fontSize: 11, color: "var(--color-text-3)", marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
+                <ShieldCheck size={12} color="var(--aura-accent)" /> AI Nutrition Vision Analysis
               </div>
             </div>
           </div>
-          <button onClick={() => { stopCamera(); onClose(); }} style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", padding: 4 }}>
+          <button onClick={() => { stopCamera(); onClose(); }} style={{ background: "none", border: "none", color: "var(--color-text-3)", cursor: "pointer", padding: 4 }}>
             <X size={22} />
           </button>
         </div>
@@ -301,10 +301,10 @@ export default function MealScanModal({ onClose, onLog }) {
                 onClick={capturePhoto}
                 style={{
                   flex: 2, padding: "12px", borderRadius: 12,
-                  background: "linear-gradient(135deg, #00f2fe 0%, #ba55d3 100%)",
-                  border: "none", color: "#fff", fontWeight: 800, fontSize: 13,
+                  background: "var(--aura-accent)",
+                  border: "none", color: "var(--color-on-accent)", fontWeight: 800, fontSize: 13,
                   cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center", gap: 8,
-                  boxShadow: "0 4px 15px rgba(0, 242, 254, 0.4)"
+                  boxShadow: "0 4px 15px color-mix(in srgb, var(--aura-accent) 30%, transparent)"
                 }}
               >
                 <Camera size={18} /> Snap Photo & Run AI Vision Scan
@@ -320,24 +320,24 @@ export default function MealScanModal({ onClose, onLog }) {
               onClick={startCamera}
               style={{
                 width: "100%", padding: "20px", borderRadius: 16,
-                background: "linear-gradient(135deg, rgba(0, 242, 254, 0.15) 0%, rgba(186, 85, 211, 0.15) 100%)",
-                border: "2px solid #00f2fe", color: "#fff", cursor: "pointer",
+                background: "color-mix(in srgb, var(--aura-accent) 12%, var(--bg-card))",
+                border: "2px solid var(--aura-accent)", color: "var(--color-text)", cursor: "pointer",
                 display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
                 transition: "all 0.2s ease"
               }}
             >
               <div style={{
                 width: 52, height: 52, borderRadius: "50%",
-                background: "linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)",
-                display: "flex", justifyContent: "center", alignItems: "center", color: "#000"
+                background: "var(--aura-accent)",
+                display: "flex", justifyContent: "center", alignItems: "center", color: "var(--color-on-accent)"
               }}>
                 <Camera size={26} />
               </div>
-              <span style={{ fontSize: 16, fontWeight: 800, color: "#fff" }}>
+              <span style={{ fontSize: 16, fontWeight: 800, color: "var(--color-text)" }}>
                 Open Live Vision Camera
               </span>
-              <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
-                Point camera at meal & snap photo for instant AI Vision Transformer analysis
+              <span style={{ fontSize: 12, color: "var(--color-text-2)" }}>
+                Point camera at meal & snap photo for instant AI analysis
               </span>
             </button>
 
@@ -411,7 +411,7 @@ export default function MealScanModal({ onClose, onLog }) {
                   animation: "spin 1s linear infinite"
                 }} />
                 <span style={{ fontSize: 13, fontWeight: 700, color: "#fff", textShadow: "0 2px 4px rgba(0,0,0,0.8)" }}>
-                  Aura AI Vision Transformer Analyzing Components...
+                  Analyzing Meal Components with AI...
                 </span>
               </div>
             </div>
@@ -610,10 +610,10 @@ export default function MealScanModal({ onClose, onLog }) {
                 disabled={logging}
                 style={{
                   flex: 2, padding: "13px", borderRadius: 12,
-                  background: "linear-gradient(135deg, #00f2fe 0%, #38bdf8 100%)",
-                  border: "none", color: "#0d1117", fontWeight: 800, fontSize: 13.5,
+                  background: "var(--aura-accent)",
+                  border: "none", color: "var(--color-on-accent)", fontWeight: 800, fontSize: 13.5,
                   cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center", gap: 6,
-                  boxShadow: "0 4px 15px rgba(0, 242, 254, 0.3)"
+                  boxShadow: "0 4px 15px color-mix(in srgb, var(--aura-accent) 30%, transparent)"
                 }}
               >
                 <Check size={16} /> {logging ? "Logging..." : `Log to ${selectedCategory}`}

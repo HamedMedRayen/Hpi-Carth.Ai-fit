@@ -87,6 +87,22 @@ def get_current_user_id(current=Depends(get_current_user)) -> int:
     return uid
 
 
+def get_optional_user_id(
+    creds: Optional[HTTPAuthorizationCredentials] = Depends(bearer),
+    db: psycopg2.extensions.connection = Depends(get_db),
+) -> Optional[int]:
+    if not creds:
+        return None
+    try:
+        payload = decode_token(creds.credentials)
+        if not payload:
+            return None
+        auth_id = payload.get("auth_id")
+        return get_user_id_for_auth(db, auth_id)
+    except Exception:
+        return None
+
+
 # ── Routes ────────────────────────────────────────────────────
 
 @router.post("/register", response_model=AuthResponse, status_code=201)

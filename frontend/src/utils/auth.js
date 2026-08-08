@@ -18,6 +18,7 @@ export function useAuthProvider() {
           role: res.role, 
           avatar_url: res.avatar_url,
           onboarding_completed: res.onboarding_completed ?? res.profile?.onboarding_completed ?? false,
+          onboarding_data: res.profile?.onboarding_data || res.onboarding_data || {},
           profile: res.profile 
         };
         token.setUser(userData);
@@ -136,7 +137,9 @@ export function useAuthProvider() {
       const newUser = { 
         ...user, 
         ...res, 
+        user_id: user?.user_id || user?.id || res?.user_id || res?.id,
         onboarding_completed: res?.onboarding_completed ?? data?.onboarding_completed ?? user?.onboarding_completed ?? true,
+        onboarding_data: res?.onboarding_data || data?.onboarding_data || user?.onboarding_data || {},
         profile: { ...user?.profile, ...res }
       };
       token.setUser(newUser);

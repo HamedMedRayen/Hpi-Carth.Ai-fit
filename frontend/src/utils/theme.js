@@ -3,7 +3,7 @@ import { getItem, setItem } from "./storage";
 import { Capacitor } from "@capacitor/core";
 
 // Web themes
-const WEB_THEMES = ["dark", "light", "nature", "fire", "queen", "monochrome", "cyberpunk"];
+const WEB_THEMES = ["dark", "light", "main", "nature", "fire", "queen", "monochrome", "cyberpunk"];
 // Mobile themes restricted to these three
 const MOBILE_THEMES = ["dark", "light", "queen"];
 
@@ -73,10 +73,7 @@ export function useThemeProvider() {
   };
 
   const toggle = () => {
-    // Determine the current index in the appropriate list
-    const currentIndex = activeThemesList.indexOf(theme);
-    // If somehow the theme isn't in the list, default to index -1 -> next will be 0
-    const nextTheme = activeThemesList[(currentIndex + 1) % activeThemesList.length];
+    const nextTheme = theme === "dark" ? "main" : "dark";
     setTheme(nextTheme);
   };
 

@@ -512,18 +512,18 @@ export default function MobileNutrition() {
                 width: 44, 
                 height: 44, 
                 borderRadius: 12, 
-                background: "linear-gradient(135deg, #00f2fe, #ba55d3)", 
+                background: "var(--aura-accent)", 
                 display: "flex", 
                 justifyContent: "center", 
                 alignItems: "center", 
-                color: "#fff",
-                boxShadow: "0 4px 12px rgba(0, 242, 254, 0.3)"
+                color: "var(--color-on-accent)",
+                boxShadow: "0 4px 12px color-mix(in srgb, var(--aura-accent) 30%, transparent)"
               }}>
                 <Camera size={22} />
               </div>
               <div>
-                <h3 style={{ fontSize: 15, fontWeight: 900, margin: 0, color: "#fff" }}>AI Vision Meal Scan</h3>
-                <p style={{ fontSize: 11, color: "var(--aura-cyan)", margin: "2px 0 0", fontWeight: 700 }}>
+                <h3 style={{ fontSize: 15, fontWeight: 900, margin: 0, color: "var(--color-text)" }}>AI Vision Meal Scan</h3>
+                <p style={{ fontSize: 11, color: "var(--aura-accent)", margin: "2px 0 0", fontWeight: 700 }}>
                   Snap photo for instant AI macro breakdown
                 </p>
               </div>
@@ -533,8 +533,8 @@ export default function MobileNutrition() {
               style={{
                 padding: "8px 14px",
                 borderRadius: 10,
-                background: "#00f2fe",
-                color: "#000",
+                background: "var(--aura-accent)",
+                color: "var(--color-on-accent)",
                 fontWeight: 900,
                 fontSize: 12,
                 border: "none",
@@ -547,14 +547,14 @@ export default function MobileNutrition() {
           </div>
 
           {/* AI Assistant Natural Language with Obligatory Category selector */}
-          <div className="mobile-card" style={{ padding: "14px", marginBottom: 14, border: "1px solid rgba(0, 242, 254, 0.25)", background: "rgba(13, 17, 23, 0.7)" }}>
-            <h3 style={{ fontSize: 13, fontWeight: 800, color: "#fff", margin: "0 0 8px", display: "flex", alignItems: "center", gap: 6 }}>
-              <Brain size={16} color="#00f2fe" /> AI Nutrition Text Assistant
+          <div className="mobile-card" style={{ padding: "14px", marginBottom: 14 }}>
+            <h3 style={{ fontSize: 13, fontWeight: 800, color: "var(--color-text)", margin: "0 0 8px", display: "flex", alignItems: "center", gap: 6 }}>
+              <Brain size={16} color="var(--aura-accent)" /> AI Nutrition Text Assistant
             </h3>
             
             {/* Obligatory Meal Category Selector */}
             <div style={{ marginBottom: 8 }}>
-              <label style={{ fontSize: 10, fontWeight: 700, color: "var(--aura-cyan)", textTransform: "uppercase", marginBottom: 4, display: "block" }}>
+              <label style={{ fontSize: 10, fontWeight: 700, color: "var(--aura-accent)", textTransform: "uppercase", marginBottom: 4, display: "block" }}>
                 Select Meal Section (Obligatory)
               </label>
               <div style={{ display: "flex", gap: 4 }}>
@@ -568,10 +568,10 @@ export default function MobileNutrition() {
                       borderRadius: 8,
                       fontSize: 11,
                       fontWeight: 800,
-                      border: "none",
+                      border: "1px solid var(--color-border)",
                       cursor: "pointer",
-                      background: targetCategory === cat ? "var(--aura-cyan)" : "rgba(255,255,255,0.06)",
-                      color: targetCategory === cat ? "#000" : "#aaa"
+                      background: targetCategory === cat ? "var(--aura-accent)" : "var(--color-surface)",
+                      color: targetCategory === cat ? "var(--color-on-accent)" : "var(--color-text-2)"
                     }}
                   >
                     {cat}
@@ -585,7 +585,7 @@ export default function MobileNutrition() {
                 type="text"
                 className="themed-input"
                 placeholder={`Describe meal for ${targetCategory}...`}
-                style={{ flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 10, padding: "8px 10px", color: "#fff", fontSize: 12, outline: "none" }}
+                style={{ flex: 1, borderRadius: 10, padding: "8px 10px", fontSize: 12, outline: "none" }}
                 value={scanInput}
                 onChange={(e) => setScanInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleScan(); }}
@@ -593,7 +593,7 @@ export default function MobileNutrition() {
               <button 
                 onClick={handleScan}
                 disabled={scanningText}
-                style={{ background: "linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)", color: "#000", border: "none", borderRadius: 10, padding: "0 12px", fontWeight: 800, fontSize: 11, cursor: "pointer", opacity: scanningText ? 0.7 : 1 }}
+                style={{ background: "var(--aura-accent)", color: "var(--color-on-accent)", border: "none", borderRadius: 10, padding: "0 12px", fontWeight: 800, fontSize: 11, cursor: "pointer", opacity: scanningText ? 0.7 : 1 }}
               >
                 <Sparkles size={12} /> {scanningText ? "Analyzing..." : "Ask AI"}
               </button>

@@ -383,7 +383,7 @@ def scan_meal(payload: ScanRequest, user_id: int = Depends(get_current_user_id),
     groq_api_key = os.getenv("GROQ_API_KEY")
     if not groq_api_key:
         # Fallback to a simple estimation if API key is missing, or just error
-        raise HTTPException(status_code=500, detail="GROQ_API_KEY not configured")
+        raise HTTPException(status_code=500, detail="AI service is not configured")
         
     client = Groq(api_key=groq_api_key)
     prompt = """You are a nutrition expert. The user will describe a meal.
@@ -434,7 +434,7 @@ def scan_meal_vision(payload: ScanVisionRequest, user_id: int = Depends(get_curr
     
     groq_api_key = os.getenv("GROQ_API_KEY")
     if not groq_api_key:
-        raise HTTPException(status_code=500, detail="GROQ_API_KEY not configured")
+        raise HTTPException(status_code=500, detail="AI service is not configured")
         
     img_b64 = payload.image_base64
     if "," in img_b64:
@@ -600,7 +600,6 @@ Ensure 'totals' is the exact mathematical sum of all components."""
         "description": description,
         "components": components,
         "totals": totals,
-        "model_used": GROQ_VISION_MODEL,
         "logged_record": logged_record
     }
 

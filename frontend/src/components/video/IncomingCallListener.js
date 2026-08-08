@@ -132,8 +132,17 @@ export default function IncomingCallListener() {
             <div className="incoming-call-avatar-wrap">
               <div className="pulse-ring"></div>
               <div className="pulse-ring-outer"></div>
-              <div className="avatar-box">
-                <User size={32} color="#6366f1" />
+              <div className="avatar-box" style={{ overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {incomingCall.callerAvatar ? (
+                  <img
+                    src={incomingCall.callerAvatar}
+                    alt={incomingCall.callerName || 'Caller'}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                  />
+                ) : (
+                  <User size={32} color="#6366f1" />
+                )}
               </div>
             </div>
 

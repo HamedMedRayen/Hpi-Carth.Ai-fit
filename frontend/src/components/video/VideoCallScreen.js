@@ -8,7 +8,7 @@ import {
   ParticipantView,
   useCall,
 } from '@stream-io/video-react-sdk';
-import { Mic, MicOff, Video as VideoIcon, VideoOff, PhoneOff, User } from 'lucide-react';
+import { Mic, MicOff, Video as VideoIcon, VideoOff, PhoneOff, User, RefreshCw } from 'lucide-react';
 import '@stream-io/video-react-sdk/dist/css/styles.css';
 import './VideoCallModal.css';
 import { getApiBaseUrl } from '../../utils/config';
@@ -59,6 +59,24 @@ const CustomCallUI = ({ onCallEnd, title, recipientName = 'Participant' }) => {
   const toggleCam = async () => {
     try { if (call) await call.camera.toggle(); }
     catch (e) { console.error('[CALL_UI] cam error:', e); }
+  };
+
+  const switchCamera = async () => {
+    if (!call) return;
+    try {
+      if (typeof call.camera.flip === 'function') {
+        await call.camera.flip();
+      } else {
+        const devices = await call.camera.listDevices();
+        if (devices && devices.length > 1) {
+          const currentDevice = call.camera.state.selectedDevice;
+          const nextDevice = devices.find(d => d.deviceId !== currentDevice) || devices[0];
+          await call.camera.selectDevice(nextDevice.deviceId);
+        }
+      }
+    } catch (e) {
+      console.error('[CALL_UI] Camera switch error:', e);
+    }
   };
 
   if (callingState !== CallingState.JOINED) {
@@ -138,6 +156,10 @@ const CustomCallUI = ({ onCallEnd, title, recipientName = 'Participant' }) => {
             {isCamMuted ? <VideoOff size={20} /> : <VideoIcon size={20} />}
             <span>{isCamMuted ? 'Cam Off' : 'Cam On'}</span>
           </button>
+          <button className="control-btn active" onClick={switchCamera} title="Switch Camera (Front/Back/Webcam)">
+            <RefreshCw size={20} />
+            <span>Flip Cam</span>
+          </button>
           <button className="control-btn btn-end-call" onClick={onCallEnd} title="End Call">
             <PhoneOff size={20} />
             <span>End Call</span>
@@ -156,6 +178,7 @@ export const VideoCallScreen = ({
   coachId,
   currentUserId,
   currentUserName = 'User',
+  currentUserAvatar = null,
   userRole = 'athlete',
   mode = 'caller',
   onCallEnd,
@@ -172,6 +195,8 @@ export const VideoCallScreen = ({
   const isMountedRef = useRef(true);
   const clientRef = useRef(null);
   const callRef = useRef(null);
+  const callStartTimeRef = useRef(null);
+  const handleEndCallRef = useRef(null);
 
   const callId = `athlete-${athleteId}-coach-${coachId}`;
   const apiKey =
@@ -214,78 +239,42 @@ export const VideoCallScreen = ({
     hasInitializedRef.current = true;
 
     const init = async () => {
+      const resolvedUserId = String(currentUserId || token.userId() || athleteId || 'user');
+      console.log(`[${ts()}][${mode.toUpperCase()}_INIT] START for user "${resolvedUserId}"...`);
+
       try {
-        setLoading(true);
-        setError(null);
-
-        const resolvedUserId = String(
-          currentUserId || token.userId() || (userRole === 'coach' ? coachId : athleteId) || 'user'
-        );
-        const authToken = token.get() || localStorage.getItem('token') || '';
         const apiBase = getApiBaseUrl();
-
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] userId="${resolvedUserId}" athleteId="${athleteId}" coachId="${coachId}" callId="${callId}"`);
-
-        // STEP 1: Fetch Stream token
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] STEP 1: Fetching token...`);
-        const res = await withTimeout(
-          fetch(`${apiBase}/stream/token`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: authToken ? `Bearer ${authToken}` : '',
-            },
-            body: JSON.stringify({
-              userId: resolvedUserId,
-              role: userRole,
-              athleteId: String(athleteId),
-              coachId: String(coachId),
-            }),
-          }),
-          15000, 'Fetch token'
+        const tokenRes = await withTimeout(
+          fetch(`${apiBase}/stream/token?user_id=${resolvedUserId}`),
+          10000, 'Fetch Stream token'
         );
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.detail || errData.error || `Token server returned ${res.status}`);
+        if (!tokenRes.ok) {
+          throw new Error(`Token endpoint returned ${tokenRes.status}`);
         }
-        const data = await res.json();
-        if (!data.token) throw new Error('No token returned from backend.');
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] STEP 1 ✅ Token OK`);
+        const tokenData = await tokenRes.json();
+        if (!tokenData.token) throw new Error('No token returned');
 
-        // STEP 2: Create client
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] STEP 2: Creating client...`);
-        const videoClient = new StreamVideoClient({ apiKey });
-
-        // STEP 3: connectUser
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] STEP 3: connectUser("${resolvedUserId}")...`);
-        await withTimeout(
-          videoClient.connectUser(
-            { id: resolvedUserId, name: currentUserName || (userRole === 'coach' ? 'Coach' : 'Athlete') },
-            data.token
-          ),
-          15000, 'connectUser()'
-        );
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] STEP 3 ✅ Connected`);
-
-        // Store in refs immediately so cleanup can access them
+        const videoClient = new StreamVideoClient({
+          apiKey,
+          user: {
+            id: resolvedUserId,
+            name: currentUserName || (userRole === 'coach' ? 'Coach' : 'Athlete'),
+            image: currentUserAvatar || undefined,
+          },
+          token: tokenData.token,
+        });
         clientRef.current = videoClient;
 
-        // STEP 4: Create call reference
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] STEP 4: Creating call ref...`);
         const activeCall = videoClient.call('default', callId);
         callRef.current = activeCall;
 
-        // STEP 5: Join call
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] STEP 5: join({ create: true })...`);
         await withTimeout(activeCall.join({ create: true }), 15000, 'call.join()');
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] STEP 5 ✅ Joined!`);
+        callStartTimeRef.current = Date.now();
 
-        // STEP 6 (CALLER ONLY): Send invite
         if (mode === 'caller') {
           const targetReceiverId = String(
             String(resolvedUserId) === String(athleteId) ? coachId : athleteId
           );
-          console.log(`[${ts()}][CALLER_INIT] STEP 6: Invite → "${targetReceiverId}"...`);
           try {
             await withTimeout(
               fetch(`${apiBase}/stream/invite`, {
@@ -294,6 +283,7 @@ export const VideoCallScreen = ({
                 body: JSON.stringify({
                   callerId: resolvedUserId,
                   callerName: currentUserName || (userRole === 'coach' ? 'Coach' : 'Athlete'),
+                  callerAvatar: currentUserAvatar || null,
                   receiverId: targetReceiverId,
                   athleteId: String(athleteId),
                   coachId: String(coachId),
@@ -301,28 +291,20 @@ export const VideoCallScreen = ({
               }),
               10000, 'Send invite'
             );
-            console.log(`[${ts()}][CALLER_INIT] STEP 6 ✅ Invite sent`);
           } catch (inviteErr) {
             console.warn(`[${ts()}][CALLER_INIT] STEP 6 ⚠️ Non-blocking:`, inviteErr.message);
           }
         }
 
-        // ── SET STATE ──
-        // Use isMountedRef (a ref, not a local var) so it reflects the
-        // CURRENT mount state even after StrictMode unmount+remount.
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] 🎉 DONE. isMounted=${isMountedRef.current}`);
         if (isMountedRef.current) {
           setClient(videoClient);
           setCall(activeCall);
           setLoading(false);
-          console.log(`[${ts()}][${mode.toUpperCase()}_INIT] ✅ State updated — UI should render call.`);
         } else {
-          console.warn(`[${ts()}][${mode.toUpperCase()}_INIT] Component unmounted — skipping state update, cleaning up.`);
           activeCall.leave().catch(() => {});
           videoClient.disconnectUser().catch(() => {});
         }
       } catch (err) {
-        console.error(`[${ts()}][${mode.toUpperCase()}_INIT] ❌ FAILED:`, err.message);
         if (isMountedRef.current) {
           setError(err.message || 'Failed to connect to video call.');
           setLoading(false);
@@ -340,22 +322,34 @@ export const VideoCallScreen = ({
     }
 
     return () => {
-      console.log(`[${ts()}][${mode.toUpperCase()}_CLEANUP] Unmounting.`);
       isMountedRef.current = false;
-      // Don't clean up resources here if init is still running —
-      // the refs are null at this point. The second mount's cleanup
-      // (or the init's own error handler) will handle it.
     };
   }, []);
 
   const handleEndCall = async () => {
     console.log(`[${ts()}][${mode.toUpperCase()}_END] Ending call.`);
+    
+    let durationSeconds = 0;
+    if (callStartTimeRef.current) {
+      durationSeconds = Math.floor((Date.now() - callStartTimeRef.current) / 1000);
+    }
+
     try {
       const apiBase = getApiBaseUrl();
-      await fetch(`${apiBase}/stream/invite/cancel`, {
+      const resolvedUserId = String(currentUserId || athleteId);
+      const targetReceiverId = String(
+        String(resolvedUserId) === String(athleteId) ? coachId : athleteId
+      );
+
+      await fetch(`${apiBase}/stream/call/end_log`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ callId }),
+        body: JSON.stringify({
+          callId,
+          callerId: resolvedUserId,
+          receiverId: targetReceiverId,
+          durationSeconds
+        }),
       });
     } catch (e) {}
 
@@ -369,6 +363,7 @@ export const VideoCallScreen = ({
     }
     if (onCallEnd) onCallEnd();
   };
+  handleEndCallRef.current = handleEndCall;
 
   if (loading) {
     return (

@@ -152,7 +152,7 @@ export default function EditGoalsModal({ currentTargets, onClose, onSave }) {
             <input 
               type="number"
               className="themed-input"
-              style={{ width: "100%", textAlign: "center", fontWeight: 700, background: "rgba(255,255,255,0.05)", color: "#fff", borderRadius: 10, padding: 8 }}
+              style={{ width: "100%", textAlign: "center", fontWeight: 700, borderRadius: 10, padding: 8 }}
               value={water}
               onChange={(e) => setWater(e.target.value)}
             />
@@ -165,8 +165,8 @@ export default function EditGoalsModal({ currentTargets, onClose, onSave }) {
               marginTop: 8,
               padding: "14px",
               borderRadius: 12,
-              background: "linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)",
-              color: "#000",
+              background: "var(--aura-accent)",
+              color: "var(--color-on-accent)",
               fontWeight: 800,
               fontSize: 14,
               border: "none",
