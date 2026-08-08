@@ -39,7 +39,8 @@ const SUB_NAV = {
     { label: 'AI Recommend', path: '/recommend' },
   ],
   coaching: [
-    { label: 'Coach Zone', path: '/coach' }
+    { label: 'Coach Directory', path: '/coach' },
+    { label: 'Community Events', path: '/coach/events' }
   ],
   performance: [
     { label: 'Sessions', path: '/workouts' },
@@ -219,22 +220,12 @@ export default function IdentityPanel() {
                 end={end}
                 className={`id-nav-link${isActive ? ' active' : ''}`}
               >
-                {isActive && <div className="id-nav-indicator" />}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{
-                    width: 30, height: 30, borderRadius: 8,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: isActive ? 'var(--aura-accent)' : 'var(--id-surface)',
-                    border: isActive ? 'none' : '1px solid var(--id-border)',
-                    flexShrink: 0,
-                    transition: 'all 0.2s',
-                  }}>
-                    <Icon size={15} color={isActive ? 'var(--color-on-accent)' : 'var(--id-text-muted)'} />
-                  </div>
+                  <Icon size={16} color={isActive ? 'var(--aura-accent)' : 'var(--id-text-muted)'} style={{ flexShrink: 0 }} />
                   <div>
-                    <div style={{ fontSize: 14, fontWeight: isActive ? 700 : 500 }}>{label}</div>
-                    <div style={{ fontSize: 10, opacity: 0.5, fontWeight: 500, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                      {id === 'command' ? 'Dashboard · AI' : id === 'coaching' ? 'Coaching · Gyms' : id === 'performance' ? 'Train · Log · Atlas' : 'Body · Health'}
+                    <div style={{ fontSize: 13, fontWeight: isActive ? 700 : 500, color: isActive ? 'var(--id-text)' : 'var(--id-text-muted)' }}>{label}</div>
+                    <div style={{ fontSize: 10, opacity: 0.5, fontWeight: 500, letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                      {id === 'command' ? 'Dashboard · AI' : id === 'coaching' ? 'Coaching · Gyms' : id === 'performance' ? 'Train · Log' : 'Body · Health'}
                     </div>
                   </div>
                 </div>
@@ -243,11 +234,11 @@ export default function IdentityPanel() {
           })}
         </nav>
 
-        {/* ── Bottom: Theme switcher + Sign out ── */}
-        <div className="id-bottom">
+        {/* ── Bottom: Settings + Theme + Sign out ── */}
+        <div className="id-bottom" style={{ paddingBottom: 20 }}>
           <div className="id-footer-row">
             <button className="id-settings-btn" onClick={() => navigate('/profile')} title="Settings">
-              <Settings size={18} />
+              <Settings size={16} />
             </button>
 
             <div className="id-theme-orb-wrap">
@@ -255,24 +246,17 @@ export default function IdentityPanel() {
             </div>
 
             <button className="id-logout-btn" onClick={handleLogout} title="Sign out">
-              <LogOut size={18} />
+              <LogOut size={16} />
             </button>
           </div>
 
-          <div className="id-footer-meta">
-            <button
-              className="id-feedback-btn"
-              onClick={() => window.location.href = "mailto:rayenbenhamed1288@gmail.com?subject=HPI App Feedback"}
-            >
-              <MessageCircle size={14} />
-              <span>Send Feedback</span>
-            </button>
+          <div style={{ height: 1, background: 'var(--id-border)', margin: '14px 0 10px' }} />
 
-            <div className="id-status-badge">
-              <div className="id-status-dot" />
-              <span>AI Engine Active</span>
-            </div>
-            <div className="id-version-tag">HPI — HIGH PERFORMANCE INDICATOR</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+            <div className="id-status-dot" />
+            <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--id-text-muted)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+              AI Engine Active
+            </span>
           </div>
         </div>
       </div>

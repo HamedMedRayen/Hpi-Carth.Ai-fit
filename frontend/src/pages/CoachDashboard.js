@@ -1909,10 +1909,8 @@ export default function CoachDashboard() {
   const browseCoaches = coaches.filter(c => !c.status || c.status === 'declined');
 
   return (
-    <div style={{ minHeight: "100vh", paddingBottom: 100, background: "var(--color-bg)" }}>
-      <Header title="Coach Zone" subtitle="Athlete management & analytics" />
-
-      <div className="page-inner" style={{ maxWidth: 1000, margin: "0 auto", display: "flex", flexDirection: "column", gap: 24 }}>
+    <div style={{ minHeight: "100vh", paddingBottom: 60, background: "var(--color-bg)", paddingTop: 24 }}>
+      <div className="page-inner" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
 
         {loading ? (
           <div style={{ textAlign: "center", color: "var(--color-text-3)", padding: 60 }}>
@@ -2150,6 +2148,8 @@ export default function CoachDashboard() {
       )}
     </div>
   </RequireCoachRole>
+) : location.pathname.startsWith("/coach/events") ? (
+  <EventsSection />
 ) : (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             {/* Active Coaches */}

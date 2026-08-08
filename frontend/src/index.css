@@ -2524,7 +2524,7 @@ body {
 
 /* ── IDENTITY PANEL (left) ────────────────────────────────── */
 .identity-panel {
-  width: 320px;
+  width: 260px;
   position: fixed;
   top: 0;
   left: 0;
@@ -2564,8 +2564,8 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 32px 24px;
-  gap: 24px;
+  padding: 24px 16px;
+  gap: 16px;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: none;
@@ -2741,37 +2741,27 @@ body {
 .id-nav-link {
   position: relative;
   display: block;
-  padding: 10px 14px;
+  padding: 8px 12px;
   color: var(--id-text-muted);
   text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 14px;
-  border: 1.5px solid transparent;
+  transition: all 0.2s ease;
+  border-radius: 10px;
+  border-left: 3px solid transparent;
 }
 
 .id-nav-link:hover {
   color: var(--id-text);
   background: var(--id-surface);
-  transform: translateX(4px);
 }
 
 .id-nav-link.active {
   color: var(--id-text);
-  background: var(--id-surface);
-  border-color: var(--id-border);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  background: color-mix(in srgb, var(--aura-accent) 10%, transparent);
+  border-left: 3px solid var(--aura-accent);
 }
 
 .id-nav-indicator {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 3px;
-  height: 34px;
-  background: var(--aura-accent);
-  border-radius: 0 3px 3px 0;
-  box-shadow: 0 0 8px var(--aura-accent);
+  display: none;
 }
 
 .id-bottom {
@@ -2923,7 +2913,7 @@ body {
 /* ── MAIN CONTENT (right) ─────────────────────────────────── */
 .main-content {
   flex: 1;
-  margin-left: 320px;
+  margin-left: 260px;
   min-height: 100dvh;
   max-width: 100%;
   background: var(--right-bg);
@@ -3107,9 +3097,10 @@ body {
 
 /* Page inner max-width */
 .page-inner {
-  max-width: 960px;
+  width: 100%;
+  max-width: 1380px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 0 32px;
 }
 
 /* Desktop 2-col grid */
