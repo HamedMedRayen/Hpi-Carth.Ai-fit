@@ -527,7 +527,7 @@ export default function ScheduleSection() {
           <div style={{ overflowX: "auto" }}>
             <div style={{ minWidth: 760 }}>
               {/* Header Days Row */}
-              <div style={{ display: "grid", gridTemplateColumns: "60px repeat(7, 1fr)", gap: 6, marginBottom: 8 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "60px repeat(7, minmax(0, 1fr))", gap: 6, marginBottom: 8 }}>
                 <div style={{ fontSize: 10, fontWeight: 700, color: "var(--color-text-3)", padding: "6px 4px" }}>TIME</div>
                 {weekDays.map((d, idx) => {
                   const isToday = formatDateStr(d) === formatDateStr(new Date());
@@ -539,7 +539,9 @@ export default function ScheduleSection() {
                         border: isToday ? "1px solid var(--aura-cyan)" : "1px solid var(--border-card)",
                         borderRadius: 10,
                         padding: "6px 4px",
-                        textAlign: "center"
+                        textAlign: "center",
+                        minWidth: 0,
+                        overflow: "hidden"
                       }}
                     >
                       <div style={{ fontSize: 10, fontWeight: 700, color: isToday ? "var(--aura-cyan)" : "var(--color-text-3)", textTransform: "uppercase" }}>
@@ -556,7 +558,7 @@ export default function ScheduleSection() {
               {/* Scrollable Time Slots Grid Rows */}
               <div style={{ display: "flex", flexDirection: "column", gap: 4, maxHeight: 460, overflowY: "auto", paddingRight: 4 }}>
                 {HOURS.map(hour => (
-                  <div key={hour} style={{ display: "grid", gridTemplateColumns: "60px repeat(7, 1fr)", gap: 6, minHeight: 46 }}>
+                  <div key={hour} style={{ display: "grid", gridTemplateColumns: "60px repeat(7, minmax(0, 1fr))", gap: 6, minHeight: 46 }}>
                     <div style={{ fontSize: 10, fontWeight: 700, color: "var(--color-text-3)", paddingTop: 6 }}>
                       {hour}
                     </div>
@@ -575,7 +577,9 @@ export default function ScheduleSection() {
                             padding: 3,
                             cursor: slotItems.length === 0 ? "pointer" : "default",
                             position: "relative",
-                            transition: "background 0.2s ease"
+                            transition: "background 0.2s ease",
+                            minWidth: 0,
+                            overflow: "hidden"
                           }}
                           onMouseEnter={e => {
                             if (slotItems.length === 0) e.currentTarget.style.background = "rgba(6, 182, 212, 0.05)";
@@ -595,6 +599,10 @@ export default function ScheduleSection() {
                             const borderColor = isBlock ? "#10b981" : isEvent ? "#8b5cf6" : "var(--aura-cyan)";
                             const textColor = isBlock ? "#34d399" : isEvent ? "#c084fc" : "#38bdf8";
 
+                            const displayTitle = item.title
+                              ? item.title.replace(/^Community Event:\s*/i, "")
+                              : "Event";
+
                             return (
                               <div
                                 key={item.id}
@@ -610,18 +618,20 @@ export default function ScheduleSection() {
                                   marginBottom: 2,
                                   cursor: "pointer",
                                   fontSize: 10,
-                                  boxShadow: "0 2px 6px rgba(0,0,0,0.2)"
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+                                  minWidth: 0,
+                                  overflow: "hidden"
                                 }}
                               >
                                 <div style={{ fontWeight: 800, color: textColor, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                                  {item.title}
+                                  {isEvent ? `Event: ${displayTitle}` : displayTitle}
                                 </div>
-                                <div style={{ fontSize: 9, color: "var(--color-text-2)", marginTop: 1, display: "flex", alignItems: "center", gap: 3 }}>
-                                  <Clock size={9} /> {formatTime12h(item.start_time)} - {formatTime12h(item.end_time)}
+                                <div style={{ fontSize: 9, color: "var(--color-text-2)", marginTop: 1, display: "flex", alignItems: "center", gap: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                  <Clock size={9} flexShrink={0} /> {formatTime12h(item.start_time)} - {formatTime12h(item.end_time)}
                                 </div>
                                 {item.athlete_name && (
-                                  <div style={{ fontSize: 9, color: "#fff", fontWeight: 700, marginTop: 1, display: "flex", alignItems: "center", gap: 3 }}>
-                                    <Users size={9} /> {item.athlete_name}
+                                  <div style={{ fontSize: 9, color: "#fff", fontWeight: 700, marginTop: 1, display: "flex", alignItems: "center", gap: 3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                    <Users size={9} flexShrink={0} /> {item.athlete_name}
                                   </div>
                                 )}
                               </div>
@@ -638,14 +648,14 @@ export default function ScheduleSection() {
         ) : (
           /* MONTH VIEW GRID */
           <div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6, marginBottom: 6, textAlign: "center" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6, marginBottom: 6, textAlign: "center" }}>
               {["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"].map(day => (
                 <div key={day} style={{ fontSize: 10, fontWeight: 800, color: "var(--color-text-3)", padding: 4 }}>
                   {day}
                 </div>
               ))}
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 6 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: 6 }}>
               {monthGrid.map((cell, idx) => {
                 const dateStr = formatDateStr(cell.date);
                 const dayItems = getItemsForDate(dateStr);
