@@ -100,6 +100,16 @@ async def lifespan(app: FastAPI):
             log.warning(f"[SEED] Default user warning: {str(e)[:100]}")
             user_id = 1
 
+        # 6b. Seed synthetic events & registrations
+        try:
+            conn = get_fresh_conn(conn)
+            from database import seed_synthetic_events
+            seed_synthetic_events(conn)
+            conn.commit()
+            log.info("[SEED] Coach synthetic events seeding verified.")
+        except Exception as e:
+            log.warning(f"[SEED] Synthetic events warning: {str(e)[:100]}")
+
         # 7. Auto-ingest CSV
         try:
             conn = get_fresh_conn(conn)
@@ -249,6 +259,7 @@ def create_app() -> FastAPI:
     from routes.coach_chat     import router as coach_chat_router
     from routes.coach_schedule import router as coach_schedule_router
     from routes.coach_ai_report import router as coach_ai_report_router
+    from routes.events          import router as events_router
     from routes.onboarding     import router as onboarding_router
     from routes.video_call      import router as video_call_router
 
@@ -275,6 +286,7 @@ def create_app() -> FastAPI:
     app.include_router(sleep_router,        prefix=f"{API}/sleep")
     app.include_router(injuries_router,     prefix=f"{API}/injuries")
     app.include_router(coach_router,        prefix=f"{API}/coach")
+    app.include_router(events_router,       prefix=f"{API}/events")
     app.include_router(challenges_router,   prefix=API)
     app.include_router(notifications_router, prefix=API)
     app.include_router(coach_chat_router,     prefix=API)

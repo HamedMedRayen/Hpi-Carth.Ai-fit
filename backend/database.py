@@ -512,9 +512,36 @@ CREATE TABLE IF NOT EXISTS coach_schedule_items (
 CREATE INDEX IF NOT EXISTS idx_coach_schedule_coach_dates ON coach_schedule_items(coach_id, start_time, end_time);
 CREATE INDEX IF NOT EXISTS idx_coach_schedule_athlete ON coach_schedule_items(athlete_id, start_time);
 
--- ALTER TABLE custom_exercises ENABLE ROW LEVEL SECURITY;
--- CREATE POLICY custom_exercises_own ON custom_exercises FOR ALL
---   USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+-- ── Coach Community Events & Masterclasses ──────────────────
+CREATE TABLE IF NOT EXISTS events (
+    id               BIGSERIAL PRIMARY KEY,
+    coach_id         BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    title            TEXT NOT NULL,
+    description      TEXT,
+    event_type       TEXT DEFAULT 'workshop', -- 'bootcamp', 'webinar', 'group_workout', 'qa_session', 'workshop'
+    event_date       TIMESTAMPTZ NOT NULL,
+    duration_minutes INT DEFAULT 60,
+    location_type    TEXT DEFAULT 'online', -- 'online', 'in_person'
+    location_detail  TEXT,
+    max_participants INT DEFAULT 20,
+    cost_tnd         REAL DEFAULT 0.0,
+    target_audience  TEXT DEFAULT 'public', -- 'public', 'adherents_only'
+    cover_image_url  TEXT,
+    created_at       TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS idx_events_coach_date ON events(coach_id, event_date);
+CREATE INDEX IF NOT EXISTS idx_events_date ON events(event_date);
+
+CREATE TABLE IF NOT EXISTS event_registrations (
+    id            BIGSERIAL PRIMARY KEY,
+    event_id      BIGINT NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    user_id       BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    registered_at TIMESTAMPTZ DEFAULT NOW(),
+    status        TEXT DEFAULT 'registered',
+    CONSTRAINT unique_event_user UNIQUE (event_id, user_id)
+);
+CREATE INDEX IF NOT EXISTS idx_event_reg_event ON event_registrations(event_id);
+CREATE INDEX IF NOT EXISTS idx_event_reg_user ON event_registrations(user_id);
 """
 
 def _raw_connection() -> psycopg2.extensions.connection:
@@ -625,6 +652,145 @@ def seed_synthetic_fares2024(conn) -> None:
                 print(f"[DB] Synced synthetic onboarding answers for fares2024 (user_id={user_id})", flush=True)
 
         print(f"[DB] Seeded synthetic reviews for coaches successfully.", flush=True)
+
+
+def seed_synthetic_events(conn) -> None:
+    """Seed synthetic community events hosted by coaches with AI posters and synthetic attendees."""
+    import shutil
+    import os
+    
+    backend_dir = os.path.dirname(os.path.abspath(__file__))
+    uploads_events_dir = os.path.join(backend_dir, "uploads", "events")
+    os.makedirs(uploads_events_dir, exist_ok=True)
+    
+    # Map generated poster images from artifacts to uploads/events
+    artifact_dir = r"C:\Users\rayen\.gemini\antigravity-ide\brain\1c43796a-f9e6-42d2-b87b-0b1cf555188a"
+    posters_map = {
+        "Youssef Mansour": ("event_poster_youssef_mansour_1786178827541.png", "youssef_mansour_masterclass.png"),
+        "Fatima Al-Harbi": ("event_poster_fatima_alharbi_1786178837257.png", "fatima_alharbi_bootcamp.png"),
+        "Tarek Kabbani": ("event_poster_tarek_kabbani_1786178849118.png", "tarek_kabbani_clinic.png"),
+        "Amira Fakhoury": ("event_poster_amira_fakhoury_1786178858263.png", "amira_fakhoury_mobility.png"),
+    }
+    
+    for coach_name, (src_file, dst_file) in posters_map.items():
+        src_path = os.path.join(artifact_dir, src_file)
+        dst_path = os.path.join(uploads_events_dir, dst_file)
+        if os.path.exists(src_path) and not os.path.exists(dst_path):
+            try:
+                shutil.copy2(src_path, dst_path)
+                print(f"[SEED] Copied AI poster for {coach_name} -> uploads/events/{dst_file}", flush=True)
+            except Exception as e:
+                print(f"[SEED] Warning copying poster for {coach_name}: {e}", flush=True)
+
+    with conn.cursor() as cur:
+        cur.execute("SELECT COUNT(*) as count FROM events")
+        if cur.fetchone()["count"] > 0:
+            return
+
+        # Fetch coaches
+        cur.execute("SELECT id, name FROM users WHERE role = 'coach'")
+        coaches = {r["name"]: r["id"] for r in cur.fetchall()}
+        
+        # Fallback if specific named coaches are not found, use any available coach or first users
+        if not coaches:
+            cur.execute("SELECT id, name FROM users LIMIT 5")
+            coaches = {r["name"]: r["id"] for r in cur.fetchall()}
+            
+        if not coaches:
+            return
+
+        # Fetch non-coach athlete users for synthetic registrations
+        cur.execute("SELECT id FROM users LIMIT 30")
+        all_user_ids = [r["id"] for r in cur.fetchall()]
+
+        synthetic_events = [
+            {
+                "coach_name": "Youssef Mansour",
+                "title": "Hypertrophy & Heavy Lifting Masterclass",
+                "description": "Exclusive live masterclass hosted by Coach Youssef Mansour at Lac 2 Fitness Gym. Focus on biomechanics, mechanical tension, progressive overload, and mastering barbell squat and bench press technique.",
+                "event_type": "workshop",
+                "days_offset": 2,
+                "hour": 18,
+                "duration": 90,
+                "location_type": "in_person",
+                "location_detail": "Lac 2 Fitness Gym, Les Berges du Lac 2, Tunis",
+                "max_participants": 15,
+                "poster": "http://localhost:8000/api/uploads/events/youssef_mansour_masterclass.png"
+            },
+            {
+                "coach_name": "Fatima Al-Harbi",
+                "title": "Sunset Beach HIIT Bootcamp & Fat Loss",
+                "description": "High-intensity metabolic conditioning and body recomposition session led by Coach Fatima Al-Harbi at Sidi Bou Said coastal park overlooking the Mediterranean sea.",
+                "event_type": "bootcamp",
+                "days_offset": 4,
+                "hour": 17,
+                "duration": 60,
+                "location_type": "in_person",
+                "location_detail": "Sidi Bou Said Beach Park, Tunis",
+                "max_participants": 25,
+                "poster": "http://localhost:8000/api/uploads/events/fatima_alharbi_bootcamp.png"
+            },
+            {
+                "coach_name": "Tarek Kabbani",
+                "title": "Powerlifting Squat & Deadlift Clinic",
+                "description": "Elite powerlifting coach Tarek Kabbani breaks down squat depth, hip hinge mechanics, deadlift setup, and injury prevention protocols in this intensive clinic.",
+                "event_type": "workshop",
+                "days_offset": 6,
+                "hour": 16,
+                "duration": 120,
+                "location_type": "in_person",
+                "location_detail": "Carthage Heavy Iron Gym, Carthage, Tunis",
+                "max_participants": 12,
+                "poster": "http://localhost:8000/api/uploads/events/tarek_kabbani_clinic.png"
+            },
+            {
+                "coach_name": "Amira Fakhoury",
+                "title": "Outdoor Functional Mobility & Cardio Sprint",
+                "description": "Comprehensive joint mobility, dynamic warmups, core stability, and explosive interval training under the palms with Coach Amira Fakhoury.",
+                "event_type": "group_workout",
+                "days_offset": 8,
+                "hour": 9,
+                "duration": 60,
+                "location_type": "in_person",
+                "location_detail": "Parc du Belvédère, Tunis",
+                "max_participants": 20,
+                "poster": "http://localhost:8000/api/uploads/events/amira_fakhoury_mobility.png"
+            }
+        ]
+
+        default_coach_id = next(iter(coaches.values()))
+
+        for idx, ev in enumerate(synthetic_events):
+            coach_id = coaches.get(ev["coach_name"], default_coach_id)
+            cur.execute("""
+                INSERT INTO events (
+                    coach_id, title, description, event_type, event_date,
+                    duration_minutes, location_type, location_detail,
+                    max_participants, cover_image_url
+                ) VALUES (
+                    %s, %s, %s, %s, NOW() + INTERVAL '%s days' + INTERVAL '%s hours',
+                    %s, %s, %s, %s, %s
+                ) RETURNING id
+            """, (
+                coach_id, ev["title"], ev["description"], ev["event_type"],
+                ev["days_offset"], ev["hour"], ev["duration"],
+                ev["location_type"], ev["location_detail"],
+                ev["max_participants"], ev["poster"]
+            ))
+            event_id = cur.fetchone()["id"]
+
+            # Seed 5-8 synthetic registrations for each event
+            num_registrations = 5 + (idx * 2) % 6
+            registrants = all_user_ids[:num_registrations]
+            for uid in registrants:
+                cur.execute("""
+                    INSERT INTO event_registrations (event_id, user_id, status)
+                    VALUES (%s, %s, 'registered')
+                    ON CONFLICT DO NOTHING
+                """, (event_id, uid))
+
+        conn.commit()
+        print("[SEED] Successfully seeded synthetic Tunisian coach events and synthetic user registrations!", flush=True)
 
 
 def init_db() -> None:
@@ -973,7 +1139,9 @@ def _do_init_db() -> None:
                         created_at  TIMESTAMPTZ DEFAULT NOW()
                     )
                 """)
-                cur.execute("CREATE INDEX IF NOT EXISTS idx_coach_reviews_coach ON coach_reviews(coach_id)")
+                # --- EVENTS MIGRATIONS ---
+                cur.execute("ALTER TABLE events ADD COLUMN IF NOT EXISTS cost_tnd REAL DEFAULT 0.0")
+                cur.execute("ALTER TABLE events ADD COLUMN IF NOT EXISTS target_audience TEXT DEFAULT 'public'")
 
                 conn.commit()
 
