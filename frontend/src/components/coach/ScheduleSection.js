@@ -342,37 +342,34 @@ export default function ScheduleSection() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24, padding: "8px 0" }}>
-      {/* Top Banner Header */}
+      {/* Top Header */}
       <div style={{
-        background: "linear-gradient(135deg, rgba(6, 182, 212, 0.12) 0%, rgba(59, 130, 246, 0.08) 100%)",
-        border: "1px solid rgba(6, 182, 212, 0.25)",
-        borderRadius: 24,
-        padding: 28,
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
         flexWrap: "wrap",
-        gap: 20
+        gap: 16,
+        paddingBottom: 4
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{
-            width: 52,
-            height: 52,
-            borderRadius: 16,
-            background: "rgba(6, 182, 212, 0.2)",
-            border: "1px solid rgba(6, 182, 212, 0.4)",
+            width: 44,
+            height: 44,
+            borderRadius: 12,
+            background: "rgba(6, 182, 212, 0.15)",
+            border: "1px solid rgba(6, 182, 212, 0.3)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             color: "var(--aura-cyan, #06b6d4)",
           }}>
-            <CalendarIcon size={28} />
+            <CalendarIcon size={22} />
           </div>
           <div>
             <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: "-0.5px" }}>
               Coach Schedule & Calendar Workspace
             </div>
-            <div style={{ fontSize: 13, color: "var(--color-text-2)", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "var(--color-text-2)", marginTop: 2 }}>
               Single source of truth for 1-on-1 athlete sessions, free availability, and recurring slots.
             </div>
           </div>
@@ -385,7 +382,7 @@ export default function ScheduleSection() {
             display: "flex",
             alignItems: "center",
             gap: 8,
-            padding: "10px 20px",
+            padding: "10px 18px",
             borderRadius: 12,
             fontSize: 13,
             fontWeight: 800,

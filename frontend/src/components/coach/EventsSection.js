@@ -243,77 +243,67 @@ export default function EventsSection() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24, padding: "8px 0" }}>
-      {/* Top Banner Header: Purpose */}
-      <div style={{
-        background: "var(--bg-glass, rgba(15, 23, 42, 0.6))",
-        border: "1px solid var(--border-card, rgba(255, 255, 255, 0.08))",
-        borderRadius: 24,
-        padding: "28px 32px",
-        position: "relative",
-        overflow: "hidden",
-        boxShadow: "0 8px 24px rgba(0, 0, 0, 0.15)",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{
-              width: 52,
-              height: 52,
-              borderRadius: 16,
-              background: "color-mix(in srgb, var(--aura-accent) 15%, transparent)",
-              border: "1px solid color-mix(in srgb, var(--aura-accent) 30%, transparent)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "var(--aura-accent)",
-              flexShrink: 0,
-            }}>
-              <Trophy size={26} />
+      {/* Top Header */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 16, paddingBottom: 4 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{
+            width: 44,
+            height: 44,
+            borderRadius: 12,
+            background: "color-mix(in srgb, var(--aura-accent) 15%, transparent)",
+            border: "1px solid color-mix(in srgb, var(--aura-accent) 30%, transparent)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "var(--aura-accent)",
+            flexShrink: 0,
+          }}>
+            <Trophy size={22} />
+          </div>
+          <div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: "var(--color-text)", letterSpacing: "-0.5px", display: "flex", alignItems: "center", gap: 10 }}>
+              Community Events
+              <span style={{
+                fontSize: 11,
+                fontWeight: 800,
+                padding: "2px 8px",
+                borderRadius: 10,
+                background: "rgba(16, 185, 129, 0.15)",
+                color: "#10b981",
+                border: "1px solid rgba(16, 185, 129, 0.3)"
+              }}>
+                Open to All Users
+              </span>
             </div>
-            <div>
-              <div style={{ fontSize: 24, fontWeight: 900, color: "var(--color-text)", letterSpacing: "-0.5px", display: "flex", alignItems: "center", gap: 10 }}>
-                Community Events
-                <span style={{
-                  fontSize: 11,
-                  fontWeight: 800,
-                  padding: "3px 10px",
-                  borderRadius: 12,
-                  background: "rgba(16, 185, 129, 0.15)",
-                  color: "#10b981",
-                  border: "1px solid rgba(16, 185, 129, 0.3)"
-                }}>
-                  Open to All Users
-                </span>
-              </div>
-              <div style={{ fontSize: 13, color: "var(--color-text-3)", marginTop: 4 }}>
-                Live workshops, bootcamps and coaching sessions hosted by certified trainers.
-              </div>
+            <div style={{ fontSize: 12, color: "var(--color-text-3)", marginTop: 2 }}>
+              Live workshops, bootcamps and coaching sessions hosted by certified trainers.
             </div>
           </div>
-
-          {isCoach && (
-            <button
-              onClick={() => setShowCreateModal(true)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "12px 20px",
-                borderRadius: 14,
-                background: "var(--aura-accent)",
-                color: "#fff",
-                border: "none",
-                fontSize: 14,
-                fontWeight: 700,
-                cursor: "pointer",
-                boxShadow: "0 4px 14px rgba(139, 92, 246, 0.3)",
-                transition: "transform 0.2s, boxShadow 0.2s"
-              }}
-            >
-              <Plus size={18} />
-              Host New Event
-            </button>
-          )}
         </div>
+
+        {isCoach && (
+          <button
+            onClick={() => setShowCreateModal(true)}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "10px 18px",
+              borderRadius: 12,
+              background: "var(--aura-accent)",
+              color: "#fff",
+              border: "none",
+              fontSize: 13,
+              fontWeight: 800,
+              cursor: "pointer",
+              boxShadow: "0 4px 14px rgba(139, 92, 246, 0.3)",
+              transition: "transform 0.2s, boxShadow 0.2s"
+            }}
+          >
+            <Plus size={16} />
+            Host New Event
+          </button>
+        )}
       </div>
 
       {/* Filter Tabs */}
@@ -326,7 +316,7 @@ export default function EventsSection() {
         scrollbarWidth: "none"
       }}>
         {EVENT_TYPES.map((t) => {
-          const Icon = t.icon || Trophy;
+          const IconComp = t.icon || Trophy;
           const isActive = activeFilter === t.id;
           return (
             <button
@@ -355,11 +345,9 @@ export default function EventsSection() {
                 transition: "all 0.2s ease"
               }}
             >
-              {Icon ? (
-                <Icon size={16} style={{ color: isActive ? "var(--aura-accent)" : "inherit" }} />
-              ) : (
-                <Trophy size={16} style={{ color: isActive ? "var(--aura-accent)" : "inherit" }} />
-              )}
+              {IconComp && (typeof IconComp === "function" || typeof IconComp === "object") ? (
+                <IconComp size={16} style={{ color: isActive ? "var(--aura-accent)" : "inherit" }} />
+              ) : null}
               {t.label}
             </button>
           );
