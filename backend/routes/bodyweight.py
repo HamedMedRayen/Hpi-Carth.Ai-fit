@@ -18,6 +18,7 @@ router = APIRouter(prefix="/bodyweight", tags=["BodyWeight"])
 
 class BodyWeightLogCreate(BaseModel):
     weight_kg: float
+    date: Optional[str] = None
 
 
 class BodyWeightLogRead(BaseModel):
@@ -32,18 +33,24 @@ class BodyWeightLogRead(BaseModel):
 
 @router.post("", response_model=BodyWeightLogRead, status_code=201)
 def log_body_weight(payload: BodyWeightLogCreate, user_id: int = Depends(get_current_user_id), db=Depends(get_db)):
-    """Log body weight for today (upsert by day) and update user bodyweight profile"""
-    today_date = datetime.now().date()
+    """Log body weight for today or specified date (upsert by day) and update user bodyweight profile"""
+    if payload.date:
+        try:
+            log_date = datetime.strptime(payload.date, "%Y-%m-%d").date()
+        except ValueError:
+            log_date = datetime.now().date()
+    else:
+        log_date = datetime.now().date()
     
     with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
-        # Upsert: if already logged today, update; otherwise insert
+        # Upsert: if already logged on this day, update; otherwise insert
         cur.execute("""
             INSERT INTO bodyweight_logs (user_id, logged_at, weight_kg)
             VALUES (%s, %s, %s)
             ON CONFLICT (user_id, logged_at) DO UPDATE 
             SET weight_kg = EXCLUDED.weight_kg
             RETURNING id, user_id, weight_kg, logged_at, created_at
-        """, (user_id, today_date, payload.weight_kg))
+        """, (user_id, log_date, payload.weight_kg))
         result = cur.fetchone()
 
         # Keep users.bodyweight in sync

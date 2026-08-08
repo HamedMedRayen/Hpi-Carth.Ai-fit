@@ -199,7 +199,7 @@ export const api = {
   deleteTemplate: (id) => req(`/workouts/templates/${id}`, { method: "DELETE" }),
 
   // Body weight (new)
-  logBodyWeight: (weight_kg) => req("/bodyweight", { method: "POST", body: JSON.stringify({ weight_kg }) }),
+  logBodyWeight: (weight_kg, dateStr) => req("/bodyweight", { method: "POST", body: JSON.stringify({ weight_kg, date: dateStr }) }),
   getBodyWeightLog: (days = 30) => req(`/bodyweight?days=${days}`),
 
   // Analytics - new endpoints (new)

@@ -180,6 +180,7 @@ export default function Profile() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [weightHistory, setWeightHistory] = useState([]);
   const [logWeight, setLogWeight] = useState("");
+  const [logDate, setLogDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [logLoading, setLogLoading] = useState(false);
 
   const [profile, setProfile] = useState({
@@ -260,10 +261,24 @@ export default function Profile() {
   const fetchWeightHistory = useCallback(() => {
     api.getBodyWeightLog(365)
       .then(logs => {
-        const transformed = (logs || []).map(log => ({
+        let transformed = (logs || []).map(log => ({
           date: log.logged_at,
           weight: log.weight_kg,
         }));
+
+        // If only 1 entry has been logged, add a baseline starting point so Recharts AreaChart immediately renders the progress line!
+        if (transformed.length === 1) {
+          const singleDate = new Date(transformed[0].date);
+          const startDate = new Date(singleDate);
+          startDate.setDate(startDate.getDate() - 7);
+          const startDateStr = startDate.toISOString().split('T')[0];
+          
+          transformed = [
+            { date: startDateStr, weight: transformed[0].weight, isBaseline: true },
+            transformed[0]
+          ];
+        }
+
         setWeightHistory(transformed);
       })
       .catch(() => setWeightHistory([]));
@@ -346,7 +361,7 @@ export default function Profile() {
     setLogLoading(true);
     try {
       const converted = units.weight === 'lb' ? w / 2.20462 : w;
-      await api.logBodyWeight(converted);
+      await api.logBodyWeight(converted, logDate);
       setProfile(p => ({ ...p, bodyweight: converted }));
       await updateProfile({ bodyweight: converted });
       setLogWeight("");
@@ -633,10 +648,27 @@ export default function Profile() {
                 display: 'flex',
                 background: 'var(--bg-glass)',
                 borderRadius: 16,
-                padding: 4,
+                padding: 6,
+                gap: 8,
                 border: '1px solid var(--border-card)',
-                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)',
+                alignItems: 'center'
               }}>
+                <input
+                  type="date"
+                  value={logDate}
+                  onChange={e => setLogDate(e.target.value)}
+                  style={{
+                    background: 'var(--bg-input)',
+                    border: '1px solid var(--border-input)',
+                    borderRadius: 10,
+                    padding: '8px 12px',
+                    color: 'var(--color-text)',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    outline: 'none'
+                  }}
+                />
                 <div style={{ position: 'relative', flex: 1 }}>
                   <input
                     type="number"
@@ -647,8 +679,8 @@ export default function Profile() {
                       width: '100%',
                       background: 'transparent',
                       border: 'none',
-                      padding: '14px 18px',
-                      paddingRight: 50,
+                      padding: '12px 14px',
+                      paddingRight: 45,
                       color: 'var(--color-text)',
                       fontSize: 16,
                       fontWeight: 800,
@@ -657,7 +689,7 @@ export default function Profile() {
                   />
                   <span style={{
                     position: 'absolute',
-                    right: 18,
+                    right: 14,
                     top: '50%',
                     transform: 'translateY(-50%)',
                     fontSize: 12,
@@ -672,7 +704,7 @@ export default function Profile() {
                   onClick={handleLogWeight}
                   disabled={logLoading || !logWeight}
                   style={{
-                    padding: '0 24px',
+                    padding: '12px 20px',
                     borderRadius: 12,
                     background: logWeight ? 'var(--aura-accent)' : 'rgba(255,255,255,0.05)',
                     color: logWeight ? 'white' : 'var(--color-text-3)',
