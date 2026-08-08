@@ -49,18 +49,20 @@ class CreateCallRequest(BaseModel):
     createdById: Optional[str] = None
 
 
-@router.post("/token")
+@router.api_route("/token", methods=["GET", "POST"])
 async def generate_stream_token(
-    body: TokenRequest,
+    user_id: Optional[str] = None,
+    userId: Optional[str] = None,
+    body: Optional[TokenRequest] = None,
     current_user: dict = Depends(get_current_user_placeholder)
 ):
     """
-    POST /api/stream/token
+    GET or POST /api/stream/token
     Generates a signed Stream user token server-side using STREAM_API_SECRET.
     """
-    user_id = body.userId or body.athleteId or body.coachId
-    if not user_id:
-        raise HTTPException(status_code=400, detail="userId is required in body")
+    uid = (body.userId if body else None) or (body.athleteId if body else None) or (body.coachId if body else None) or user_id or userId
+    if not uid:
+        raise HTTPException(status_code=400, detail="userId is required")
 
     if not STREAM_API_SECRET:
         raise HTTPException(status_code=500, detail="STREAM_API_SECRET is not configured on server")
