@@ -72,6 +72,23 @@ export default function MainSidebar() {
 
   const userName = user?.name?.split(" ")[0] || user?.nickname || "Athlete";
 
+  const userStatus = (() => {
+    if (user?.role === "coach" || user?.is_coach) return "Coach";
+
+    const level =
+      user?.fitness_level ||
+      user?.experience ||
+      user?.onboarding_data?.fitness_level ||
+      user?.onboarding_data?.experience_level ||
+      user?.survey_answers?.fitness_level ||
+      user?.level;
+
+    if (level && typeof level === "string") {
+      return level.charAt(0).toUpperCase() + level.slice(1);
+    }
+    return "Athlete";
+  })();
+
   return (
     <aside className="main-sidebar-dock">
       {/* ── Brand Logo Header ── */}
@@ -106,7 +123,7 @@ export default function MainSidebar() {
           <div className="main-user-name">{userName}</div>
           <div className="main-user-status">
             <span className="main-dot-live" />
-            <span>Pro Athlete</span>
+            <span>{userStatus}</span>
           </div>
         </div>
         <ArrowUpRight size={14} className="main-arrow-link" />
