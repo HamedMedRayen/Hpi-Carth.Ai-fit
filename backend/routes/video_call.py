@@ -73,11 +73,12 @@ async def generate_stream_token(
     #     raise HTTPException(status_code=403, detail="Forbidden: User mismatch")
     # =========================================================================
 
-    expiration_time = int(time.time()) + (body.validityInSeconds or 3600)
+    validity = (body.validityInSeconds if body else 3600) or 3600
+    expiration_time = int(time.time()) + validity
 
     # Payload required by Stream for User Tokens
     payload = {
-        "user_id": str(user_id),
+        "user_id": str(uid),
         "exp": expiration_time
     }
 
@@ -93,7 +94,7 @@ async def generate_stream_token(
             "success": True,
             "token": token,
             "apiKey": STREAM_API_KEY,
-            "userId": str(user_id),
+            "userId": str(uid),
             "expiresAt": expiration_time
         }
     except Exception as e:
