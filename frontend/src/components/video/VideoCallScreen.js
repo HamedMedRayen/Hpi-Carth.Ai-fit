@@ -8,7 +8,7 @@ import {
   ParticipantView,
   useCall,
 } from '@stream-io/video-react-sdk';
-import { Mic, MicOff, Video as VideoIcon, VideoOff, PhoneOff, User } from 'lucide-react';
+import { Mic, MicOff, Video as VideoIcon, VideoOff, PhoneOff, User, RefreshCw } from 'lucide-react';
 import '@stream-io/video-react-sdk/dist/css/styles.css';
 import './VideoCallModal.css';
 import { getApiBaseUrl } from '../../utils/config';
@@ -59,6 +59,24 @@ const CustomCallUI = ({ onCallEnd, title, recipientName = 'Participant' }) => {
   const toggleCam = async () => {
     try { if (call) await call.camera.toggle(); }
     catch (e) { console.error('[CALL_UI] cam error:', e); }
+  };
+
+  const switchCamera = async () => {
+    if (!call) return;
+    try {
+      if (typeof call.camera.flip === 'function') {
+        await call.camera.flip();
+      } else {
+        const devices = await call.camera.listDevices();
+        if (devices && devices.length > 1) {
+          const currentDevice = call.camera.state.selectedDevice;
+          const nextDevice = devices.find(d => d.deviceId !== currentDevice) || devices[0];
+          await call.camera.selectDevice(nextDevice.deviceId);
+        }
+      }
+    } catch (e) {
+      console.error('[CALL_UI] Camera switch error:', e);
+    }
   };
 
   if (callingState !== CallingState.JOINED) {
@@ -138,6 +156,10 @@ const CustomCallUI = ({ onCallEnd, title, recipientName = 'Participant' }) => {
             {isCamMuted ? <VideoOff size={20} /> : <VideoIcon size={20} />}
             <span>{isCamMuted ? 'Cam Off' : 'Cam On'}</span>
           </button>
+          <button className="control-btn active" onClick={switchCamera} title="Switch Camera (Front/Back/Webcam)">
+            <RefreshCw size={20} />
+            <span>Flip Cam</span>
+          </button>
           <button className="control-btn btn-end-call" onClick={onCallEnd} title="End Call">
             <PhoneOff size={20} />
             <span>End Call</span>
@@ -173,6 +195,8 @@ export const VideoCallScreen = ({
   const isMountedRef = useRef(true);
   const clientRef = useRef(null);
   const callRef = useRef(null);
+  const callStartTimeRef = useRef(null);
+  const handleEndCallRef = useRef(null);
 
   const callId = `athlete-${athleteId}-coach-${coachId}`;
   const apiKey =
@@ -215,34 +239,7 @@ export const VideoCallScreen = ({
     hasInitializedRef.current = true;
 
     const init = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const resolvedUserId = String(
-          currentUserId || token.userId() || (userRole === 'coach' ? coachId : athleteId) || 'user'
-        );
-        const authToken = token.get() || localStorage.getItem('token') || '';
-        const apiBase = getApiBaseUrl();
-
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] userId="${resolvedUserId}" athleteId="${athleteId}" coachId="${coachId}" callId="${callId}"`);
-
-        // STEP 1: Fetch Stream token
-        console.log(`[${ts()}][${mode.toUpperCase()}_INIT] STEP 1: Fetching token...`);
-        const res = await withTimeout(
-          fetch(`${apiBase}/stream/token`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: authToken ? `Bearer ${authToken}` : '',
-            },
-            body: JSON.stringify({
-              userId: resolvedUserId,
-              role: userRole,
-              athleteId: String(athleteId),
-              coachId: String(coachId),
-            }),
-      const resolvedUserId = String(currentUserId || athleteId);
+      const resolvedUserId = String(currentUserId || token.userId() || athleteId || 'user');
       console.log(`[${ts()}][${mode.toUpperCase()}_INIT] START for user "${resolvedUserId}"...`);
 
       try {
