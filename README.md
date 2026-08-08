@@ -299,14 +299,8 @@ Contributions, issues, and feature requests are welcome!
 4. Push to the branch (`git push origin feature/your-feature`)
 5. Open a Pull Request
 
----
-
-## License
-
-Distributed under the MIT License. See `LICENSE` for details.
-
----
 
 <div align="center">
-  <sub>Built with ❤️ by <a href="https://github.com/HamedMedRayen">Hamed Med Rayen</a></sub>
+  <sub>Built with  by <a href="https://github.com/HamedMedRayen">Hamed Med Rayen</a></sub>
+  <sub>Hosted by Be Carth.Ai Consulting<sub>
 </div>
