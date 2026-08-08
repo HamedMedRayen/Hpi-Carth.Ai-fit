@@ -137,6 +137,7 @@ export function useAuthProvider() {
       const newUser = { 
         ...user, 
         ...res, 
+        user_id: user?.user_id || user?.id || res?.user_id || res?.id,
         onboarding_completed: res?.onboarding_completed ?? data?.onboarding_completed ?? user?.onboarding_completed ?? true,
         onboarding_data: res?.onboarding_data || data?.onboarding_data || user?.onboarding_data || {},
         profile: { ...user?.profile, ...res }

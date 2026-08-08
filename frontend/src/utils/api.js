@@ -11,7 +11,13 @@ export const token = {
   },
   userId: () => {
     const raw = getSyncItem("aura_user");
-    return raw ? JSON.parse(raw).user_id : null;
+    if (!raw) return null;
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed.user_id || parsed.id || null;
+    } catch (e) {
+      return null;
+    }
   },
   user: () => {
     const raw = getSyncItem("aura_user");

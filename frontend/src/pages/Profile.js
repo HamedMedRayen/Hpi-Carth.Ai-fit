@@ -616,10 +616,16 @@ export default function Profile() {
                   </ResponsiveContainer>
 
                 </div>
+              ) : weightHistory.length === 1 ? (
+                <div style={{ height: 200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: 16, marginBottom: 20, border: '1px dashed var(--border-card)', padding: 20 }}>
+                  <Scale size={28} style={{ color: 'var(--aura-accent)', marginBottom: 8 }} />
+                  <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--color-text)' }}>First Entry Logged: {formatWeight(weightHistory[0].weight)}</div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-3)', marginTop: 4 }}>Log 1 more entry on a different day to render your progress line!</div>
+                </div>
               ) : (
                 <div style={{ height: 200, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: 'var(--color-text-3)', background: 'rgba(255,255,255,0.02)', borderRadius: 16, marginBottom: 20, border: '1px dashed var(--border-card)' }}>
                   <Scale size={32} style={{ opacity: 0.2, marginBottom: 12 }} />
-                  <span style={{ fontSize: 13, fontWeight: 500 }}>Log 2+ entries to visualize your progress</span>
+                  <span style={{ fontSize: 13, fontWeight: 500 }}>Log your body weight below to start tracking</span>
                 </div>
               )}
 
