@@ -655,11 +655,11 @@ def _get_pool():
     if _pool is None or _pool.closed:
         _pool = psycopg2.pool.ThreadedConnectionPool(
             minconn=2,
-            maxconn=30,
+            maxconn=50,
             dsn=settings.DATABASE_URL,
             cursor_factory=psycopg2.extras.RealDictCursor,
         )
-        print("[DB] Connection pool created (2-30 connections)", flush=True)
+        print("[DB] Connection pool created (2-50 connections)", flush=True)
     return _pool
 
 
@@ -1022,49 +1022,3 @@ def _do_init_db() -> None:
         raise
     finally:
         conn.close()
-
-
-# ── Connection Pool ────────────────────────────────────────────
-# Reuses connections instead of creating a new one per request.
-_pool = None
-
-def _get_pool():
-    """Lazily initialize a threaded connection pool."""
-    global _pool
-    if _pool is None or _pool.closed:
-        _pool = psycopg2.pool.ThreadedConnectionPool(
-            minconn=1,
-            maxconn=8,
-            dsn=settings.DATABASE_URL,
-            cursor_factory=psycopg2.extras.RealDictCursor,
-        )
-        print("[DB] Connection pool created (1-8 connections)", flush=True)
-    return _pool
-
-
-def get_connection() -> psycopg2.extensions.connection:
-    """Return a connection from the pool (with RealDictCursor as default)."""
-    try:
-        return _get_pool().getconn()
-    except Exception:
-        # Pool might be exhausted or stale — recreate
-        global _pool
-        _pool = None
-        return _get_pool().getconn()
-
-
-def get_db() -> Generator[psycopg2.extensions.connection, None, None]:
-    """
-    FastAPI dependency that yields a pooled connection and handles commit/rollback.
-    Returns the connection to the pool when done.
-    """
-    pool = _get_pool()
-    conn = pool.getconn()
-    try:
-        yield conn
-        conn.commit()
-    except Exception:
-        conn.rollback()
-        raise
-    finally:
-        pool.putconn(conn)
