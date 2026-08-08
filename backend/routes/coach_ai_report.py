@@ -327,14 +327,15 @@ ATHLETE DATA PAYLOAD:
 
 
     if payload.coach_feedback and payload.coach_feedback.strip():
+        prev_report_snippet = payload.previous_report.strip()[:3500] if payload.previous_report else ""
         user_msg += f"""
 
 === COACH REAL-TIME REFINEMENT DIRECTIVE & CORRECTION ===
 The head coach reviewed the report draft and provided the following REAL-TIME FEEDBACK / CORRECTION:
 "{payload.coach_feedback.strip()}"
 
-{"PREVIOUS REPORT DRAFT VERSION TO REFINE:" if payload.previous_report else ""}
-{payload.previous_report.strip() if payload.previous_report else ""}
+{"PREVIOUS REPORT DRAFT VERSION TO REFINE (SNIPPET):" if prev_report_snippet else ""}
+{prev_report_snippet}
 
 REFINEMENT INSTRUCTIONS:
 - You MUST immediately incorporate the coach's feedback and corrections above into the report.
@@ -361,11 +362,15 @@ def generate_athlete_ai_report(
         
         # Persist feedback so LLM remembers it in all future runs
         if payload.coach_feedback and payload.coach_feedback.strip():
-            cur.execute("""
-                INSERT INTO coach_notes (coach_id, athlete_id, note)
-                VALUES (%s, %s, %s)
-            """, (coach_id, athlete_id, f"Coach Feedback Rule: {payload.coach_feedback.strip()}"))
-            db.commit()
+            try:
+                cur.execute("""
+                    INSERT INTO coach_notes (coach_id, athlete_id, note)
+                    VALUES (%s, %s, %s)
+                """, (coach_id, athlete_id, f"Coach Feedback Rule: {payload.coach_feedback.strip()}"))
+                db.commit()
+            except Exception as note_err:
+                log.warning(f"Failed to persist coach note rule: {note_err}")
+                db.rollback()
 
         ctx = fetch_athlete_full_context(athlete_id, coach_id, cur)
 

@@ -582,8 +582,10 @@ export default function AiReportsSection() {
   // Refinement Feedback State
   const [coachFeedback, setCoachFeedback] = useState("");
   const [refining, setRefining] = useState(false);
+  const [refinedToast, setRefinedToast] = useState(false);
 
   const reportRef = useRef(null);
+  const reportContainerRef = useRef(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -624,6 +626,7 @@ export default function AiReportsSection() {
     setError(null);
     setGenerating(true);
     setReportResult(null);
+    setRefinedToast(false);
 
     try {
       const payload = {
@@ -645,16 +648,26 @@ export default function AiReportsSection() {
     }
   };
 
-  const handleRefineReport = async () => {
-    if (!coachFeedback.trim() || !selectedAthleteId || !reportResult?.report) return;
+  const handleRefineReport = async (overrideFeedback) => {
+    const activeDirective = (typeof overrideFeedback === 'string' ? overrideFeedback : coachFeedback).trim();
+    if (!activeDirective) {
+      setError("Please type a coach directive or choose a quick shortcut to refine the report.");
+      return;
+    }
+    if (!selectedAthleteId || !reportResult?.report) {
+      setError("No active report found to refine. Generate a report first.");
+      return;
+    }
+
     setRefining(true);
     setError(null);
+    setRefinedToast(false);
 
     try {
       const payload = {
-        prompt: promptText,
-        preset_token: selectedPreset,
-        coach_feedback: coachFeedback,
+        prompt: promptText || "",
+        preset_token: selectedPreset || null,
+        coach_feedback: activeDirective,
         previous_report: reportResult.report
       };
 
@@ -662,6 +675,14 @@ export default function AiReportsSection() {
       if (res && res.report) {
         setReportResult(res);
         setCoachFeedback("");
+        setRefinedToast(true);
+        setTimeout(() => setRefinedToast(false), 6000);
+
+        if (reportContainerRef.current) {
+          reportContainerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      } else {
+        throw new Error(res?.detail || res?.message || "Server returned an empty refined report.");
       }
     } catch (err) {
       console.error("Failed to refine AI report:", err);
@@ -720,37 +741,34 @@ export default function AiReportsSection() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24, padding: "8px 0" }}>
-      {/* Top Banner */}
+      {/* Top Header */}
       <div style={{
-        background: "linear-gradient(135deg, rgba(168, 85, 247, 0.14) 0%, rgba(6, 182, 212, 0.1) 100%)",
-        border: "1px solid rgba(168, 85, 247, 0.3)",
-        borderRadius: 24,
-        padding: 28,
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
         flexWrap: "wrap",
-        gap: 20
+        gap: 16,
+        paddingBottom: 4
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{
-            width: 52,
-            height: 52,
-            borderRadius: 16,
-            background: "rgba(168, 85, 247, 0.2)",
-            border: "1px solid rgba(168, 85, 247, 0.4)",
+            width: 44,
+            height: 44,
+            borderRadius: 12,
+            background: "rgba(168, 85, 247, 0.15)",
+            border: "1px solid rgba(168, 85, 247, 0.3)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             color: "#c084fc",
           }}>
-            <Sparkles size={28} />
+            <Sparkles size={22} />
           </div>
           <div>
             <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: "-0.5px" }}>
               Executive AI Athlete Report Engine
             </div>
-            <div style={{ fontSize: 13, color: "var(--color-text-2)", marginTop: 4 }}>
+            <div style={{ fontSize: 12, color: "var(--color-text-2)", marginTop: 2 }}>
               Data-grounded, zero-hallucination strength & conditioning dossiers powered by Groq Llama-3.3-70b.
             </div>
           </div>
@@ -758,7 +776,7 @@ export default function AiReportsSection() {
 
         <div style={{ display: "flex", gap: 10 }}>
           <div style={{
-            display: "flex", alignItems: "center", gap: 8, padding: "8px 14px",
+            display: "flex", alignItems: "center", gap: 8, padding: "6px 12px",
             borderRadius: 10, background: "rgba(255, 255, 255, 0.04)", border: "1px solid rgba(255, 255, 255, 0.08)",
             fontSize: 12, color: "var(--color-text-2)"
           }}>
@@ -924,17 +942,60 @@ export default function AiReportsSection() {
 
         {/* GENERATED REPORT RESULT CONTAINER */}
         {reportResult && (
-          <div style={{
-            marginTop: 16,
-            background: "rgba(15, 23, 42, 0.4)",
-            border: "1px solid rgba(168, 85, 247, 0.3)",
-            borderRadius: 20,
-            padding: 24,
-            display: "flex",
-            flexDirection: "column",
-            gap: 20,
-            animation: "fadeIn 0.3s ease-out"
-          }}>
+          <div
+            ref={reportContainerRef}
+            style={{
+              position: "relative",
+              marginTop: 16,
+              background: "rgba(15, 23, 42, 0.4)",
+              border: "1px solid rgba(168, 85, 247, 0.3)",
+              borderRadius: 20,
+              padding: 24,
+              display: "flex",
+              flexDirection: "column",
+              gap: 20,
+              animation: "fadeIn 0.3s ease-out"
+            }}
+          >
+            {/* Refinement Overlay during generation */}
+            {refining && (
+              <div style={{
+                position: "absolute",
+                top: 0, left: 0, right: 0, bottom: 0,
+                background: "rgba(15, 23, 42, 0.88)",
+                backdropFilter: "blur(8px)",
+                borderRadius: 20,
+                zIndex: 30,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 16,
+                padding: 24
+              }}>
+                <div style={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: 16,
+                  background: "rgba(168, 85, 247, 0.2)",
+                  border: "1px solid rgba(168, 85, 247, 0.4)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#c084fc",
+                  boxShadow: "0 0 24px rgba(168, 85, 247, 0.4)"
+                }}>
+                  <RefreshCw size={28} className="spin" />
+                </div>
+                <div style={{ fontSize: 16, fontWeight: 900, color: "#fff", textAlign: "center", letterSpacing: "-0.3px" }}>
+                  Re-synthesizing AI Report with Head Coach Directives...
+                </div>
+                <div style={{ fontSize: 12, color: "#c084fc", textAlign: "center", maxWidth: 420, lineHeight: 1.5 }}>
+                  Incorporating directive: <em>"{coachFeedback || 'Coach Directives'}"</em>
+                </div>
+              </div>
+            )}
+
             {/* Executive Report Toolbar */}
             <div style={{
               display: "flex",
@@ -973,6 +1034,22 @@ export default function AiReportsSection() {
                     }}>
                       EXECUTIVE FORMAT
                     </span>
+                    {refinedToast && (
+                      <span style={{
+                        fontSize: 11,
+                        fontWeight: 800,
+                        background: "rgba(34, 197, 94, 0.2)",
+                        border: "1px solid rgba(34, 197, 94, 0.5)",
+                        color: "#4ade80",
+                        padding: "3px 10px",
+                        borderRadius: 12,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4
+                      }}>
+                        <Check size={12} /> Refined with Coach Directives!
+                      </span>
+                    )}
                   </div>
                   <div style={{ fontSize: 11, color: "var(--color-text-3)", marginTop: 2 }}>
                     Synthesized by Groq Llama-3.3-70b-versatile
@@ -1152,7 +1229,39 @@ export default function AiReportsSection() {
                 Refine Report with Head Coach Directives
               </div>
               <div style={{ fontSize: 11, color: "var(--color-text-3)" }}>
-                Need to adjust volume recommendations or modify fatigue advice? Type your directive below to re-synthesize an updated report draft.
+                Need to adjust volume recommendations or modify fatigue advice? Type your directive below or select a quick shortcut chip to re-synthesize an updated report draft.
+              </div>
+
+              {/* Quick Directive Shortcut Chips */}
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {[
+                  "Reduce recommended leg/squat working volume by 15%",
+                  "Flag lower back tightness and suggest mobility exercises",
+                  "Prioritize nutrition logging compliance over calorie changes",
+                  "Add strict 48-hour recovery rule between heavy compound sessions"
+                ].map((chipText, cIdx) => (
+                  <button
+                    key={cIdx}
+                    onClick={() => {
+                      setCoachFeedback(chipText);
+                      handleRefineReport(chipText);
+                    }}
+                    disabled={refining}
+                    style={{
+                      background: "rgba(168, 85, 247, 0.12)",
+                      border: "1px solid rgba(168, 85, 247, 0.3)",
+                      borderRadius: 8,
+                      padding: "4px 10px",
+                      color: "#e9d5ff",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      cursor: refining ? "not-allowed" : "pointer",
+                      transition: "all 0.15s ease"
+                    }}
+                  >
+                    + {chipText}
+                  </button>
+                ))}
               </div>
 
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -1161,7 +1270,13 @@ export default function AiReportsSection() {
                   placeholder="e.g. Reduce recommended squat volume by 15% and flag lower back tightness."
                   value={coachFeedback}
                   onChange={e => setCoachFeedback(e.target.value)}
-                  onKeyDown={e => { if (e.key === 'Enter') handleRefineReport(); }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleRefineReport();
+                    }
+                  }}
+                  disabled={refining}
                   style={{
                     flex: 1,
                     background: "rgba(15, 23, 42, 0.6)",
@@ -1174,7 +1289,7 @@ export default function AiReportsSection() {
                   }}
                 />
                 <button
-                  onClick={handleRefineReport}
+                  onClick={() => handleRefineReport()}
                   disabled={refining || !coachFeedback.trim()}
                   style={{
                     background: "linear-gradient(135deg, #a855f7 0%, #06b6d4 100%)",
