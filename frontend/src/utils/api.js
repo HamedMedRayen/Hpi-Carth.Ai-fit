@@ -313,6 +313,26 @@ export const api = {
   generateAthleteAiReport: (athleteId, payload) => req(`/coach/athlete/${athleteId}/ai-report`, { method: "POST", body: JSON.stringify(payload) }),
   saveOnboarding: (answers) => req("/onboarding/save", { method: "POST", body: JSON.stringify({ answers }) }),
   getCoachVerificationStatus: () => req("/coach/verification-status"),
+
+  // Generic REST methods
+  get: (path) => req(path, { method: "GET" }),
+  post: (path, body, opts = {}) => {
+    const isFormData = body instanceof FormData;
+    return req(path, {
+      method: "POST",
+      body: isFormData ? body : (typeof body === "string" || !body ? body : JSON.stringify(body)),
+      ...opts
+    });
+  },
+  delete: (path) => req(path, { method: "DELETE" }),
+
+  // Community Events
+  getEvents: (eventType = "all") => req(`/events${eventType && eventType !== "all" ? `?event_type=${eventType}` : ""}`),
+  registerEvent: (eventId) => req(`/events/${eventId}/register`, { method: "POST" }),
+  unregisterEvent: (eventId) => req(`/events/${eventId}/unregister`, { method: "POST" }),
+  createEvent: (payload) => req("/events", { method: "POST", body: JSON.stringify(payload) }),
+  deleteEvent: (eventId) => req(`/events/${eventId}`, { method: "DELETE" }),
+  uploadEventPoster: (formData) => req("/events/upload-poster", { method: "POST", body: formData }),
 };
 
 

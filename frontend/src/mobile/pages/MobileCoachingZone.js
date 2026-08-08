@@ -1833,6 +1833,8 @@ export default function MobileCoachingZone() {
       )}
     </div>
   </RequireCoachRole>
+) : location.pathname.startsWith("/coach/events") ? (
+  <EventsSection />
 ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {/* Active / Pending Coach Relationships */}
