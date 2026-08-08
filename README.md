@@ -301,6 +301,6 @@ Contributions, issues, and feature requests are welcome!
 
 
 <div align="center">
-  <sub>Built with  by <a href="https://github.com/HamedMedRayen">Hamed Med Rayen</a></sub>
+  <sub>Built with passion by <a href="https://github.com/HamedMedRayen">Hamed Med Rayen</a></sub>
   <sub>Hosted by Be Carth.Ai Consulting<sub>
 </div>
