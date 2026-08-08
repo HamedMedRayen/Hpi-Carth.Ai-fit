@@ -120,7 +120,7 @@ async def chat(
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         log.error("GROQ_API_KEY not set in environment")
-        raise HTTPException(status_code=500, detail="GROQ_API_KEY is not configured on the server.")
+        raise HTTPException(status_code=500, detail="AI service is not configured on the server.")
 
     try:
         from groq import Groq
@@ -280,7 +280,7 @@ async def chat(
 
     except ImportError:
         log.error("groq package not installed — run: pip install groq")
-        raise HTTPException(status_code=500, detail="groq package is not installed on the server.")
+        raise HTTPException(status_code=500, detail="AI service dependency is missing on the server.")
     except Exception as e:
         log.error(f"Groq API error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"AI service error: {str(e)}")

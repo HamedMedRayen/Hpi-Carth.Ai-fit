@@ -67,7 +67,7 @@ export default function CoachDashboard() {
   const [coaches, setCoaches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
-  const [role, setRole] = useState("athlete");
+  const [role, setRole] = useState(() => user?.role || user?.profile?.role || "athlete");
 
   // Coach action states
   const [showNutritionModal, setShowNutritionModal] = useState(false);
@@ -1907,6 +1907,10 @@ export default function CoachDashboard() {
 
   const activeOrPending = coaches.filter(c => c.status === 'active' || c.status === 'pending');
   const browseCoaches = coaches.filter(c => !c.status || c.status === 'declined');
+  const isCoachUser = user?.role === 'coach' || user?.profile?.role === 'coach' || role === 'coach';
+  const isCoachApproved = profile
+    ? (profile.approved || profile.coach_verified || profile.verification_status === "approved")
+    : (user?.approved || user?.coach_verified || user?.verification_status === "approved" || user?.role === "coach");
 
   return (
     <div style={{ minHeight: "100vh", paddingBottom: 60, background: "var(--color-bg)", paddingTop: 24 }}>
@@ -1914,11 +1918,11 @@ export default function CoachDashboard() {
 
         {loading ? (
           <div style={{ textAlign: "center", color: "var(--color-text-3)", padding: 60 }}>
-            <div style={{ fontSize: 14, fontWeight: 700 }}>Loading verification profile...</div>
+            <div style={{ fontSize: 14, fontWeight: 700 }}>Loading workspace...</div>
           </div>
-        ) : role === 'coach' && !(profile?.approved || profile?.coach_verified || profile?.verification_status === "approved") ? (
+        ) : isCoachUser && !isCoachApproved ? (
           renderCoachOnboarding()
-        ) : role === 'coach' ? (
+        ) : isCoachUser ? (
           <RequireCoachRole>
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <CoachWorkspaceNav athleteCount={athletes.length} />

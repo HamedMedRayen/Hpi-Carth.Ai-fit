@@ -301,7 +301,7 @@ export default function VapiCallModal({ isOpen, onClose }) {
             <button
               className="vapi-close-btn"
               onClick={() => setShowSettings(!showSettings)}
-              title="Vapi Settings"
+              title="Voice Call Settings"
             >
               <Settings size={18} />
             </button>
@@ -316,14 +316,14 @@ export default function VapiCallModal({ isOpen, onClose }) {
           <form onSubmit={handleSaveSettings} className="vapi-config-container">
             <div className="vapi-config-title">
               <Key className="text-cyan-400" size={20} />
-              Vapi Voice Key Setup
+              Voice Call Key Setup
             </div>
             <p style={{ fontSize: 12, color: "#94a3b8", margin: 0, lineHeight: 1.4 }}>
-              Enter your Vapi.ai credentials below to speak directly with your AI coach in real-time.
+              Enter your Voice Call credentials below to speak directly with your AI coach in real-time.
             </p>
 
             <div className="vapi-field">
-              <label>Vapi Public Key / API Key</label>
+              <label>Public Key / API Key</label>
               <input
                 type="text"
                 placeholder="e.g. 81a6... or pk_..."
@@ -334,7 +334,7 @@ export default function VapiCallModal({ isOpen, onClose }) {
             </div>
 
             <div className="vapi-field">
-              <label>Assistant ID / Model ID</label>
+              <label>Voice Assistant ID</label>
               <input
                 type="text"
                 placeholder="e.g. 5f8a..."

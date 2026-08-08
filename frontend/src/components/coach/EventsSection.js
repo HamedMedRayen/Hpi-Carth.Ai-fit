@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import {
   Trophy, Calendar, MapPin, Plus, Flame, Users, Clock, Video,
   CheckCircle2, X, Filter, Sparkles, Trash2, ShieldCheck, Dumbbell,
-  Award, MessageSquare, AlertCircle, ExternalLink, UserCheck, Lock, Globe
+  Award, MessageSquare, AlertCircle, ExternalLink, Lock, Globe
 } from "lucide-react";
 import { useAuth } from "../../utils/auth";
 import { api } from "../../utils/api";
@@ -738,7 +738,7 @@ export default function EventsSection() {
                         "Updating..."
                       ) : ev.is_registered ? (
                         <>
-                          <UserCheck size={15} />
+                          <CheckCircle2 size={15} />
                           Registered ✓
                         </>
                       ) : isFull ? (
@@ -769,19 +769,19 @@ export default function EventsSection() {
           padding: 20
         }}>
           <div style={{
-            background: "var(--color-bg1, #0f172a)",
-            border: "1px solid var(--border-card, rgba(255, 255, 255, 0.12))",
+            background: "var(--bg-card)",
+            border: "1px solid var(--border-card)",
             borderRadius: 24,
             width: "100%",
             maxWidth: 540,
             padding: 28,
             maxHeight: "90vh",
             overflowY: "auto",
-            boxShadow: "0 20px 50px rgba(0,0,0,0.5)"
+            boxShadow: "var(--shadow-raise)"
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <div style={{ fontSize: 18, fontWeight: 900, color: "#fff", display: "flex", alignItems: "center", gap: 8 }}>
-                <Trophy size={20} style={{ color: "#f59e0b" }} />
+              <div style={{ fontSize: 18, fontWeight: 900, color: "var(--color-text)", display: "flex", alignItems: "center", gap: 8 }}>
+                <Trophy size={20} style={{ color: "var(--aura-accent)" }} />
                 Host a Community Event
               </div>
               <button
@@ -807,9 +807,9 @@ export default function EventsSection() {
                     width: "100%",
                     padding: "10px 14px",
                     borderRadius: 12,
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    color: "#fff",
+                    background: "var(--bg-input)",
+                    border: "1px solid var(--border-input)",
+                    color: "var(--color-text)",
                     fontSize: 13
                   }}
                 />
@@ -827,16 +827,16 @@ export default function EventsSection() {
                       width: "100%",
                       padding: "10px 14px",
                       borderRadius: 12,
-                      background: "#1e293b",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#fff",
+                      background: "var(--bg-input)",
+                      border: "1px solid var(--border-input)",
+                      color: "var(--color-text)",
                       fontSize: 13
                     }}
                   >
-                    <option value="workshop">Form & Technique (Lifting mechanics & safety)</option>
-                    <option value="bootcamp">High-Energy Cardio (Calorie burning & stamina)</option>
-                    <option value="group_workout">Live Group Workout (Interactive training)</option>
-                    <option value="qa_session">Ask a Coach Q&A (Live Q&A advice)</option>
+                    <option value="workshop" style={{ background: "var(--bg-card)", color: "var(--color-text)" }}>Form & Technique (Lifting mechanics & safety)</option>
+                    <option value="bootcamp" style={{ background: "var(--bg-card)", color: "var(--color-text)" }}>High-Energy Cardio (Calorie burning & stamina)</option>
+                    <option value="group_workout" style={{ background: "var(--bg-card)", color: "var(--color-text)" }}>Live Group Workout (Interactive training)</option>
+                    <option value="qa_session" style={{ background: "var(--bg-card)", color: "var(--color-text)" }}>Ask a Coach Q&A (Live Q&A advice)</option>
                   </select>
                 </div>
 
@@ -853,9 +853,9 @@ export default function EventsSection() {
                       width: "100%",
                       padding: "10px 14px",
                       borderRadius: 12,
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#fff",
+                      background: "var(--bg-input)",
+                      border: "1px solid var(--border-input)",
+                      color: "var(--color-text)",
                       fontSize: 13
                     }}
                   />
@@ -878,9 +878,9 @@ export default function EventsSection() {
                       width: "100%",
                       padding: "10px 14px",
                       borderRadius: 12,
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#fff",
+                      background: "var(--bg-input)",
+                      border: "1px solid var(--border-input)",
+                      color: "var(--color-text)",
                       fontSize: 13
                     }}
                   />
@@ -897,14 +897,14 @@ export default function EventsSection() {
                       width: "100%",
                       padding: "10px 14px",
                       borderRadius: 12,
-                      background: "#1e293b",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#fff",
+                      background: "var(--bg-input)",
+                      border: "1px solid var(--border-input)",
+                      color: "var(--color-text)",
                       fontSize: 13
                     }}
                   >
-                    <option value="public">Public (Open to all platform users)</option>
-                    <option value="adherents_only">Adherents Only (Private to my active athletes)</option>
+                    <option value="public" style={{ background: "var(--bg-card)", color: "var(--color-text)" }}>Public (Open to all platform users)</option>
+                    <option value="adherents_only" style={{ background: "var(--bg-card)", color: "var(--color-text)" }}>Adherents Only (Private to my active athletes)</option>
                   </select>
                 </div>
               </div>
@@ -923,9 +923,9 @@ export default function EventsSection() {
                       width: "100%",
                       padding: "10px 14px",
                       borderRadius: 12,
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#fff",
+                      background: "var(--bg-input)",
+                      border: "1px solid var(--border-input)",
+                      color: "var(--color-text)",
                       fontSize: 13
                     }}
                   />
@@ -945,9 +945,9 @@ export default function EventsSection() {
                       width: "100%",
                       padding: "10px 14px",
                       borderRadius: 12,
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#fff",
+                      background: "var(--bg-input)",
+                      border: "1px solid var(--border-input)",
+                      color: "var(--color-text)",
                       fontSize: 13
                     }}
                   />
@@ -967,9 +967,9 @@ export default function EventsSection() {
                     width: "100%",
                     padding: "10px 14px",
                     borderRadius: 12,
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    color: "#fff",
+                    background: "var(--bg-input)",
+                    border: "1px solid var(--border-input)",
+                    color: "var(--color-text)",
                     fontSize: 13
                   }}
                 />
@@ -988,9 +988,9 @@ export default function EventsSection() {
                     width: "100%",
                     padding: "10px 14px",
                     borderRadius: 12,
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    color: "#fff",
+                    background: "var(--bg-input)",
+                    border: "1px solid var(--border-input)",
+                    color: "var(--color-text)",
                     fontSize: 13,
                     resize: "vertical"
                   }}
@@ -1017,7 +1017,7 @@ export default function EventsSection() {
                       objectFit: "cover",
                       borderRadius: 12,
                       marginTop: 10,
-                      border: "1px solid rgba(245, 158, 11, 0.4)"
+                      border: "1px solid var(--border-card)"
                     }}
                   />
                 )}
@@ -1031,9 +1031,9 @@ export default function EventsSection() {
                     flex: 1,
                     padding: "12px",
                     borderRadius: 12,
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    color: "#fff",
+                    background: "var(--color-surface)",
+                    border: "1px solid var(--border-card)",
+                    color: "var(--color-text)",
                     fontWeight: 700,
                     cursor: "pointer"
                   }}

@@ -366,7 +366,7 @@ export default function ScheduleSection() {
             <CalendarIcon size={22} />
           </div>
           <div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: "-0.5px" }}>
+            <div style={{ fontSize: 22, fontWeight: 900, color: "var(--color-text)", letterSpacing: "-0.5px" }}>
               Coach Schedule & Calendar Workspace
             </div>
             <div style={{ fontSize: 12, color: "var(--color-text-2)", marginTop: 2 }}>
@@ -396,13 +396,14 @@ export default function ScheduleSection() {
 
       {/* Main Calendar Card */}
       <div style={{
-        background: "var(--bg-glass, rgba(15, 23, 42, 0.6))",
-        border: "1px solid var(--border-card, rgba(255, 255, 255, 0.08))",
+        background: "var(--bg-card)",
+        border: "1px solid var(--border-card)",
         borderRadius: 24,
         padding: 24,
         display: "flex",
         flexDirection: "column",
         gap: 20,
+        boxShadow: "var(--shadow-card)",
         backdropFilter: "blur(16px)"
       }}>
         {/* Calendar Navigation & View Toggle Toolbar */}
@@ -723,78 +724,54 @@ export default function ScheduleSection() {
       {showBookModal && (
         <div style={{
           position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-          background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)",
+          background: "var(--overlay-bg, rgba(0,0,0,0.75))", backdropFilter: "blur(8px)",
           display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 20
         }}>
           <div style={{
-            background: "#0f172a", border: "1px solid var(--border-card)",
-            borderRadius: 24, padding: 28, width: "100%", maxWidth: 500,
-            display: "flex", flexDirection: "column", gap: 20, animation: "fadeIn 0.2s ease-out"
+            background: "var(--bg-card)", border: "1px solid var(--border-card)",
+            borderRadius: 24, padding: 28, width: "100%", maxWidth: 520,
+            maxHeight: "90vh", overflowY: "auto", boxShadow: "var(--shadow-raise)"
           }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: 12 }}>
-              <div style={{ fontSize: 18, fontWeight: 900, color: "#fff", display: "flex", alignItems: "center", gap: 8 }}>
-                <Plus size={18} color="var(--aura-cyan)" /> Book Coaching Session / Slot
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <div style={{ fontSize: 18, fontWeight: 900, color: "var(--color-text)", display: "flex", alignItems: "center", gap: 8 }}>
+                <CalendarIcon size={20} style={{ color: "var(--aura-accent)" }} />
+                Book Session or Set Slot
               </div>
               <button onClick={() => setShowBookModal(false)} style={{ background: "none", border: "none", color: "var(--color-text-3)", cursor: "pointer" }}>
                 <X size={20} />
               </button>
             </div>
 
-            {modalError && (
-              <div style={{
-                background: "rgba(239, 68, 68, 0.1)", border: "1px solid #ef4444",
-                borderRadius: 12, padding: "10px 14px", color: "#fca5a5", fontSize: 12,
-                display: "flex", alignItems: "center", gap: 8
-              }}>
-                <AlertCircle size={16} /> {modalError}
-              </div>
-            )}
-
-            <form onSubmit={handleBookSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              {/* Item Type Selector */}
-              <div>
-                <label style={{ fontSize: 11, fontWeight: 800, color: "var(--color-text-3)", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Slot Type</label>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-                  <button
-                    type="button"
-                    onClick={() => setModalData(prev => ({ ...prev, item_type: 'session' }))}
-                    style={{
-                      background: modalData.item_type === 'session' ? "rgba(6, 182, 212, 0.2)" : "rgba(255,255,255,0.03)",
-                      border: modalData.item_type === 'session' ? "1px solid var(--aura-cyan)" : "1px solid var(--border-card)",
-                      color: modalData.item_type === 'session' ? "var(--aura-cyan)" : "var(--color-text-2)",
-                      borderRadius: 10, padding: "8px 0", fontSize: 11, fontWeight: 800, cursor: "pointer"
-                    }}
-                  >
-                    1-on-1 Session
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setModalData(prev => ({ ...prev, item_type: 'availability_block' }))}
-                    style={{
-                      background: modalData.item_type === 'availability_block' ? "rgba(16, 185, 129, 0.2)" : "rgba(255,255,255,0.03)",
-                      border: modalData.item_type === 'availability_block' ? "1px solid #10b981" : "1px solid var(--border-card)",
-                      color: modalData.item_type === 'availability_block' ? "#34d399" : "var(--color-text-2)",
-                      borderRadius: 10, padding: "8px 0", fontSize: 11, fontWeight: 800, cursor: "pointer"
-                    }}
-                  >
-                    Free Slot
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setModalData(prev => ({ ...prev, item_type: 'event' }))}
-                    style={{
-                      background: modalData.item_type === 'event' ? "rgba(139, 92, 246, 0.2)" : "rgba(255,255,255,0.03)",
-                      border: modalData.item_type === 'event' ? "1px solid #8b5cf6" : "1px solid var(--border-card)",
-                      color: modalData.item_type === 'event' ? "#c084fc" : "var(--color-text-2)",
-                      borderRadius: 10, padding: "8px 0", fontSize: 11, fontWeight: 800, cursor: "pointer"
-                    }}
-                  >
-                    Gym Event
-                  </button>
-                </div>
+            <form onSubmit={handleSaveBooking} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {/* Type Switcher */}
+              <div style={{ display: "flex", background: "var(--color-surface-h)", padding: 3, borderRadius: 12, border: "1px solid var(--border-card)" }}>
+                <button
+                  type="button"
+                  onClick={() => setModalData(prev => ({ ...prev, item_type: 'session' }))}
+                  style={{
+                    flex: 1, padding: "8px 0", borderRadius: 10, fontSize: 12, fontWeight: 800, border: "none",
+                    background: modalData.item_type === 'session' ? "var(--aura-accent)" : "transparent",
+                    color: modalData.item_type === 'session' ? "var(--color-on-accent)" : "var(--color-text-2)",
+                    cursor: "pointer", transition: "all 0.2s"
+                  }}
+                >
+                  1-on-1 Athlete Session
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setModalData(prev => ({ ...prev, item_type: 'free_slot' }))}
+                  style={{
+                    flex: 1, padding: "8px 0", borderRadius: 10, fontSize: 12, fontWeight: 800, border: "none",
+                    background: modalData.item_type === 'free_slot' ? "var(--aura-accent)" : "transparent",
+                    color: modalData.item_type === 'free_slot' ? "var(--color-on-accent)" : "var(--color-text-2)",
+                    cursor: "pointer", transition: "all 0.2s"
+                  }}
+                >
+                  Open Free Slot
+                </button>
               </div>
 
-              {/* Roster Athlete Dropdown (if session) */}
+              {/* Athlete Select (if session) */}
               {modalData.item_type === 'session' && (
                 <div>
                   <label style={{ fontSize: 11, fontWeight: 800, color: "var(--color-text-3)", textTransform: "uppercase", display: "block", marginBottom: 6 }}>Select Athlete</label>
@@ -802,8 +779,8 @@ export default function ScheduleSection() {
                     value={modalData.athlete_id}
                     onChange={e => setModalData(prev => ({ ...prev, athlete_id: e.target.value }))}
                     style={{
-                      width: "100%", background: "var(--color-surface-h)", border: "1px solid var(--border-card)",
-                      borderRadius: 10, padding: "10px 12px", color: "#fff", fontSize: 13, outline: "none"
+                      width: "100%", background: "var(--bg-input)", border: "1px solid var(--border-input)",
+                      borderRadius: 10, padding: "10px 12px", color: "var(--color-text)", fontSize: 13, outline: "none"
                     }}
                     required
                   >
@@ -811,7 +788,7 @@ export default function ScheduleSection() {
                       <option value="">No active athletes on roster</option>
                     ) : (
                       athletes.map(a => (
-                        <option key={a.athlete_id} value={a.athlete_id}>
+                        <option key={a.athlete_id} value={a.athlete_id} style={{ background: "var(--bg-card)", color: "var(--color-text)" }}>
                           {a.name || a.email}
                         </option>
                       ))
@@ -829,8 +806,8 @@ export default function ScheduleSection() {
                   value={modalData.title}
                   onChange={e => setModalData(prev => ({ ...prev, title: e.target.value }))}
                   style={{
-                    width: "100%", background: "var(--color-surface-h)", border: "1px solid var(--border-card)",
-                    borderRadius: 10, padding: "10px 12px", color: "#fff", fontSize: 13, outline: "none", boxSizing: "border-box"
+                    width: "100%", background: "var(--bg-input)", border: "1px solid var(--border-input)",
+                    borderRadius: 10, padding: "10px 12px", color: "var(--color-text)", fontSize: 13, outline: "none", boxSizing: "border-box"
                   }}
                 />
               </div>
@@ -844,8 +821,8 @@ export default function ScheduleSection() {
                     value={modalData.date}
                     onChange={e => setModalData(prev => ({ ...prev, date: e.target.value }))}
                     style={{
-                      width: "100%", background: "var(--color-surface-h)", border: "1px solid var(--border-card)",
-                      borderRadius: 10, padding: "8px 10px", color: "#fff", fontSize: 12, outline: "none", boxSizing: "border-box"
+                      width: "100%", background: "var(--bg-input)", border: "1px solid var(--border-input)",
+                      borderRadius: 10, padding: "8px 10px", color: "var(--color-text)", fontSize: 12, outline: "none", boxSizing: "border-box"
                     }}
                     required
                   />
@@ -857,8 +834,8 @@ export default function ScheduleSection() {
                     value={modalData.start_time}
                     onChange={e => handleStartTimeChange(e.target.value)}
                     style={{
-                      width: "100%", background: "var(--color-surface-h)", border: "1px solid var(--border-card)",
-                      borderRadius: 10, padding: "8px 10px", color: "#fff", fontSize: 12, outline: "none", boxSizing: "border-box"
+                      width: "100%", background: "var(--bg-input)", border: "1px solid var(--border-input)",
+                      borderRadius: 10, padding: "8px 10px", color: "var(--color-text)", fontSize: 12, outline: "none", boxSizing: "border-box"
                     }}
                     required
                   />
@@ -870,8 +847,8 @@ export default function ScheduleSection() {
                     value={modalData.end_time}
                     onChange={e => handleEndTimeChange(e.target.value)}
                     style={{
-                      width: "100%", background: "var(--color-surface-h)", border: "1px solid var(--border-card)",
-                      borderRadius: 10, padding: "8px 10px", color: "#fff", fontSize: 12, outline: "none", boxSizing: "border-box"
+                      width: "100%", background: "var(--bg-input)", border: "1px solid var(--border-input)",
+                      borderRadius: 10, padding: "8px 10px", color: "var(--color-text)", fontSize: 12, outline: "none", boxSizing: "border-box"
                     }}
                     required
                   />
@@ -888,9 +865,9 @@ export default function ScheduleSection() {
                       type="button"
                       onClick={() => handleDurationPreset(dur)}
                       style={{
-                        background: parseInt(modalData.duration) === dur ? "rgba(6, 182, 212, 0.2)" : "rgba(255,255,255,0.03)",
-                        border: parseInt(modalData.duration) === dur ? "1px solid var(--aura-cyan)" : "1px solid var(--border-card)",
-                        color: parseInt(modalData.duration) === dur ? "var(--aura-cyan)" : "var(--color-text-2)",
+                        background: parseInt(modalData.duration) === dur ? "color-mix(in srgb, var(--aura-accent) 20%, transparent)" : "var(--color-surface)",
+                        border: parseInt(modalData.duration) === dur ? "1px solid var(--aura-accent)" : "1px solid var(--border-card)",
+                        color: parseInt(modalData.duration) === dur ? "var(--aura-accent)" : "var(--color-text-2)",
                         borderRadius: 8, padding: "4px 10px", fontSize: 11, fontWeight: 700, cursor: "pointer"
                       }}
                     >
@@ -908,13 +885,13 @@ export default function ScheduleSection() {
                     value={modalData.recurrence_rule}
                     onChange={e => setModalData(prev => ({ ...prev, recurrence_rule: e.target.value }))}
                     style={{
-                      width: "100%", background: "var(--color-surface-h)", border: "1px solid var(--border-card)",
-                      borderRadius: 10, padding: "8px 10px", color: "#fff", fontSize: 12, outline: "none", boxSizing: "border-box"
+                      width: "100%", background: "var(--bg-input)", border: "1px solid var(--border-input)",
+                      borderRadius: 10, padding: "8px 10px", color: "var(--color-text)", fontSize: 12, outline: "none", boxSizing: "border-box"
                     }}
                   >
-                    <option value="none">One-time Session</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="biweekly">Bi-weekly</option>
+                    <option value="none" style={{ background: "var(--bg-card)", color: "var(--color-text)" }}>One-time Session</option>
+                    <option value="weekly" style={{ background: "var(--bg-card)", color: "var(--color-text)" }}>Weekly</option>
+                    <option value="biweekly" style={{ background: "var(--bg-card)", color: "var(--color-text)" }}>Bi-weekly</option>
                   </select>
                 </div>
                 {modalData.recurrence_rule !== 'none' && (
@@ -924,13 +901,13 @@ export default function ScheduleSection() {
                       value={modalData.recurrence_count}
                       onChange={e => setModalData(prev => ({ ...prev, recurrence_count: e.target.value }))}
                       style={{
-                        width: "100%", background: "var(--color-surface-h)", border: "1px solid var(--border-card)",
-                        borderRadius: 10, padding: "8px 10px", color: "#fff", fontSize: 12, outline: "none", boxSizing: "border-box"
+                        width: "100%", background: "var(--bg-input)", border: "1px solid var(--border-input)",
+                        borderRadius: 10, padding: "8px 10px", color: "var(--color-text)", fontSize: 12, outline: "none", boxSizing: "border-box"
                       }}
                     >
-                      <option value="4">4 weeks</option>
-                      <option value="8">8 weeks</option>
-                      <option value="12">12 weeks</option>
+                      <option value="4" style={{ background: "var(--bg-card)", color: "var(--color-text)" }}>4 weeks</option>
+                      <option value="8" style={{ background: "var(--bg-card)", color: "var(--color-text)" }}>8 weeks</option>
+                      <option value="12" style={{ background: "var(--bg-card)", color: "var(--color-text)" }}>12 weeks</option>
                     </select>
                   </div>
                 )}
@@ -941,8 +918,8 @@ export default function ScheduleSection() {
                   type="button"
                   onClick={() => setShowBookModal(false)}
                   style={{
-                    flex: 1, background: "rgba(255,255,255,0.05)", border: "1px solid var(--border-card)",
-                    borderRadius: 12, padding: "10px 0", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer"
+                    flex: 1, background: "var(--color-surface)", border: "1px solid var(--border-card)",
+                    borderRadius: 12, padding: "10px 0", color: "var(--color-text)", fontWeight: 700, fontSize: 13, cursor: "pointer"
                   }}
                 >
                   Cancel
@@ -967,20 +944,21 @@ export default function ScheduleSection() {
       {selectedItem && (
         <div style={{
           position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-          background: "rgba(0,0,0,0.75)", backdropFilter: "blur(8px)",
+          background: "var(--overlay-bg, rgba(0,0,0,0.75))", backdropFilter: "blur(8px)",
           display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, padding: 20
         }}>
           <div style={{
-            background: "#0f172a", border: "1px solid var(--border-card)",
+            background: "var(--bg-card)", border: "1px solid var(--border-card)",
             borderRadius: 24, padding: 28, width: "100%", maxWidth: 440,
-            display: "flex", flexDirection: "column", gap: 20, animation: "fadeIn 0.2s ease-out"
+            display: "flex", flexDirection: "column", gap: 20, animation: "fadeIn 0.2s ease-out",
+            boxShadow: "var(--shadow-raise)"
           }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-card)", paddingBottom: 12 }}>
               <div>
-                <span className="glass-pill" style={{ fontSize: 9, padding: "2px 8px", background: "rgba(6, 182, 212, 0.1)", color: "var(--aura-cyan)", border: "1px solid rgba(6, 182, 212, 0.2)", textTransform: "uppercase" }}>
+                <span className="glass-pill" style={{ fontSize: 9, padding: "2px 8px", background: "color-mix(in srgb, var(--aura-accent) 15%, transparent)", color: "var(--aura-accent)", border: "1px solid var(--color-border)", textTransform: "uppercase" }}>
                   {selectedItem.item_type?.replace('_', ' ')}
                 </span>
-                <h3 style={{ margin: "6px 0 0", fontSize: 18, fontWeight: 900, color: "#fff" }}>
+                <h3 style={{ margin: "6px 0 0", fontSize: 18, fontWeight: 900, color: "var(--color-text)" }}>
                   {selectedItem.title}
                 </h3>
               </div>
@@ -992,21 +970,21 @@ export default function ScheduleSection() {
             <div style={{ display: "flex", flexDirection: "column", gap: 10, fontSize: 13, color: "var(--color-text-2)" }}>
               {selectedItem.athlete_name && (
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <Users size={16} color="var(--aura-cyan)" />
-                  <span>Athlete: <strong style={{ color: "#fff" }}>{selectedItem.athlete_name}</strong></span>
+                  <Users size={16} color="var(--aura-accent)" />
+                  <span>Athlete: <strong style={{ color: "var(--color-text)" }}>{selectedItem.athlete_name}</strong></span>
                 </div>
               )}
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <Clock size={16} color="var(--aura-cyan)" />
-                <span>Time: <strong style={{ color: "#fff" }}>{formatTime12h(selectedItem.start_time)} - {formatTime12h(selectedItem.end_time)}</strong></span>
+                <Clock size={16} color="var(--aura-accent)" />
+                <span>Time: <strong style={{ color: "var(--color-text)" }}>{formatTime12h(selectedItem.start_time)} - {formatTime12h(selectedItem.end_time)}</strong></span>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <MapPin size={16} color="var(--aura-cyan)" />
-                <span>Location: <strong style={{ color: "#fff" }}>{selectedItem.location || "Gym"}</strong></span>
+                <MapPin size={16} color="var(--aura-accent)" />
+                <span>Location: <strong style={{ color: "var(--color-text)" }}>{selectedItem.location || "Gym"}</strong></span>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <Info size={16} color="var(--aura-cyan)" />
-                <span>Status: <strong style={{ color: selectedItem.status === 'completed' ? '#34d399' : '#38bdf8', textTransform: 'capitalize' }}>{selectedItem.status}</strong></span>
+                <Info size={16} color="var(--aura-accent)" />
+                <span>Status: <strong style={{ color: selectedItem.status === 'completed' ? '#34d399' : 'var(--aura-accent)', textTransform: 'capitalize' }}>{selectedItem.status}</strong></span>
               </div>
             </div>
 

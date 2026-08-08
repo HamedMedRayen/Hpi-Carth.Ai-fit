@@ -149,7 +149,7 @@ export default function HpiChat() {
             className="hpi-call-header-btn"
             onClick={() => setIsCallOpen(true)}
             aria-label="Start Voice Call"
-            title="Start Vapi AI Voice Call"
+            title="Start AI Voice Call"
           >
             <Phone size={18} />
           </button>

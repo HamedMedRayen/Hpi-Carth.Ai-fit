@@ -355,7 +355,7 @@ def generate_athlete_ai_report(
 ):
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
-        raise HTTPException(status_code=500, detail="GROQ_API_KEY is not configured.")
+        raise HTTPException(status_code=500, detail="AI Report service is not configured.")
 
     with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         verify_coach_and_athlete(coach_id, athlete_id, cur)

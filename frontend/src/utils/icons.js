@@ -254,7 +254,7 @@ export function HpiLogo({ size = 32, showText = true, style = {}, forceWhite = f
           fontWeight: 800,
           fontSize: size * 0.65,
           letterSpacing: "0.06em",
-          color: "var(--color-text)",
+          color: forceWhite ? "#ffffff" : "var(--color-text)",
           lineHeight: 1,
         }}>
           HPI

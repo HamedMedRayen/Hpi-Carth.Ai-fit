@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../../utils/theme';
-import { Moon, Sun, Leaf, Flame, Contrast, Zap } from 'lucide-react';
+import { Moon, Sun, Compass, Leaf, Flame, Contrast, Zap } from 'lucide-react';
 
 /* ── Rose icon for Queen theme ─────────────────────────── */
 const RoseIcon = ({ size = 16 }) => (
@@ -17,7 +17,8 @@ const RoseIcon = ({ size = 16 }) => (
 
 const THEMES = [
   { id: 'dark', color: '#94a3b8', Icon: Moon, label: 'Night' },
-  { id: 'light', color: '#0ea5e9', Icon: Sun, label: 'Sky' },
+  { id: 'light', color: '#38bdf8', Icon: Sun, label: 'Sky' },
+  { id: 'main', color: '#0ea5e9', Icon: Compass, label: 'Main' },
   { id: 'nature', color: '#4A7C59', Icon: Leaf, label: 'Nature' },
   { id: 'fire', color: '#ff0000', Icon: Flame, label: 'Fire' },
   { id: 'queen', color: '#ff718b', Icon: RoseIcon, label: 'Queen' },
@@ -124,7 +125,7 @@ export default function OrbThemeSwitcher() {
           transformOrigin: 'top right',
         }}
       >
-        {THEMES.map((t, i) => {
+        {THEMES.filter(t => t.id === 'dark' || t.id === 'main').map((t, i) => {
           const isActive = t.id === activeTheme;
           return (
             <button

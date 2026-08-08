@@ -352,7 +352,7 @@ function ExecutiveReportDocument({ markdown }) {
           boxShadow: "0 4px 16px rgba(0,0,0,0.15)"
         }}>
           <div style={{ marginTop: 2, flexShrink: 0 }}>{icon}</div>
-          <div style={{ fontSize: 13, color: "#fff", lineHeight: 1.6, flex: 1 }}>
+          <div style={{ fontSize: 13, color: "var(--color-text)", lineHeight: 1.6, flex: 1 }}>
             {renderInlineText(displayContent)}
           </div>
         </div>
@@ -366,8 +366,8 @@ function ExecutiveReportDocument({ markdown }) {
       const titleText = trimmed.replace(/^#\s*/, '');
       elements.push(
         <div key={`title-${i}`} style={{
-          background: "linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%)",
-          border: "1px solid rgba(168, 85, 247, 0.3)",
+          background: "color-mix(in srgb, var(--aura-accent) 15%, var(--bg-card))",
+          border: "1px solid var(--color-border)",
           borderRadius: 16,
           padding: "18px 22px",
           margin: "12px 0 20px",
@@ -379,18 +379,18 @@ function ExecutiveReportDocument({ markdown }) {
             width: 42,
             height: 42,
             borderRadius: 12,
-            background: "rgba(168, 85, 247, 0.25)",
-            border: "1px solid rgba(168, 85, 247, 0.4)",
+            background: "color-mix(in srgb, var(--aura-accent) 25%, transparent)",
+            border: "1px solid var(--color-border)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "#c084fc",
+            color: "var(--aura-accent)",
             flexShrink: 0
           }}>
             <Brain size={22} />
           </div>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 900, color: "#fff", letterSpacing: "-0.3px" }}>
+            <div style={{ fontSize: 18, fontWeight: 900, color: "var(--color-text)", letterSpacing: "-0.3px" }}>
               {titleText}
             </div>
             <div style={{ fontSize: 11, color: "var(--color-text-2)", marginTop: 2 }}>
@@ -410,25 +410,25 @@ function ExecutiveReportDocument({ markdown }) {
     if (isMarkdownH2 || isNumberedHeader) {
       const headerText = trimmed.replace(/^##\s*/, '');
 
-      let icon = <Activity size={18} style={{ color: "#c084fc" }} />;
-      let headerColor = "#c084fc";
+      let icon = <Activity size={18} style={{ color: "var(--aura-accent)" }} />;
+      let headerColor = "var(--aura-accent)";
 
       if (headerText.includes("1.") || headerText.toLowerCase().includes("executive summary")) {
-        icon = <Brain size={18} style={{ color: "#c084fc" }} />;
+        icon = <Brain size={18} style={{ color: "var(--aura-accent)" }} />;
       } else if (headerText.includes("2.") || headerText.toLowerCase().includes("audit")) {
-        icon = <ShieldCheck size={18} style={{ color: "#06b6d4" }} />;
-        headerColor = "#38bdf8";
+        icon = <ShieldCheck size={18} style={{ color: "var(--color-text)" }} />;
+        headerColor = "var(--color-text)";
       } else if (headerText.includes("3.") || headerText.toLowerCase().includes("training")) {
-        icon = <TrendingUp size={18} style={{ color: "#a855f7" }} />;
+        icon = <TrendingUp size={18} style={{ color: "var(--aura-accent)" }} />;
       } else if (headerText.includes("4.") || headerText.toLowerCase().includes("nutrition")) {
-        icon = <Sliders size={18} style={{ color: "#fbbf24" }} />;
-        headerColor = "#fbbf24";
+        icon = <Sliders size={18} style={{ color: "var(--color-text)" }} />;
+        headerColor = "var(--color-text)";
       } else if (headerText.includes("5.") || headerText.toLowerCase().includes("fatigue") || headerText.toLowerCase().includes("injury")) {
         icon = <HeartPulse size={18} style={{ color: "#ef4444" }} />;
-        headerColor = "#fca5a5";
+        headerColor = "#ef4444";
       } else if (headerText.includes("6.") || headerText.toLowerCase().includes("actionable") || headerText.toLowerCase().includes("directives")) {
         icon = <Zap size={18} style={{ color: "#22c55e" }} />;
-        headerColor = "#4ade80";
+        headerColor = "#22c55e";
       }
 
       elements.push(
@@ -437,17 +437,17 @@ function ExecutiveReportDocument({ markdown }) {
           display: "flex",
           alignItems: "center",
           gap: 12,
-          background: "rgba(255, 255, 255, 0.025)",
-          border: "1px solid rgba(255, 255, 255, 0.08)",
+          background: "var(--color-surface-h)",
+          border: "1px solid var(--border-card)",
           padding: "12px 16px",
           borderRadius: 14,
-          boxShadow: "0 2px 10px rgba(0,0,0,0.15)"
+          boxShadow: "0 2px 10px rgba(0,0,0,0.08)"
         }}>
           <div style={{
             width: 32,
             height: 32,
             borderRadius: 10,
-            background: "rgba(255,255,255,0.05)",
+            background: "var(--color-surface)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center"
@@ -466,7 +466,7 @@ function ExecutiveReportDocument({ markdown }) {
     // 5. Subheaders (### Subtitle)
     if (trimmed.startsWith('### ')) {
       elements.push(
-        <h3 key={`h3-${i}`} style={{ fontSize: 14, fontWeight: 800, color: "#38bdf8", margin: "18px 0 8px" }}>
+        <h3 key={`h3-${i}`} style={{ fontSize: 14, fontWeight: 800, color: "var(--color-text)", margin: "18px 0 8px" }}>
           {trimmed.replace('### ', '')}
         </h3>
       );
@@ -485,8 +485,8 @@ function ExecutiveReportDocument({ markdown }) {
 
         elements.push(
           <div key={`directive-${i}`} style={{
-            background: "rgba(6, 182, 212, 0.04)",
-            border: "1px solid rgba(6, 182, 212, 0.2)",
+            background: "color-mix(in srgb, var(--aura-accent) 8%, var(--bg-card))",
+            border: "1px solid var(--border-card)",
             borderRadius: 14,
             padding: "14px 18px",
             margin: "10px 0",
@@ -499,8 +499,8 @@ function ExecutiveReportDocument({ markdown }) {
               width: 28,
               height: 28,
               borderRadius: "50%",
-              background: "linear-gradient(135deg, #a855f7 0%, #06b6d4 100%)",
-              color: "#fff",
+              background: "var(--aura-accent)",
+              color: "var(--color-on-accent)",
               fontWeight: 900,
               fontSize: 13,
               display: "flex",
@@ -512,7 +512,7 @@ function ExecutiveReportDocument({ markdown }) {
               {num}
             </div>
             <div style={{ flex: 1, fontSize: 13, lineHeight: 1.6 }}>
-              <div style={{ fontWeight: 800, color: "#fff", fontSize: 14, marginBottom: 4 }}>
+              <div style={{ fontWeight: 800, color: "var(--color-text)", fontSize: 14, marginBottom: 4 }}>
                 {title}
               </div>
               <div style={{ color: "var(--color-text-2)" }}>
@@ -642,7 +642,7 @@ export default function AiReportsSection() {
       }
     } catch (err) {
       console.error("AI Report generation failed:", err);
-      setError(err.message || "Failed to generate AI athlete report. Check Groq connection.");
+      setError(err.message || "Failed to generate AI athlete report. Please check your connection.");
     } finally {
       setGenerating(false);
     }
@@ -765,11 +765,11 @@ export default function AiReportsSection() {
             <Sparkles size={22} />
           </div>
           <div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: "-0.5px" }}>
+            <div style={{ fontSize: 22, fontWeight: 900, color: "var(--color-text)", letterSpacing: "-0.5px" }}>
               Executive AI Athlete Report Engine
             </div>
             <div style={{ fontSize: 12, color: "var(--color-text-2)", marginTop: 2 }}>
-              Data-grounded, zero-hallucination strength & conditioning dossiers powered by Groq Llama-3.3-70b.
+              Data-grounded strength & conditioning dossiers for your athletes.
             </div>
           </div>
         </div>
@@ -777,34 +777,35 @@ export default function AiReportsSection() {
         <div style={{ display: "flex", gap: 10 }}>
           <div style={{
             display: "flex", alignItems: "center", gap: 8, padding: "6px 12px",
-            borderRadius: 10, background: "rgba(255, 255, 255, 0.04)", border: "1px solid rgba(255, 255, 255, 0.08)",
+            borderRadius: 10, background: "var(--color-surface)", border: "1px solid var(--border-card)",
             fontSize: 12, color: "var(--color-text-2)"
           }}>
-            <ShieldCheck size={14} style={{ color: "#c084fc" }} /> Grounded S&C Directives
+            <ShieldCheck size={14} style={{ color: "var(--aura-accent)" }} /> Grounded S&C Directives
           </div>
         </div>
       </div>
 
       {/* Main Generator Workspace Shell */}
       <div style={{
-        background: "var(--bg-glass, rgba(15, 23, 42, 0.6))",
-        border: "1px solid var(--border-card, rgba(255, 255, 255, 0.08))",
+        background: "var(--bg-card)",
+        border: "1px solid var(--border-card)",
         borderRadius: 24,
         padding: 24,
         display: "flex",
         flexDirection: "column",
         gap: 20,
+        boxShadow: "var(--shadow-card)",
         backdropFilter: "blur(16px)"
       }}>
-        <div style={{ fontSize: 16, fontWeight: 800, color: "#fff", display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: 14 }}>
-          <Brain size={18} style={{ color: "#c084fc" }} />
+        <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-text)", display: "flex", alignItems: "center", gap: 8, borderBottom: "1px solid var(--border-card)", paddingBottom: 14 }}>
+          <Brain size={18} style={{ color: "var(--aura-accent)" }} />
           Athlete Report Configuration
         </div>
 
         {error && (
           <div style={{
             background: "rgba(239, 68, 68, 0.1)", border: "1px solid #ef4444",
-            borderRadius: 12, padding: "12px 16px", color: "#fca5a5", fontSize: 13,
+            borderRadius: 12, padding: "12px 16px", color: "#ef4444", fontSize: 13,
             display: "flex", alignItems: "center", gap: 10
           }}>
             <AlertCircle size={18} /> {error}
@@ -826,15 +827,15 @@ export default function AiReportsSection() {
                   value={selectedAthleteId}
                   onChange={e => setSelectedAthleteId(e.target.value)}
                   style={{
-                    width: "100%", background: "var(--color-surface-h)", border: "1px solid var(--border-card)",
-                    borderRadius: 12, padding: "10px 14px", color: "#fff", fontSize: 13, outline: "none", fontWeight: 700
+                    width: "100%", background: "var(--bg-input)", border: "1px solid var(--border-input)",
+                    borderRadius: 12, padding: "10px 14px", color: "var(--color-text)", fontSize: 13, outline: "none", fontWeight: 700
                   }}
                 >
                   {athletes.length === 0 ? (
                     <option value="">No active athletes on roster</option>
                   ) : (
                     athletes.map(a => (
-                      <option key={a.athlete_id} value={a.athlete_id}>
+                      <option key={a.athlete_id} value={a.athlete_id} style={{ background: "var(--bg-card)", color: "var(--color-text)" }}>
                         {a.name || a.email} ({a.experience?.toUpperCase() || 'INTERMEDIATE'})
                       </option>
                     ))
@@ -856,8 +857,8 @@ export default function AiReportsSection() {
                       key={sc.token}
                       onClick={() => handleSelectPreset(sc)}
                       style={{
-                        background: isSelected ? "rgba(168, 85, 247, 0.15)" : "rgba(255,255,255,0.02)",
-                        border: isSelected ? "1px solid #c084fc" : "1px solid var(--border-card)",
+                        background: isSelected ? "color-mix(in srgb, var(--aura-accent) 15%, transparent)" : "var(--color-surface)",
+                        border: isSelected ? "1px solid var(--aura-accent)" : "1px solid var(--border-card)",
                         borderRadius: 12,
                         padding: "10px 12px",
                         cursor: "pointer",
@@ -867,14 +868,14 @@ export default function AiReportsSection() {
                         gap: 10
                       }}
                     >
-                      <div style={{ color: isSelected ? "#c084fc" : "var(--color-text-3)", display: "flex", alignItems: "center" }}>
+                      <div style={{ color: isSelected ? "var(--aura-accent)" : "var(--color-text-3)", display: "flex", alignItems: "center" }}>
                         {sc.iconName === "TrendingUp" && <TrendingUp size={16} />}
                         {sc.iconName === "HeartPulse" && <HeartPulse size={16} />}
                         {sc.iconName === "Sliders" && <Sliders size={16} />}
                         {sc.iconName === "Zap" && <Zap size={16} />}
                       </div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: 12, fontWeight: 800, color: isSelected ? "#c084fc" : "#fff" }}>
+                        <div style={{ fontSize: 12, fontWeight: 800, color: isSelected ? "var(--aura-accent)" : "var(--color-text)" }}>
                           {sc.label}
                         </div>
                         <div style={{ fontSize: 10, color: "var(--color-text-3)", marginTop: 2 }}>
@@ -900,8 +901,8 @@ export default function AiReportsSection() {
                 value={promptText}
                 onChange={e => setPromptText(e.target.value)}
                 style={{
-                  width: "100%", background: "var(--color-surface-h)", border: "1px solid var(--border-card)",
-                  borderRadius: 14, padding: "12px 14px", color: "#fff", fontSize: 13, outline: "none",
+                  width: "100%", background: "var(--bg-input)", border: "1px solid var(--border-input)",
+                  borderRadius: 14, padding: "12px 14px", color: "var(--color-text)", fontSize: 13, outline: "none",
                   resize: "vertical", fontFamily: "inherit", boxSizing: "border-box", lineHeight: 1.5
                 }}
               />
@@ -911,11 +912,11 @@ export default function AiReportsSection() {
               onClick={handleGenerate}
               disabled={generating || !selectedAthleteId}
               style={{
-                background: "linear-gradient(135deg, #a855f7 0%, #06b6d4 100%)",
+                background: "var(--aura-accent)",
                 border: "none",
                 borderRadius: 14,
                 padding: "14px 24px",
-                color: "#fff",
+                color: "var(--color-on-accent)",
                 fontSize: 14,
                 fontWeight: 900,
                 cursor: generating ? "wait" : "pointer",
@@ -923,13 +924,13 @@ export default function AiReportsSection() {
                 alignItems: "center",
                 justifyContent: "center",
                 gap: 10,
-                boxShadow: "0 4px 16px rgba(168, 85, 247, 0.3)",
+                boxShadow: "0 4px 16px color-mix(in srgb, var(--aura-accent) 30%, transparent)",
                 transition: "all 0.2s ease"
               }}
             >
               {generating ? (
                 <>
-                  <RefreshCw size={18} className="spin" /> Synthesizing Athlete Data with Groq LLM...
+                  <RefreshCw size={18} className="spin" /> Synthesizing Athlete Data...
                 </>
               ) : (
                 <>
@@ -1052,7 +1053,7 @@ export default function AiReportsSection() {
                     )}
                   </div>
                   <div style={{ fontSize: 11, color: "var(--color-text-3)", marginTop: 2 }}>
-                    Synthesized by Groq Llama-3.3-70b-versatile
+                    Synthesized by HPI AI Engine
                   </div>
                 </div>
               </div>
@@ -1292,11 +1293,11 @@ export default function AiReportsSection() {
                   onClick={() => handleRefineReport()}
                   disabled={refining || !coachFeedback.trim()}
                   style={{
-                    background: "linear-gradient(135deg, #a855f7 0%, #06b6d4 100%)",
+                    background: "var(--aura-accent)",
                     border: "none",
                     borderRadius: 10,
                     padding: "10px 18px",
-                    color: "#fff",
+                    color: "var(--color-on-accent)",
                     fontSize: 12,
                     fontWeight: 800,
                     cursor: refining || !coachFeedback.trim() ? "not-allowed" : "pointer",

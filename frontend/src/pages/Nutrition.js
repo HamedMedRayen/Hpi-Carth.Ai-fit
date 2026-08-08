@@ -603,8 +603,8 @@ export default function Nutrition() {
               style={{ 
                 padding: 24, 
                 marginBottom: 20, 
-                background: "linear-gradient(135deg, rgba(0, 242, 254, 0.15) 0%, rgba(186, 85, 211, 0.2) 100%)",
-                border: "1px solid rgba(0, 242, 254, 0.4)",
+                background: "color-mix(in srgb, var(--aura-accent) 12%, var(--bg-card))",
+                border: "1px solid var(--border-card)",
                 borderRadius: 20,
                 display: "flex",
                 justifyContent: "space-between",
@@ -616,18 +616,18 @@ export default function Nutrition() {
                   width: 52, 
                   height: 52, 
                   borderRadius: 16, 
-                  background: "linear-gradient(135deg, #00f2fe 0%, #ba55d3 100%)", 
+                  background: "var(--aura-accent)", 
                   display: "flex", 
                   justifyContent: "center", 
                   alignItems: "center", 
-                  color: "#fff",
-                  boxShadow: "0 4px 15px rgba(0, 242, 254, 0.3)"
+                  color: "var(--color-on-accent)",
+                  boxShadow: "0 4px 15px color-mix(in srgb, var(--aura-accent) 30%, transparent)"
                 }}>
                   <Camera size={26} />
                 </div>
                 <div>
-                  <h3 style={{ fontSize: 18, fontWeight: 900, margin: 0, color: "#fff" }}>AI Vision Photo Meal Scanner</h3>
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.7)", margin: "4px 0 0" }}>
+                  <h3 style={{ fontSize: 18, fontWeight: 900, margin: 0, color: "var(--color-text)" }}>AI Vision Photo Meal Scanner</h3>
+                  <p style={{ fontSize: 13, color: "var(--color-text-2)", margin: "4px 0 0" }}>
                     Snap or upload a photo of your plate for instant food & macro detection
                   </p>
                 </div>
@@ -637,8 +637,8 @@ export default function Nutrition() {
                 style={{
                   padding: "12px 22px",
                   borderRadius: 14,
-                  background: "linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)",
-                  color: "#000",
+                  background: "var(--aura-accent)",
+                  color: "var(--color-on-accent)",
                   fontWeight: 800,
                   fontSize: 14,
                   border: "none",
@@ -654,14 +654,14 @@ export default function Nutrition() {
             </div>
 
             {/* AI Natural Language Text Scanner Card with Obligatory Category Selector */}
-            <div className="card" style={{ padding: 24, marginBottom: 20, border: "1px solid rgba(0, 242, 254, 0.25)", background: "rgba(13, 17, 23, 0.7)" }}>
-              <h2 style={{ fontSize: 16, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, marginBottom: 12, color: "#fff" }}>
-                <Brain size={20} color="var(--aura-accent, #00f2fe)" /> AI Meal Text Assistant
+            <div className="card" style={{ padding: 24, marginBottom: 20 }}>
+              <h2 style={{ fontSize: 16, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, marginBottom: 12, color: "var(--color-text)" }}>
+                <Brain size={20} color="var(--aura-accent)" /> AI Meal Text Assistant
               </h2>
               
               {/* Obligatory Meal Category Pills */}
               <div style={{ marginBottom: 12 }}>
-                <label style={{ fontSize: 11, fontWeight: 700, color: "var(--aura-accent, #00f2fe)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 6, display: "block" }}>
+                <label style={{ fontSize: 11, fontWeight: 700, color: "var(--aura-accent)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 6, display: "block" }}>
                   Select Meal Section (Obligatory)
                 </label>
                 <div style={{ display: "flex", gap: 8 }}>
@@ -674,10 +674,10 @@ export default function Nutrition() {
                         borderRadius: 12,
                         fontSize: 12,
                         fontWeight: 700,
-                        border: "none",
+                        border: "1px solid var(--color-border)",
                         cursor: "pointer",
-                        background: targetCategory === cat ? "var(--aura-accent, #00f2fe)" : "rgba(255,255,255,0.06)",
-                        color: targetCategory === cat ? "#000" : "#aaa",
+                        background: targetCategory === cat ? "var(--aura-accent)" : "var(--color-surface)",
+                        color: targetCategory === cat ? "var(--color-on-accent)" : "var(--color-text-2)",
                         transition: "all 0.2s ease"
                       }}
                     >
@@ -692,7 +692,11 @@ export default function Nutrition() {
                   type="text" 
                   className="themed-input" 
                   placeholder={`Describe a meal for ${targetCategory} (e.g. 2 eggs and toast)...`}
-                  style={{ flex: 1, background: "rgba(255, 255, 255, 0.05)", border: "1px solid rgba(255, 255, 255, 0.15)", color: "#fff" }}
+                  style={{ flex: 1 }}
+                  value={scanText}
+                  onChange={(e) => setScanText(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleScanText(); }}
+                />
                   value={scanText}
                   onChange={(e) => setScanText(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleScanText(); }}
