@@ -558,11 +558,73 @@ def seed_synthetic_coach_reviews(conn) -> None:
                 days_ago = (coach_idx * 3 + r_idx * 5) % 45 + 1
                 cur.execute("""
                     INSERT INTO coach_reviews (coach_id, user_name, user_avatar, rating, comment, created_at)
-                    VALUES (%s, %s, %s, %s, %s, NOW() - (%s || ' days')::INTERVAL)
-                """, (coach_id, name, avatar, rating, comment, str(days_ago)))
-        
+                    VALUES (%s, %s, %s, %s, %s, NOW() - INTERVAL '%s days')
+                """, (coach_id, name, avatar, rating, comment, days_ago))
         conn.commit()
-        print(f"[DB] Seeded synthetic reviews for {len(coaches)} coaches successfully.", flush=True)
+
+
+def seed_synthetic_fares2024(conn) -> None:
+    """Ensure user fares2024 has complete synthetic onboarding answers if missing or incomplete."""
+    fares_synthetic = {
+        "name": "Fares",
+        "date_of_birth": "2004-12-29",
+        "biological_sex": "Male",
+        "height": {"value": 180, "unit": "cm"},
+        "current_weight": {"value": 85, "unit": "kg"},
+        "goal_weight": {"value": 78, "unit": "kg"},
+        "primary_goal": "Build muscle",
+        "event_details": "Sub-20 min 5K run & 100kg Bench Press target",
+        "goal_pace": "Moderate pace",
+        "fitness_level": "Advanced",
+        "activity_level": "Moderately active",
+        "prior_program_experience": "Yes, currently",
+        "training_type": ["Strength training", "Cardio"],
+        "training_location": "Full commercial gym",
+        "days_per_week": "3-4",
+        "session_length": "45-60 min",
+        "exercises_to_avoid": "Behind-the-neck press",
+        "injuries": "Knee/leg issues",
+        "medical_conditions": ["None"],
+        "pregnancy_status": "No",
+        "diet_type": "No restrictions",
+        "allergies": "None",
+        "eating_habits": "Somewhat balanced",
+        "meals_per_day": "4",
+        "past_obstacles": "Lack of time",
+        "tracking_preference": ["Weight/scale", "Performance milestones"],
+        "notifications": "Yes, daily"
+    }
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT u.id, u.onboarding_data 
+            FROM users u 
+            LEFT JOIN auth_users a ON u.auth_id = a.id 
+            WHERE a.nickname = 'fares2024' OR u.email = 'fares2024@aura-fit.local' OR u.name ILIKE '%fares%'
+        """)
+        row = cur.fetchone()
+        if row:
+            user_id = row['id']
+            existing_data = row.get('onboarding_data') or {}
+            if not existing_data or len(existing_data.keys()) < 15 or '3' in str(existing_data.get('days_per_week', '')):
+                import json
+                cur.execute("""
+                    UPDATE users SET 
+                        name = COALESCE(NULLIF(name, ''), 'Fares'),
+                        sex = 'M',
+                        age = 21,
+                        height_cm = 180.0,
+                        bodyweight = 85.0,
+                        experience = 'advanced',
+                        goal = 'Build muscle',
+                        onboarding_completed = TRUE,
+                        onboarding_data = %s,
+                        updated_at = NOW()
+                    WHERE id = %s
+                """, (json.dumps(fares_synthetic), user_id))
+                conn.commit()
+                print(f"[DB] Synced synthetic onboarding answers for fares2024 (user_id={user_id})", flush=True)
+
+        print(f"[DB] Seeded synthetic reviews for coaches successfully.", flush=True)
 
 
 def init_db() -> None:
@@ -917,6 +979,7 @@ def _do_init_db() -> None:
 
                 # Seed synthetic reviews if empty
                 seed_synthetic_coach_reviews(conn)
+                seed_synthetic_fares2024(conn)
 
                 print("[DB] Migration: all exercise, auth, chat, and coach review columns added/verified.", flush=True)
             except Exception as e:

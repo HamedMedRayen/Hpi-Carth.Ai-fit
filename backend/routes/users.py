@@ -34,6 +34,7 @@ class ProfileUpdate(BaseModel):
     diabetes: Optional[str] = None
     role: Optional[str] = None
     onboarding_completed: Optional[bool] = None
+    onboarding_data: Optional[dict] = None
 
 
 def _repo(db=Depends(get_db)):
@@ -64,6 +65,10 @@ def update_current_user(payload: ProfileUpdate, user_id: int = Depends(get_curre
     data = {k: v for k, v in payload.model_dump().items() if v is not None}
     if not data:
         return repo.get_by_id(user_id)
+    
+    if "onboarding_data" in data and isinstance(data["onboarding_data"], dict):
+        import json
+        data["onboarding_data"] = json.dumps(data["onboarding_data"])
     
     # Build dynamic UPDATE
     fields = ", ".join(f"{k} = %s" for k in data)
@@ -148,6 +153,10 @@ def update_user(user_id: int, payload: ProfileUpdate, current_user_id: int = Dep
     data = {k: v for k, v in payload.model_dump().items() if v is not None}
     if not data:
         return repo.get_by_id(user_id)
+    
+    if "onboarding_data" in data and isinstance(data["onboarding_data"], dict):
+        import json
+        data["onboarding_data"] = json.dumps(data["onboarding_data"])
     
     # Build dynamic UPDATE
     fields = ", ".join(f"{k} = %s" for k in data)
