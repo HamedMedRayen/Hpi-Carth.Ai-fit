@@ -39,6 +39,7 @@
 
 **Hpi** is a premium, cross-platform fitness application (Web, Android, and iOS) built for athletes, coaches, and data-driven training enthusiasts. It goes far beyond standard workout logging — combining AI-generated training plans, progressive overload analytics, interactive anatomical visualizations, physical injury mapping, smart nutrition tracking with Gemini Vision AI meal scanning, sleep-to-volume correlation, progress photo galleries, subjective fatigue scoring, seasonal challenges, and a dedicated coach-to-athlete portal into a single, beautiful glassmorphism-styled platform accessible on any device.
 
+
 ---
 
 ## Features
@@ -58,6 +59,7 @@ A glassmorphism-styled analytics hub providing a complete view of your training 
 ### 2. Multi-Modal AI Coach — "Hpi"
 An agentic, conversational AI fitness coach accessible on every view:
 * **Natural Language Queries**: Powered by Groq (Llama-3.3-70b-versatile) for intelligent training advice, form tips, and customized guidance.
+* **Double-RAG Recommendation System**: Uses a two-stage retrieval pipeline combining structured SQL-based filtering with semantic retrieval. The first RAG stage filters relevant athlete data based on factors such as fitness goals, experience, demographics, and training context. The second RAG stage uses BGE-M3 embeddings followed by a cross-encoder reranker to identify the most relevant recommendations before passing the context to the LLM.
 * **Voice Dictation Mode**: Hands-free voice input integrated via Web Speech API and native Capacitor speech recognition (`HpiChat.jsx`).
 * **Vapi Live Voice Calling**: Interactive real-time voice call modal (`VapiCallModal`) for conversational AI phone-style coaching sessions.
 * **Agentic Auto-Tracking**: 
