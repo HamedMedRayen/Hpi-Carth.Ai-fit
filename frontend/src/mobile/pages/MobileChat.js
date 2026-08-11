@@ -6,18 +6,25 @@ import { Capacitor } from "@capacitor/core";
 import { API_BASE_URL } from "../../utils/config";
 import { getSyncItem } from "../../utils/storage";
 import { startListening, stopListening } from "../../utils/speechRecognition";
+import { getChatHistory, saveChatHistory, subscribeChatHistory } from "../../utils/chatStorage";
 
 export default function MobileChat() {
   const navigate = useNavigate();
-  const [messages, setMessages] = useState([
-    { id: 1, role: "assistant", content: "Hi! I'm HPI, your AI coach. How can I help you today?" }
-  ]);
+  const [messages, setMessages] = useState(() => getChatHistory());
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
   const [error, setError] = useState(null);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    setMessages(getChatHistory());
+    const unsubscribe = subscribeChatHistory((updated) => {
+      setMessages(updated);
+    });
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -45,9 +52,11 @@ export default function MobileChat() {
     if (!text || loading) return;
 
     setError(null);
-    const userMsg = { id: Date.now(), role: "user", content: text };
+    const userMsg = { role: "user", content: text };
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
+    saveChatHistory(updatedMessages);
+
     setInput("");
     setLoading(true);
 
@@ -73,7 +82,10 @@ export default function MobileChat() {
       }
 
       const data = await res.json();
-      setMessages(prev => [...prev, { id: Date.now(), role: "assistant", content: data.reply }]);
+      const assistantMsg = { role: "assistant", content: data.reply };
+      const finalMessages = [...updatedMessages, assistantMsg];
+      setMessages(finalMessages);
+      saveChatHistory(finalMessages);
     } catch (err) {
       setError(err.message || "Failed to reach HPI. Please try again.");
     } finally {

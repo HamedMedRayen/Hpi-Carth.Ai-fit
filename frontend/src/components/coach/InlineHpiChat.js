@@ -3,18 +3,14 @@ import { Brain, Send, Mic, MicOff } from "lucide-react";
 import { API_BASE_URL as API_URL } from "../../utils/config";
 import { getSyncItem } from "../../utils/storage";
 import { startListening, stopListening } from "../../utils/speechRecognition";
-
-const WELCOME_MSG = {
-  role: "assistant",
-  content: "Hey! I'm Hpi <span class='emoji'>\u{1F44B}</span> Your AI fitness coach. Ask me anything about your training.",
-};
+import { getChatHistory, saveChatHistory, subscribeChatHistory } from "../../utils/chatStorage";
 
 /**
  * Inline version of HpiChat that renders as a card inside the dashboard,
  * always visible (no floating bubble needed).
  */
 export default function InlineHpiChat() {
-  const [messages, setMessages] = useState([WELCOME_MSG]);
+  const [messages, setMessages] = useState(() => getChatHistory());
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -23,6 +19,14 @@ export default function InlineHpiChat() {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const recognitionRef = useRef(null);
+
+  useEffect(() => {
+    setMessages(getChatHistory());
+    const unsubscribe = subscribeChatHistory((updated) => {
+      setMessages(updated);
+    });
+    return unsubscribe;
+  }, []);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -37,6 +41,8 @@ export default function InlineHpiChat() {
     const userMsg = { role: "user", content: text };
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
+    saveChatHistory(updatedMessages);
+
     setInput("");
     setLoading(true);
     setError(null);
@@ -58,7 +64,10 @@ export default function InlineHpiChat() {
         throw new Error(errData.detail || `HTTP ${res.status}`);
       }
       const data = await res.json();
-      setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
+      const assistantMsg = { role: "assistant", content: data.reply };
+      const finalMessages = [...updatedMessages, assistantMsg];
+      setMessages(finalMessages);
+      saveChatHistory(finalMessages);
     } catch (err) {
       setError(err.message || "Failed to reach Hpi.");
     } finally {

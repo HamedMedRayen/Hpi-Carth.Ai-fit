@@ -4,25 +4,29 @@ import "./HpiChat.css";
 import { API_BASE_URL as API_URL } from "../../utils/config";
 import { getSyncItem } from "../../utils/storage";
 import { startListening, stopListening } from "../../utils/speechRecognition";
+import { getChatHistory, saveChatHistory, subscribeChatHistory } from "../../utils/chatStorage";
 import VapiCallModal from "../VapiCallModal/VapiCallModal";
-
-const WELCOME_MSG = {
-  role: "assistant",
-  content: "Hey, I'm Hpi 👋 Your AI fitness coach. Ask me anything or tap the call icon to talk live!",
-};
 
 export default function HpiChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [isCallOpen, setIsCallOpen] = useState(false);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState(() => getChatHistory());
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [hasOpened, setHasOpened] = useState(false);
   const [listening, setListening] = useState(false);
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Subscribe to central chat storage updates (from Vapi voice calls or other components)
+  useEffect(() => {
+    setMessages(getChatHistory());
+    const unsubscribe = subscribeChatHistory((updated) => {
+      setMessages(updated);
+    });
+    return unsubscribe;
+  }, []);
 
   // Scroll to bottom on new messages
   const scrollToBottom = useCallback(() => {
@@ -42,16 +46,9 @@ export default function HpiChat() {
 
   // Toggle chat panel
   const toggleChat = useCallback(() => {
-    setIsOpen((prev) => {
-      const willOpen = !prev;
-      if (willOpen && !hasOpened) {
-        setMessages([WELCOME_MSG]);
-        setHasOpened(true);
-      }
-      return willOpen;
-    });
+    setIsOpen((prev) => !prev);
     setError(null);
-  }, [hasOpened]);
+  }, []);
 
   // Send message — accepts optional text override (used by voice)
   const sendMessage = useCallback(async (textOverride) => {
@@ -61,6 +58,8 @@ export default function HpiChat() {
     const userMsg = { role: "user", content: text };
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
+    saveChatHistory(updatedMessages);
+
     setInput("");
     setLoading(true);
     setError(null);
@@ -87,14 +86,14 @@ export default function HpiChat() {
       }
 
       const data = await res.json();
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: data.reply,
-          exercise: data.exercise || null,
-        },
-      ]);
+      const assistantMsg = {
+        role: "assistant",
+        content: data.reply,
+        exercise: data.exercise || null,
+      };
+      const finalMessages = [...updatedMessages, assistantMsg];
+      setMessages(finalMessages);
+      saveChatHistory(finalMessages);
     } catch (err) {
       setError(err.message || "Failed to reach Hpi. Try again.");
     } finally {
