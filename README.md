@@ -57,12 +57,12 @@ A glassmorphism-styled analytics hub providing a complete view of your training 
 ### 2. Multi-Modal AI Coach — "Hpi"
 An agentic, conversational AI fitness coach accessible on every view:
 * **Natural Language Queries**: Powered by Groq (Llama-3.3-70b-versatile) for intelligent training advice, form tips, and customized guidance.
+* **Double-RAG Recommendation System**: Uses a two-stage retrieval pipeline combining structured SQL-based filtering with semantic retrieval. The first RAG stage filters relevant athlete data based on factors such as fitness goals, experience, demographics, and training context. The second RAG stage uses BGE-M3 embeddings followed by a cross-encoder reranker to identify the most relevant recommendations before passing the context to the LLM.
 * **Voice Dictation Mode**: Hands-free voice input integrated via Web Speech API and native Capacitor speech recognition (`HpiChat.jsx`).
 * **Vapi Live Voice Calling**: Interactive real-time voice call modal (`VapiCallModal`) for conversational AI phone-style coaching sessions.
 * **Agentic Auto-Tracking**: 
   > [!TIP]
   > Tell Hpi what you trained, ate, or drank in plain language (e.g., *"I did 3 sets of bench press at 80kg for 8 reps"* or *"I ate a chicken bowl with 600 kcal and drank 500ml water"*), and Hpi generates hidden action payload blocks. The backend intercepts and parses these blocks via regular expressions to **automatically log exercises, sets, foods, or hydration into the database on your behalf**!
----
  
 ### 3. Smart Nutrition Hub & AI Vision Scanner
 Fuel your performance with a next-generation calorie and macronutrient manager:
