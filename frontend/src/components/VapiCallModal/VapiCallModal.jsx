@@ -18,8 +18,11 @@ import {
   getVapiCredentials,
   fetchVapiCredentials,
   setVapiCredentials,
-  getVapiInstance
+  getVapiInstance,
+  fetchVapiContext,
+  syncVapiTranscriptToBackend
 } from "../../utils/vapiService";
+import { addChatMessages } from "../../utils/chatStorage";
 
 export default function VapiCallModal({ isOpen, onClose }) {
   const [callState, setCallState] = useState("idle"); // idle, connecting, connected, speaking, listening, error
@@ -40,6 +43,8 @@ export default function VapiCallModal({ isOpen, onClose }) {
   const transcriptEndRef = useRef(null);
   const pubKeyRef = useRef(pubKey);
   const assistantIdRef = useRef(assistantId);
+  const transcriptsRef = useRef(transcripts);
+  const hasSyncedCallRef = useRef(false);
 
   // Keep refs in sync
   useEffect(() => {
@@ -49,6 +54,31 @@ export default function VapiCallModal({ isOpen, onClose }) {
   useEffect(() => {
     assistantIdRef.current = assistantId;
   }, [assistantId]);
+
+  useEffect(() => {
+    transcriptsRef.current = transcripts;
+  }, [transcripts]);
+
+  // Helper to persist voice call messages to HpiChat and trigger backend actions
+  const syncCallToChatAndBackend = useCallback(async () => {
+    if (hasSyncedCallRef.current) return;
+    hasSyncedCallRef.current = true;
+
+    const currentTranscripts = transcriptsRef.current || [];
+    if (currentTranscripts.length === 0) return;
+
+    const formattedMessages = currentTranscripts
+      .filter((t) => t.text && t.text.trim())
+      .map((t) => ({
+        role: t.role === "User" || t.role === "user" ? "user" : "assistant",
+        content: `🎙️ ${t.text.trim()}`
+      }));
+
+    if (formattedMessages.length > 0) {
+      addChatMessages(formattedMessages);
+      await syncVapiTranscriptToBackend(currentTranscripts);
+    }
+  }, []);
 
   // Start Call Function with stable reference
   const handleStartCall = useCallback(async (keyOverride, astOverride) => {
@@ -91,6 +121,7 @@ export default function VapiCallModal({ isOpen, onClose }) {
     setErrorMessage("");
     setDuration(0);
     setTranscripts([]);
+    hasSyncedCallRef.current = false;
 
     try {
       const vapi = getVapiInstance(key);
@@ -98,6 +129,9 @@ export default function VapiCallModal({ isOpen, onClose }) {
         throw new Error("Could not initialize Vapi SDK.");
       }
       vapiRef.current = vapi;
+
+      // Fetch dynamic Hpi profile & prompt context from backend
+      const vapiContext = await fetchVapiContext();
 
       // Clean up previous event listeners to prevent duplicate triggers
       vapi.removeAllListeners();
@@ -129,6 +163,7 @@ export default function VapiCallModal({ isOpen, onClose }) {
         console.log("Vapi call ended");
         setCallState("idle");
         setVolumeLevel(0);
+        syncCallToChatAndBackend();
       });
 
       vapi.on("speech-start", () => {
@@ -184,15 +219,20 @@ export default function VapiCallModal({ isOpen, onClose }) {
         setErrorMessage(`Vapi error: ${detail}`);
       });
 
-      // Launch Call
+      // Launch Call with dynamic Hpi assistant overrides if available
       console.log("Starting Vapi call with assistant ID:", ast);
-      await vapi.start(ast);
+      if (vapiContext?.assistant_overrides) {
+        console.log("Applying Hpi AI backend dynamic context to Vapi call:", vapiContext.assistant_overrides);
+        await vapi.start(ast, vapiContext.assistant_overrides);
+      } else {
+        await vapi.start(ast);
+      }
     } catch (err) {
       console.error("Call start failed:", err);
       setCallState("error");
       setErrorMessage(err.message || "Failed to start call. Check API key and Assistant ID.");
     }
-  }, []);
+  }, [syncCallToChatAndBackend]);
 
   // Load credentials on open
   useEffect(() => {
@@ -243,6 +283,7 @@ export default function VapiCallModal({ isOpen, onClose }) {
 
   // End Call
   const handleEndCall = useCallback(() => {
+    syncCallToChatAndBackend();
     if (vapiRef.current) {
       try {
         vapiRef.current.stop();
@@ -252,7 +293,7 @@ export default function VapiCallModal({ isOpen, onClose }) {
     }
     setCallState("idle");
     setVolumeLevel(0);
-  }, []);
+  }, [syncCallToChatAndBackend]);
 
   // Toggle Mute
   const handleToggleMute = useCallback(() => {

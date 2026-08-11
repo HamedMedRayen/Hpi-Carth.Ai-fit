@@ -1,6 +1,6 @@
-// Helper for Vapi AI Web SDK integration
 import Vapi from "@vapi-ai/web";
 import { API_BASE_URL } from "./config";
+import { getSyncItem } from "./storage";
 
 const STORAGE_KEY_PUBLIC_KEY = "vapi_public_key";
 const STORAGE_KEY_ASSISTANT_ID = "vapi_assistant_id";
@@ -50,6 +50,56 @@ export async function fetchVapiCredentials() {
   return creds;
 }
 
+/**
+ * Fetch dynamic Hpi system prompt, user profile context, and assistantOverrides from backend
+ */
+export async function fetchVapiContext() {
+  try {
+    const token = getSyncItem("aura_token");
+    const res = await fetch(`${API_BASE_URL}/vapi/context`, {
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      }
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn("Could not fetch Vapi context from backend:", err);
+  }
+  return null;
+}
+
+/**
+ * Send spoken transcripts to backend to trigger tracking actions (workouts/meals/water)
+ */
+export async function syncVapiTranscriptToBackend(transcripts) {
+  if (!Array.isArray(transcripts) || transcripts.length === 0) return null;
+  try {
+    const token = getSyncItem("aura_token");
+    const res = await fetch(`${API_BASE_URL}/chat/sync-vapi`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+      },
+      body: JSON.stringify({
+        transcripts: transcripts.map((t) => ({
+          role: t.role === "User" || t.role === "user" ? "user" : "assistant",
+          content: t.text || t.content || ""
+        }))
+      })
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (err) {
+    console.warn("Could not sync Vapi transcripts to backend:", err);
+  }
+  return null;
+}
+
 export function setVapiCredentials(publicKey, assistantId) {
   if (publicKey !== undefined) {
     cachedPublicKey = publicKey.trim();
@@ -77,3 +127,4 @@ export function getVapiInstance(publicKey) {
   }
   return vapiInstance;
 }
+
