@@ -145,10 +145,12 @@ Push your limits with structured community challenges:
 * **Interactive Challenge Analytics**: Track overall completion progress %, days remaining, and check-in checkmark grids.
 ---
  
-### 13. Custom ML Recommendation & Math Engine
-Hyper-personalized routine and split recommendations:
-* **In-House Machine Learning Engine**: Python math engine (`data_engine/`) implementing Gradient Boosted Decision Trees (GBDT), manual Principal Component Analysis (PCA) via power iteration, and synthetic data interpolation for custom training program generation (`ai_recommend.py`).
----
+### 13. AI Gym Recommendation System
+
+Hyper-personalized gym routine and split recommendations:
+
+- **Double-RAG Recommendation Engine**: The AI gym recommendation system follows the same two-stage RAG architecture used by Hpi. It first applies **structured SQL-based retrieval** to filter relevant athlete profiles based on factors such as fitness goals, experience level, demographics, and training context. The filtered results are then processed through **BGE-M3 semantic retrieval** and a **cross-encoder reranker** to identify the most relevant training patterns and recommendations.
+- **Controlled LLM Generation**: The final recommendations are generated using a carefully tuned LLM temperature to balance **consistency, relevance, and creativity**, allowing the system to produce personalized training routines while remaining grounded in the retrieved data.
  
 ### 14. In-App Notification Center
 Stay up to date across the platform:
