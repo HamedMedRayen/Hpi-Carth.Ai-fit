@@ -128,6 +128,19 @@ def create_workout(payload: WorkoutCreate, current_user_id: int = Depends(get_cu
         repo        = WorkoutRepository(db)
         metric_repo = MetricRepository(db)
 
+        # Deduplication check: return existing workout if created in last 3 minutes
+        with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("""
+                SELECT * FROM workouts 
+                WHERE user_id = %s 
+                  AND LOWER(workout_name) = LOWER(%s)
+                  AND created_at >= NOW() - INTERVAL '3 minutes'
+                ORDER BY id DESC LIMIT 1
+            """, (payload.user_id, payload.workout_name))
+            recent_wk = cur.fetchone()
+            if recent_wk:
+                return recent_wk
+
         workout = repo.create({
             "user_id": payload.user_id,
             "workout_name": payload.workout_name,
@@ -165,9 +178,11 @@ def create_workout(payload: WorkoutCreate, current_user_id: int = Depends(get_cu
             "session_date": payload.session_date,
             **agg,
         })
+        db.commit()
         return workout
     except Exception as e:
         print(f"[ERROR] create_workout: {e}")
+        db.rollback()
         raise
 
 

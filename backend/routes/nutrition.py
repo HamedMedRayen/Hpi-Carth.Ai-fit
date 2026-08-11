@@ -379,10 +379,26 @@ def copy_meals(payload: CopyMealRequest, user_id: int = Depends(get_current_user
 def scan_meal(payload: ScanRequest, user_id: int = Depends(get_current_user_id), db=Depends(get_db)):
     import os
     from groq import Groq
-    
+
+    # Deduplication check: return recent log if recorded within last 3 minutes
+    if payload.description and payload.description.strip():
+        try:
+            with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT * FROM nutrition_logs 
+                    WHERE user_id = %s 
+                      AND (LOWER(description) = LOWER(%s) OR LOWER(meal_name) = LOWER(%s))
+                      AND logged_at >= NOW() - INTERVAL '3 minutes'
+                    ORDER BY id DESC LIMIT 1
+                """, (user_id, payload.description.strip(), payload.description.strip()))
+                recent = cur.fetchone()
+                if recent:
+                    return recent
+        except Exception as dup_err:
+            pass
+
     groq_api_key = os.getenv("GROQ_API_KEY")
     if not groq_api_key:
-        # Fallback to a simple estimation if API key is missing, or just error
         raise HTTPException(status_code=500, detail="AI service is not configured")
         
     client = Groq(api_key=groq_api_key)
@@ -408,12 +424,25 @@ Be accurate based on typical serving sizes."""
         category = payload.meal_category or "Breakfast"
         log_date = parse_date(payload.date)
         with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            # Check again with AI parsed meal_name before inserting
+            parsed_name = data.get("meal_name", "AI Meal")
+            cur.execute("""
+                SELECT * FROM nutrition_logs 
+                WHERE user_id = %s 
+                  AND LOWER(meal_name) = LOWER(%s)
+                  AND logged_at >= NOW() - INTERVAL '3 minutes'
+                ORDER BY id DESC LIMIT 1
+            """, (user_id, parsed_name))
+            recent_parsed = cur.fetchone()
+            if recent_parsed:
+                return recent_parsed
+
             cur.execute("""
                 INSERT INTO nutrition_logs (user_id, meal_name, meal_category, calories, protein_g, carbs_g, fat_g, fiber_g, description, date)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING *
             """, (
-                user_id, data.get("meal_name", "AI Meal"), category, data.get("calories", 0),
+                user_id, parsed_name, category, data.get("calories", 0),
                 data.get("protein_g", 0), data.get("carbs_g", 0), data.get("fat_g", 0),
                 data.get("fiber_g", 0), payload.description, log_date
             ))
