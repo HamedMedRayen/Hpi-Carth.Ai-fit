@@ -1,0 +1,141 @@
+table_name: gym_data
+description: >
+  Gym recommendation dataset with 14,589 member profiles.
+  Each row represents a member with their physical attributes,
+  health conditions, fitness goals, and personalized recommendations.
+
+columns:
+  - name: ID
+    type: INTEGER
+    description: Unique member identifier (1–14589)
+
+  - name: Sex
+    type: VARCHAR
+    description: "Biological sex. Values: 'Male', 'Female'"
+
+  - name: Age
+    type: INTEGER
+    description: Member age in years
+
+  - name: Height
+    type: FLOAT
+    description: Height in meters (e.g. 1.68)
+
+  - name: Weight
+    type: FLOAT
+    description: Weight in kilograms (e.g. 47.5)
+
+  - name: Hypertension
+    type: VARCHAR
+    description: "Whether the member has hypertension. Values: 'Yes', 'No'"
+
+  - name: Diabetes
+    type: VARCHAR
+    description: "Whether the member has diabetes. Values: 'Yes', 'No'"
+
+  - name: BMI
+    type: FLOAT
+    description: Body Mass Index calculated from Height and Weight
+
+  - name: Level
+    type: VARCHAR
+    description: >
+      BMI classification level.
+      Values: 'Underweight', 'Normal', 'Overweight', 'Obese'
+
+  - name: "Fitness Goal"
+    type: VARCHAR
+    description: >
+      The member's primary fitness goal.
+      Values: 'Weight Gain', 'Weight Loss', 'Cardio Fitness'
+
+  - name: "Fitness Type"
+    type: VARCHAR
+    description: >
+      Type of fitness program assigned.
+      Values: 'Muscular Fitness', 'Cardiorespiratory Fitness', 'Flexibility & Balance'
+
+  - name: Exercises
+    type: TEXT
+    description: >
+      Comma-separated list of recommended exercises.
+      Example: 'Squats, deadlifts, bench presses, and overhead presses'
+
+  - name: Equipment
+    type: TEXT
+    description: >
+      Equipment recommended for the member.
+      Example: 'Dumbbells and barbells'
+
+  - name: Diet
+    type: TEXT
+    description: >
+      Detailed diet plan including vegetables, protein sources, and juices.
+      Example: 'Vegetables: (Carrots, Sweet Potato...); Protein Intake: (Red meats...)'
+
+  - name: Recommendation
+    type: TEXT
+    description: >
+      Personalized recommendations and health tips.
+      Long text with exercise and dietary guidance.
+
+business_rules:
+  - "BMI Level mapping: Underweight (BMI < 18.5), Normal (18.5 ≤ BMI < 25), Overweight (25 ≤ BMI < 30), Obese (BMI ≥ 30)"
+  - "Fitness Goal values are exactly: 'Weight Gain', 'Weight Loss', 'Cardio Fitness'"
+  - "Sex values are exactly: 'Male', 'Female'"
+  - "Hypertension and Diabetes are exactly: 'Yes', 'No'"
+  - "Column names with spaces must be quoted: \"Fitness Goal\", \"Fitness Type\""
+  - "All text columns (Exercises, Equipment, Diet, Recommendation) contain free-form text"
+  - "The table is read-only. Only SELECT statements are allowed."
+
+example_queries:
+  - question: "What exercises are recommended for overweight males?"
+    sql: >
+      SELECT ID, Age, BMI, Level, Exercises, Equipment
+      FROM gym_data
+      WHERE Sex = 'Male' AND Level = 'Overweight'
+      LIMIT 50
+    type: RECOMMENDATION
+
+  - question: "Compare diet plans for members with diabetes vs without diabetes"
+    sql: >
+      SELECT ID, Diabetes, "Fitness Goal", Diet, BMI
+      FROM gym_data
+      WHERE Diabetes IN ('Yes', 'No')
+      ORDER BY Diabetes, BMI
+      LIMIT 50
+    type: COMPARISON
+
+  - question: "Show me the BMI distribution for members aiming for weight loss"
+    sql: >
+      SELECT ID, Sex, Age, BMI, Level, Weight, Height
+      FROM gym_data
+      WHERE "Fitness Goal" = 'Weight Loss'
+      ORDER BY BMI
+      LIMIT 50
+    type: PERFORMANCE_ANALYSIS
+
+  - question: "What equipment is used by members doing cardio fitness?"
+    sql: >
+      SELECT ID, "Fitness Type", Equipment, Exercises
+      FROM gym_data
+      WHERE "Fitness Goal" = 'Cardio Fitness'
+      LIMIT 50
+    type: ADHERENCE_BEHAVIOR
+
+  - question: "Find members similar to a 25-year-old female with BMI around 22"
+    sql: >
+      SELECT ID, Sex, Age, BMI, Level, "Fitness Goal", Exercises, Diet
+      FROM gym_data
+      WHERE Sex = 'Female' AND Age BETWEEN 23 AND 27 AND BMI BETWEEN 20 AND 24
+      LIMIT 50
+    type: RECOMMENDATION
+
+  - question: "What are the most common fitness goals for people with hypertension?"
+    sql: >
+      SELECT "Fitness Goal", COUNT(*) as member_count
+      FROM gym_data
+      WHERE Hypertension = 'Yes'
+      GROUP BY "Fitness Goal"
+      ORDER BY member_count DESC
+    type: TREND_PROGRESS
