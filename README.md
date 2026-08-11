@@ -13,9 +13,6 @@
   <a href="https://github.com/HamedMedRayen/Hpi/issues">
     <img src="https://img.shields.io/github/issues/HamedMedRayen/Hpi?style=flat-square&color=00BCD4" alt="Issues" />
   </a>
-  <a href="https://github.com/HamedMedRayen/Hpi/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/HamedMedRayen/Hpi?style=flat-square&color=00BCD4" alt="License" />
-  </a>
   <img src="https://img.shields.io/badge/Python-3.10+-blue?style=flat-square" alt="Python" />
   <img src="https://img.shields.io/badge/React-18-61DAFB?style=flat-square" alt="React" />
   <img src="https://img.shields.io/badge/Capacitor-8-119EFF?style=flat-square" alt="Capacitor" />
@@ -27,6 +24,7 @@
 <p>
   <a href="#features">Features</a> &nbsp;•&nbsp;
   <a href="#technology-stack">Stack</a> &nbsp;•&nbsp;
+  <a href="#project-structure">Structure</a> &nbsp;•&nbsp;
   <a href="#getting-started">Getting Started</a> &nbsp;•&nbsp;
   <a href="#contributing">Contributing</a>
 </p>
@@ -133,13 +131,23 @@ Evaluate central nervous system readiness before hitting the gym:
 A comprehensive two-way management portal connecting trainers with athletes:
 * **Dual Roles**: Sign up or switch between Athlete and Coach profiles (`CoachDashboard`).
 * **Coach Roster & Athlete Inspection**: Trainers can generate invite codes, manage client rosters, inspect daily workout logs, check fatigue scores, review active injuries, and track measurement trends.
+* **AI Progress Reports**: Groq-generated client progress summaries built from training history, fatigue, and injury data (`coach_ai_report.py`).
+* **Live Video Consultations**: WebRTC video calls between coach and athlete powered by Stream.io (`VideoCallModal`).
+* **Community Events & Masterclasses**: Coaches host workshops and community events with registration tracking.
 * **Workout Suggestion Engine**: Build custom workout splits and suggest routines directly into athletes' logging queues (`SuggestWorkoutModal`).
 * **Direct Coach Chat**: Real-time direct messaging between coaches and athletes with unread message badges (`CoachChatModal`).
 * **Program Builder**: Design multi-week custom workout plans (`PlanPickerModal`).
 
 ---
 
-### 11. Gamified Seasonal Fitness Challenges
+### 11. RAG-Powered Insights Engine
+A hybrid retrieval-augmented generation pipeline grounding AI answers in real member data:
+* **Multi-Stage Retrieval**: Classifies a question with Groq, generates a read-only DuckDB SQL query against a schema-aware dataset, then narrows further with Qdrant vector search and cross-encoder reranking (`bge-large-en-v1.5` / `bge-reranker-v2-m3`).
+* **Grounded Recommendations**: Answers to open-ended questions (e.g., training/diet guidance for specific health profiles) are backed by retrieved, ranked member context rather than the LLM alone.
+
+---
+
+### 12. Gamified Seasonal Fitness Challenges
 Push your limits with structured community challenges:
 * **Seasonal Challenge Boards**: Browse cardio, strength, hypertrophy, nutrition, and habit challenges (`Challenges`).
 * **Difficulty Tiers**: Filter challenges by Beginner, Intermediate, Advanced, and Elite levels.
@@ -147,19 +155,19 @@ Push your limits with structured community challenges:
 
 ---
 
-### 12. Custom ML Recommendation & Math Engine
+### 13. Custom ML Recommendation & Math Engine
 Hyper-personalized routine and split recommendations:
 * **In-House Machine Learning Engine**: Python math engine (`data_engine/`) implementing Gradient Boosted Decision Trees (GBDT), manual Principal Component Analysis (PCA) via power iteration, and synthetic data interpolation for custom training program generation (`ai_recommend.py`).
 
 ---
 
-### 13. In-App Notification Center
+### 14. In-App Notification Center
 Stay up to date across the platform:
 * **Alert & Notification Hub**: Manages invitations, suggested workouts from coaches, direct chat messages, and challenge milestones with unread counters (`NotificationCenter`).
 
 ---
 
-### 14. Native Mobile Experience (Android & iOS)
+### 15. Native Mobile Experience (Android & iOS)
 Hpi provides a full native mobile application built with Capacitor:
 * **Dedicated Mobile Architecture**: Powers a 5-tab bottom navigation shell (`MobileAppShell`, `BottomNav`) with custom mobile views (`MobileDashboard`, `MobileWorkouts`, `MobileNutrition`, `MobileCoachingZone`, `MobileInjuryLog`, `MobileSleep`, `MobileProgress`, `MobileProfile`, `MobileBodyHub`, `MobileTrainHub`, `MobileExercises`, `MobileChallenges`, `MobileChat`).
 * **Hardware & Plugin Integration**: Integrated `@capacitor/preferences`, `@capacitor/haptics`, `@capacitor/status-bar`, `@capacitor/splash-screen`, `@capacitor/keyboard`, and `@capacitor-community/speech-recognition`.
@@ -184,12 +192,18 @@ Hpi provides a full native mobile application built with Capacitor:
 | Technology | Role |
 |---|---|
 | Python 3.10+ | Core application language |
-| FastAPI | High-performance ASGI web framework with Pydantic typing |
-| Groq Client | Integration with Groq Llama-3.3-70b-versatile for AI Coach and text scanning |
-| Gemini 2.5 Vision | AI Vision multi-modal API for photo-based meal scanner |
-| Psycopg2 | PostgreSQL querying, connection pooling, and hybrid text search |
+| FastAPI | High-performance ASGI web framework with Pydantic typing, async lifespan hooks, and auto-generated Swagger/ReDoc docs |
 | Uvicorn | High-speed ASGI server |
-| JWT | Secure session authentication |
+| Groq SDK | Llama-3.3-70b-versatile for the Hpi AI Agent, unified workout generator, and RAG SQL generation; Llama-3.1-8b-instant for fast question classification |
+| Gemini 2.5 Vision | AI Vision multi-modal API for photo-based meal scanner |
+| Qdrant Client | Vector database powering similarity search over indexed member/recommendation datasets |
+| Sentence-Transformers / PyTorch / Transformers | Local embedding generation (`bge-large-en-v1.5`), cross-encoder reranking (`bge-reranker-v2-m3`), and local ASR speech-to-text |
+| DuckDB | Embedded analytical SQL engine for fast in-memory filtering during RAG query execution |
+| Psycopg2 | PostgreSQL querying, `ThreadedConnectionPool` connection pooling, and hybrid text search |
+| Pandas & OpenPyXL | Data parsing and Excel/CSV ingestion for RAG datasets |
+| Passlib & Python-Jose | PBKDF2-SHA256 password hashing and JWT token generation/validation |
+| SlowAPI | Rate limiting middleware for sensitive endpoints |
+| Librosa & SoundFile | Audio signal processing for voice interaction uploads |
 
 ### Mobile App (Android & iOS)
 
@@ -199,14 +213,60 @@ Hpi provides a full native mobile application built with Capacitor:
 | React 18 & Router v6 | Dedicated mobile screens (`src/mobile/`) with 5-tab navigation |
 | Vanilla CSS | Mobile theme system (`mobile.css`) with bottom-sheet animations |
 | Recharts | Responsive sparklines, macro rings, and volume mini-charts |
-| Native Plugins | `@capacitor/preferences`, `@capacitor/haptics`, `@capacitor/status-bar`, `@capacitor/splash-screen`, `@capacitor/keyboard`, and `@capacitor-community/speech-recognition` |
+| Native Plugins | `@capacitor/preferences`, `@capacitor/haptics`, `@capacitor/status-bar`, `@capacitor/splash-screen`, `@capacitor/keyboard`, `@capacitor/camera`, and `@capacitor-community/speech-recognition` |
+
+### Real-Time & Integrations
+
+| Technology | Role |
+|---|---|
+| @stream-io/video-react-sdk | WebRTC video call SDK for live coach-athlete video consultations |
+| @vapi-ai/web | Voice AI web client for real-time conversational voice calls with the Hpi AI Assistant |
+| @react-oauth/google | Google OAuth 2.0 single sign-on |
+| React Body Highlighter | Interactive SVG human body model for muscle group and injury visualization |
 
 ### Database & Custom ML Engine
 
 | Technology | Role |
 |---|---|
 | PostgreSQL (Supabase) | Primary relational database using `DATE_TRUNC`, similarity operators, and Full-Text Search (`pg_trgm`) |
-| Custom Math Engine | NumPy/Python ML pipeline (`data_engine/`) implementing GBDT, manual PCA, and data matrix operations |
+| Custom Math Engine | Zero-dependency Python ML pipeline (`data_engine/`) implementing GBDT, manual PCA via power iteration, matrix operations, and Epley/Brzycki/Wilks formulas |
+| Hybrid RAG Pipeline | Multi-stage retrieval (`pipeline/`): schema-aware SQL generation over DuckDB, then Qdrant vector search with cross-encoder reranking, for grounded AI insights |
+
+---
+
+## Project Structure
+
+```
+Hpi/
+├── .env                            # Root environment variables
+├── requirements.txt                # Backend Python dependencies
+├── PROJECT_OVERVIEW.md             # Complete application documentation
+├── GETTING_STARTED.md              # Quick-start setup guide
+├── backend/                        # FastAPI application root
+│   ├── main.py                     # App factory, CORS, static mounts, lifespan seeding
+│   ├── database.py                 # PostgreSQL schema SQL, connection pool, seed migrations
+│   ├── rag_config.py               # Singleton Qdrant/Groq clients and vector constants
+│   ├── core/                       # Settings model reading environment variables
+│   ├── models/                     # Pydantic request/response schemas
+│   ├── repositories/               # Data Mapper-pattern DB access layer
+│   ├── routes/                     # 27 API router modules (auth, workouts, nutrition, coach, chat, …)
+│   ├── services/                   # Business logic layer (auth, nutrition, exercises, ingestion, …)
+│   ├── pipeline/                   # Hybrid RAG pipeline (schema → SQL → DuckDB → Qdrant → rerank)
+│   ├── data_engine/                # Zero-dependency math/stats/ML engine + synthetic data generator
+│   ├── scripts/                    # Data seeding & maintenance scripts
+│   └── data/                       # Static JSON/CSV datasets (workout plans, food, Strong export)
+├── RAG/                            # RAG indexing & backfill tools (Qdrant embedding scripts)
+├── vectors/                        # Cached local embedding files (NumPy vectors, IDs, metadata)
+├── exercises-dataset-main/         # Static exercise media dataset (1,300+ entries, images, videos)
+└── frontend/                       # React SPA & Capacitor native wrapper
+    ├── package.json                # Frontend dependencies & Capacitor build scripts
+    └── src/
+        ├── App.js                  # Top-level router & theme provider
+        ├── index.css               # Global design system & glassmorphism tokens
+        ├── pages/                  # Page components (Dashboard, LogWorkout, Coach, etc.)
+        ├── components/             # Reusable UI components, modals, HpiChat, VapiCallModal
+        └── mobile/                 # Dedicated mobile screens & 5-tab navigation shell
+```
 
 ---
 
@@ -299,9 +359,9 @@ Contributions, issues, and feature requests are welcome!
 
 ---
 
-## License
+## Hosting
 
-Distributed under the MIT License. See `LICENSE` for details.
+Hpi is hosted by **Be Carth.AI Consulting**.
 
 ---
 

@@ -16,3 +16,9 @@ transformers
 torch
 librosa
 soundfile
+qdrant-client
+sentence-transformers
+duckdb
+openpyxl
+pyyaml
+pydantic
