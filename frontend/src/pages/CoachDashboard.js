@@ -375,11 +375,11 @@ export default function CoachDashboard() {
     const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   };
 
@@ -471,11 +471,11 @@ export default function CoachDashboard() {
       const dist = calculateDistance(userLoc.lat, userLoc.lng, g.latitude, g.longitude);
       return { ...g, distance: dist };
     })
-    .filter(g => {
-      if (selectedGoal === "all") return true;
-      return g.coaches?.some(c => c.goal === selectedGoal);
-    })
-    .sort((a, b) => a.distance - b.distance);
+      .filter(g => {
+        if (selectedGoal === "all") return true;
+        return g.coaches?.some(c => c.goal === selectedGoal);
+      })
+      .sort((a, b) => a.distance - b.distance);
     setNearestGyms(computed);
   }, [userLoc, gyms, selectedGoal]);
 
@@ -483,12 +483,12 @@ export default function CoachDashboard() {
 
   useEffect(() => {
     if (!mapLoaded || !gyms.length || activeTab !== 'my-coach') return;
-    
+
     const container = window.L.DomUtil.get("leaflet-coaches-map");
     if (!container) return;
-    
+
     const L = window.L;
-    
+
     // Clean up previous map instance if it exists
     if (mapRef.current) {
       try {
@@ -498,10 +498,10 @@ export default function CoachDashboard() {
       }
       mapRef.current = null;
     }
-    
+
     const map = L.map("leaflet-coaches-map").setView([userLoc.lat, userLoc.lng], selectedRegion === 'all' ? 10 : 12);
     mapRef.current = map;
-    
+
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; OpenStreetMap'
     }).addTo(map);
@@ -517,7 +517,7 @@ export default function CoachDashboard() {
       iconSize: [14, 14],
       iconAnchor: [7, 7]
     });
-    
+
     const userMarker = L.marker([userLoc.lat, userLoc.lng], { icon: userIcon, draggable: true }).addTo(map);
     userMarker.on('dragend', (e) => {
       const position = e.target.getLatLng();
@@ -538,9 +538,9 @@ export default function CoachDashboard() {
       });
 
       const marker = L.marker([g.latitude, g.longitude], { icon: gymIcon }).addTo(map);
-      
-      const coachCountText = selectedGoal === "all" 
-        ? `${g.coaches?.length || 0} Coaches` 
+
+      const coachCountText = selectedGoal === "all"
+        ? `${g.coaches?.length || 0} Coaches`
         : `${g.coaches?.filter(c => c.goal === selectedGoal).length || 0} specialized`;
 
       marker.bindPopup(`
@@ -550,7 +550,7 @@ export default function CoachDashboard() {
           <strong style="color: var(--aura-accent);">${coachCountText}</strong>
         </div>
       `);
-      
+
       marker.on('click', () => {
         setUserLoc({ lat: g.latitude, lng: g.longitude });
       });
@@ -575,7 +575,7 @@ export default function CoachDashboard() {
     const updated = coachSelectedGyms.includes(gymId)
       ? coachSelectedGyms.filter(id => id !== gymId)
       : [...coachSelectedGyms, gymId];
-    
+
     setCoachSelectedGyms(updated);
     try {
       await api.selectCoachGyms(updated);
@@ -709,19 +709,19 @@ export default function CoachDashboard() {
         .split(",")
         .map(x => x.trim())
         .filter(x => x.length > 0);
-      
+
       await api.submitCheckIn(selectedAthlete.athlete_id, {
         adherence_rate: parseInt(checkInAdherence),
         status_label: checkInStatus,
         feedback: checkInFeedback,
         focus_areas: focusAreasList
       });
-      
+
       setCheckInFeedback("");
       setCheckInFocusAreas("");
       setCheckInAdherence(100);
       setCheckInStatus("on_track");
-      
+
       await loadAthleteStats(selectedAthlete);
       setShowCheckInModal(false);
     } catch (err) {
@@ -736,7 +736,7 @@ export default function CoachDashboard() {
     if (!selectedAthlete || !athleteStats) return;
 
     const athleteName = selectedAthlete.name || selectedAthlete.email.split('@')[0];
-    const avgSleep = athleteStats.recent_sleep?.length 
+    const avgSleep = athleteStats.recent_sleep?.length
       ? (athleteStats.recent_sleep.reduce((acc, s) => acc + s.hours, 0) / athleteStats.recent_sleep.length).toFixed(1)
       : "N/A";
     const avgQuality = athleteStats.recent_sleep?.length
@@ -1061,7 +1061,7 @@ export default function CoachDashboard() {
         <div class="card-block">
           <div class="section-title">Recent Workouts</div>
           ${athleteStats.recent_workouts?.length > 0
-            ? `
+        ? `
             <table class="stats-table">
               ${athleteStats.recent_workouts.slice(0, 4).map(w => `
                 <tr>
@@ -1074,15 +1074,15 @@ export default function CoachDashboard() {
               `).join('')}
             </table>
             `
-            : `<p style="font-size: 12px; color: var(--color-text-3); margin: 0;">No recent workouts logged.</p>`
-          }
+        : `<p style="font-size: 12px; color: var(--color-text-3); margin: 0;">No recent workouts logged.</p>`
+      }
         </div>
 
         <!-- NUTRITION TARGETS -->
         <div class="card-block">
           <div class="section-title">Nutrition Compliance</div>
-          ${target 
-            ? `
+          ${target
+        ? `
             <div style="font-size: 11px; color: var(--color-text-3); margin-bottom: 12px;">
               Goal: <strong style="color: #fff;">${target.goal}</strong>
             </div>
@@ -1127,8 +1127,8 @@ export default function CoachDashboard() {
               </div>
             </div>
             `
-            : `<p style="font-size: 12px; color: var(--color-text-3); margin: 0;">No active nutrition targets.</p>`
-          }
+        : `<p style="font-size: 12px; color: var(--color-text-3); margin: 0;">No active nutrition targets.</p>`
+      }
         </div>
 
         <!-- SLEEP & WELLNESS -->
@@ -1152,9 +1152,9 @@ export default function CoachDashboard() {
             <tr>
               <td style="color: var(--color-text-3); padding-left: 0;">Active Injuries</td>
               <td style="font-weight: 700; text-align: right; color: ${athleteStats.active_injuries?.length > 0 ? '#ef4444' : '#22C55E'}; padding-right: 0;">
-                ${athleteStats.active_injuries?.length > 0 
-                  ? athleteStats.active_injuries.map(i => `${i.body_part} (${i.severity})`).join(', ')
-                  : "None"}
+                ${athleteStats.active_injuries?.length > 0
+        ? athleteStats.active_injuries.map(i => `${i.body_part} (${i.severity})`).join(', ')
+        : "None"}
               </td>
             </tr>
           </table>
@@ -1164,7 +1164,7 @@ export default function CoachDashboard() {
         <div class="card-block card-span-2">
           <div class="section-title">Best Lifts (PRs)</div>
           ${athleteStats.personal_records?.length > 0
-            ? `
+        ? `
             <table class="stats-table">
               <thead>
                 <tr>
@@ -1184,15 +1184,15 @@ export default function CoachDashboard() {
               </tbody>
             </table>
             `
-            : `<p style="font-size: 12px; color: var(--color-text-3); margin: 0;">No personal records established.</p>`
-          }
+        : `<p style="font-size: 12px; color: var(--color-text-3); margin: 0;">No personal records established.</p>`
+      }
         </div>
 
         <!-- MEASUREMENTS HISTORY -->
         <div class="card-block card-span-2">
           <div class="section-title">Body Measurements History</div>
           ${athleteStats.measurements?.length > 0
-            ? `
+        ? `
             <table class="stats-table">
               <thead>
                 <tr>
@@ -1218,15 +1218,15 @@ export default function CoachDashboard() {
               </tbody>
             </table>
             `
-            : `<p style="font-size: 12px; color: var(--color-text-3); margin: 0;">No body measurements logged.</p>`
-          }
+        : `<p style="font-size: 12px; color: var(--color-text-3); margin: 0;">No body measurements logged.</p>`
+      }
         </div>
 
         <!-- COACH CHECK-INS -->
         <div class="card-block card-span-2">
           <div class="section-title">Coach Reviews & Weekly Check-ins</div>
           ${athleteStats.check_ins?.length > 0
-            ? athleteStats.check_ins.map(c => `
+        ? athleteStats.check_ins.map(c => `
               <div class="review-card">
                 <div class="review-header">
                   <span class="review-title">Review on ${new Date(c.date).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}</span>
@@ -1237,18 +1237,18 @@ export default function CoachDashboard() {
                 </div>
                 <p class="review-notes">${c.feedback}</p>
                 ${c.focus_areas && c.focus_areas.length > 0
-                  ? `
+            ? `
                   <div class="focus-areas">
                     <span style="font-size: 9px; color: var(--color-text-3); font-weight: 700; align-self: center; margin-right: 4px;">FOCUS:</span>
                     ${c.focus_areas.map(area => `<span class="focus-pill">${area}</span>`).join('')}
                   </div>
                   `
-                  : ''
-                }
+            : ''
+          }
               </div>
             `).join('')
-            : `<p style="font-size: 12px; color: var(--color-text-3); margin: 0; font-style: italic;">No check-in reviews logged yet.</p>`
-          }
+        : `<p style="font-size: 12px; color: var(--color-text-3); margin: 0; font-style: italic;">No check-in reviews logged yet.</p>`
+      }
         </div>
       </div>
 
@@ -1349,7 +1349,7 @@ export default function CoachDashboard() {
   const renderAthleteDetail = () => {
     if (!selectedAthlete) return null;
 
-    const avgSleep = athleteStats?.recent_sleep?.length 
+    const avgSleep = athleteStats?.recent_sleep?.length
       ? (athleteStats.recent_sleep.reduce((acc, s) => acc + s.hours, 0) / athleteStats.recent_sleep.length).toFixed(1)
       : null;
     const avgQuality = athleteStats?.recent_sleep?.length
@@ -1368,7 +1368,7 @@ export default function CoachDashboard() {
     const avgFat = athleteStats?.recent_nutrition?.length
       ? Math.round(athleteStats.recent_nutrition.reduce((acc, n) => acc + n.fat, 0) / athleteStats.recent_nutrition.length)
       : 0;
-    
+
     const nutritionTarget = athleteStats?.nutrition_target;
 
     return (
@@ -1378,15 +1378,15 @@ export default function CoachDashboard() {
         animation: "fadeIn 0.3s ease-out"
       }}>
         {/* Profile Card Header */}
-        <div style={{ 
-          display: "flex", 
-          justifyContent: "space-between", 
-          alignItems: "center", 
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
           borderBottom: "1px solid rgba(255,255,255,0.05)",
           paddingBottom: 16
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{ 
+            <div style={{
               width: 64, height: 64, borderRadius: 20, background: "var(--bg-card)",
               border: "2px solid var(--aura-accent)", display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: 24, fontWeight: 800, color: "var(--aura-accent)", overflow: "hidden"
@@ -1406,9 +1406,9 @@ export default function CoachDashboard() {
               </div>
             </div>
           </div>
-          <button 
+          <button
             onClick={() => setSelectedAthlete(null)}
-            className="btn-secondary" 
+            className="btn-secondary"
             style={{ padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700 }}
           >
             Back to Roster
@@ -1416,48 +1416,48 @@ export default function CoachDashboard() {
         </div>
 
         {/* Coach Actions Toolbar */}
-        <div style={{ 
-          display: "flex", 
-          flexWrap: "wrap", 
-          gap: 12, 
+        <div style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 12,
           alignItems: "center"
         }}>
-          <button 
+          <button
             onClick={() => setShowSuggestModal(true)}
-            className="btn-primary" 
+            className="btn-primary"
             style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 18px", borderRadius: 12, fontSize: 13, fontWeight: 700, width: "auto" }}
           >
             <Dumbbell size={16} /> Suggest Workout
           </button>
-          <button 
+          <button
             onClick={openNutritionModal}
             className="btn-secondary"
             style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700 }}
           >
             <Sliders size={16} /> Assign Macros
           </button>
-          <button 
+          <button
             onClick={() => setShowCheckInModal(true)}
             className="btn-secondary"
             style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700 }}
           >
             <ClipboardList size={16} /> Log Review
           </button>
-          <button 
+          <button
             onClick={() => setChatRecipient({ ...selectedAthlete, id: selectedAthlete.athlete_id })}
             className="btn-secondary"
             style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700 }}
           >
             <MessageSquare size={16} /> Chat
           </button>
-          <button 
+          <button
             onClick={() => setActiveVideoCall({ athleteId: selectedAthlete.athlete_id, coachId: user?.id || user?.user_id, role: 'coach' })}
             className="btn-secondary"
             style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700, background: "rgba(99, 102, 241, 0.15)", color: "#818cf8", border: "1px solid rgba(99, 102, 241, 0.3)" }}
           >
             <Video size={16} /> Video Call
           </button>
-          <button 
+          <button
             onClick={handleDownloadReport}
             className="btn-secondary"
             style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700 }}
@@ -1465,7 +1465,7 @@ export default function CoachDashboard() {
             <Download size={16} /> Download Report
           </button>
           <div style={{ flex: 1 }} />
-          <button 
+          <button
             onClick={() => handleKickAthlete(selectedAthlete.relationship_id, selectedAthlete.name)}
             style={{
               background: "rgba(239, 68, 68, 0.05)",
@@ -1527,11 +1527,11 @@ export default function CoachDashboard() {
                 {athleteStats.recent_workouts?.length > 0 ? (
                   <div style={{ display: "flex", flexDirection: "column", gap: 8, maxHeight: 150, overflowY: "auto", paddingRight: 4 }}>
                     {athleteStats.recent_workouts.map(w => (
-                      <div 
-                        key={w.id} 
+                      <div
+                        key={w.id}
                         onClick={() => {
                           setSelectedWorkoutDetail(w);
-                          api.getSessionNotes(w.id).then(res => setSessionNotes(res || [])).catch(() => {});
+                          api.getSessionNotes(w.id).then(res => setSessionNotes(res || [])).catch(() => { });
                         }}
                         style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 12, cursor: "pointer", borderBottom: "1px solid rgba(255,255,255,0.02)", paddingBottom: 4 }}
                       >
@@ -1561,7 +1561,7 @@ export default function CoachDashboard() {
                         <span style={{ color: "var(--aura-cyan)", fontSize: 10, fontWeight: 800, textTransform: "uppercase" }}>Active Coach Plan</span>
                       )}
                     </div>
-                    
+
                     {/* Calories Progress */}
                     <div>
                       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, marginBottom: 4 }}>
@@ -1628,7 +1628,7 @@ export default function CoachDashboard() {
                         <div style={{ fontSize: 16, fontWeight: 800 }}>{avgQuality}/5 ★</div>
                       </div>
                     </div>
-                    
+
                     <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 8, borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 8 }}>
                       {athleteStats.recent_sleep.slice(0, 2).map((s, i) => (
                         <div key={i} style={{ fontSize: 11, color: "var(--color-text-3)" }}>
@@ -1699,9 +1699,9 @@ export default function CoachDashboard() {
                       const blockColor = colors[Math.min(count, 3)];
                       return (
                         <div key={idx} style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1, gap: 6 }}>
-                          <div style={{ 
-                            width: "100%", height: 32, borderRadius: 8, background: blockColor, 
-                            display: "flex", alignItems: "center", justifyContent: "center", 
+                          <div style={{
+                            width: "100%", height: 32, borderRadius: 8, background: blockColor,
+                            display: "flex", alignItems: "center", justifyContent: "center",
                             fontSize: 12, fontWeight: 800, color: count > 1 ? "#000" : "var(--color-text-2)",
                             border: "1px solid rgba(255,255,255,0.03)"
                           }} title={`${count} workouts in week of ${weekLabel}`}>
@@ -1788,15 +1788,15 @@ export default function CoachDashboard() {
                 {athleteStats.progress_photos?.length > 0 ? (
                   <div style={{ display: "flex", gap: 16, overflowX: "auto", paddingBottom: 10, scrollbarWidth: "thin" }}>
                     {athleteStats.progress_photos.map((photo, idx) => (
-                      <div key={idx} style={{ 
-                        flexShrink: 0, width: 140, background: "rgba(255,255,255,0.02)", 
+                      <div key={idx} style={{
+                        flexShrink: 0, width: 140, background: "rgba(255,255,255,0.02)",
                         border: "1px solid var(--border-card)", borderRadius: 12, overflow: "hidden",
                         display: "flex", flexDirection: "column", gap: 6, paddingBottom: 8
                       }}>
                         <div style={{ width: "100%", height: 140, background: "#111", overflow: "hidden" }}>
-                          <img 
-                            src={resolveBackendUrl(photo.photo_url)} 
-                            alt={`Progress on ${photo.date}`} 
+                          <img
+                            src={resolveBackendUrl(photo.photo_url)}
+                            alt={`Progress on ${photo.date}`}
                             style={{ width: "100%", height: "100%", objectFit: "cover" }}
                             onError={(e) => { e.target.src = "https://placehold.co/140x140?text=No+Photo"; }}
                           />
@@ -1826,8 +1826,8 @@ export default function CoachDashboard() {
                 {athleteStats.check_ins?.length > 0 ? (
                   <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                     {athleteStats.check_ins.map((c, idx) => (
-                      <div key={idx} style={{ 
-                        background: "rgba(255,255,255,0.01)", border: "1px solid var(--border-card)", 
+                      <div key={idx} style={{
+                        background: "rgba(255,255,255,0.01)", border: "1px solid var(--border-card)",
                         borderRadius: 12, padding: 14, display: "flex", flexDirection: "column", gap: 8
                       }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -1835,7 +1835,7 @@ export default function CoachDashboard() {
                             Review on {new Date(c.date).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
                           </span>
                           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                            <span style={{ 
+                            <span style={{
                               fontSize: 10, padding: "2px 8px", borderRadius: 8, fontWeight: 800,
                               background: c.status_label === 'on_track' ? "rgba(34, 197, 94, 0.1)" : c.status_label === 'needs_focus' ? "rgba(245, 158, 11, 0.1)" : "rgba(239, 68, 68, 0.1)",
                               color: c.status_label === 'on_track' ? "#22C55E" : c.status_label === 'needs_focus' ? "#f59e0b" : "#EF4444"
@@ -1866,10 +1866,10 @@ export default function CoachDashboard() {
             </div>
 
             {/* Right Column: Client Interactive Body Silhouette Heatmap */}
-            <div style={{ 
-              background: "rgba(255,255,255,0.015)", 
-              border: "1px solid var(--border-card)", 
-              borderRadius: 20, 
+            <div style={{
+              background: "rgba(255,255,255,0.015)",
+              border: "1px solid var(--border-card)",
+              borderRadius: 20,
               padding: 20,
               display: "flex",
               flexDirection: "column",
@@ -1887,11 +1887,11 @@ export default function CoachDashboard() {
               <p style={{ margin: 0, fontSize: 11, color: "var(--color-text-3)", lineHeight: 1.4 }}>
                 Visual heatmap showing muscle group tracking status (Green/Cyan) and active coach-logged injuries (Orange/Red).
               </p>
-              
+
               <div style={{ display: "flex", justifyContent: "center" }}>
-                <BodyMapWidget 
-                  latestProp={athleteStats.measurements?.[0] || {}} 
-                  previousProp={athleteStats.measurements?.[1] || {}} 
+                <BodyMapWidget
+                  latestProp={athleteStats.measurements?.[0] || {}}
+                  previousProp={athleteStats.measurements?.[1] || {}}
                   injuriesProp={(athleteStats.active_injuries || []).map(i => ({ ...i, status: 'active' }))}
                 />
               </div>
@@ -1936,232 +1936,232 @@ export default function CoachDashboard() {
               ) : (
                 <div>
                   {selectedAthlete ? renderAthleteDetail() : (
-                <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-              {/* Roster Top Options Grid */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 20, alignItems: "start" }}>
-                {/* Invite Section */}
-                <div style={{ background: "var(--bg-glass)", padding: 24, borderRadius: 24, border: "1px solid var(--border-card)", height: "100%" }}>
-                  <h2 style={{ fontSize: 14, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, marginBottom: 16, color: "var(--color-text)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                    <UserPlus size={18} color="var(--aura-accent)" /> Invite Athlete
-                  </h2>
-                  <form onSubmit={handleInvite} style={{ display: "flex", gap: 12, flexDirection: "column" }}>
-                    <div style={{ position: "relative" }}>
-                      <Search size={16} color="var(--color-text-3)" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)" }} />
-                      <input
-                        type="text"
-                        className="themed-input"
-                        value={inviteIdentifier}
-                        onChange={e => setInviteIdentifier(e.target.value)}
-                        placeholder="Athlete's email or nickname"
-                        style={{ width: "100%", paddingLeft: 40, height: 48, borderRadius: 14 }}
-                        required
-                      />
-                    </div>
-                    <button type="submit" className="btn-primary" style={{ borderRadius: 14, fontWeight: 700, height: 48 }}>
-                      Send Invite
-                    </button>
-                  </form>
-                  {inviteStatus && (
-                    <div style={{
-                      marginTop: 16, fontSize: 13, padding: "12px 16px", borderRadius: 12, fontWeight: 600,
-                      background: inviteStatus.type === "error" ? "rgba(239, 68, 68, 0.1)" : "rgba(34, 197, 94, 0.1)",
-                      color: inviteStatus.type === "error" ? "#EF4444" : "#22C55E",
-                      border: `1px solid ${inviteStatus.type === "error" ? "rgba(239, 68, 68, 0.2)" : "rgba(34, 197, 94, 0.2)"}`
-                    }}>
-                      {inviteStatus.msg}
-                    </div>
-                  )}
-                </div>
-
-                {/* Manage Gym Locations */}
-                <div style={{ background: "var(--bg-glass)", padding: 24, borderRadius: 24, border: "1px solid var(--border-card)", height: "100%" }}>
-                  <h2 style={{ fontSize: 14, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, marginBottom: 16, color: "var(--color-text)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                    <Activity size={18} color="var(--aura-cyan)" /> Manage Gym Locations
-                  </h2>
-                  <p style={{ fontSize: 12, color: "var(--color-text-3)", margin: "0 0 16px" }}>
-                    Select the gyms in Tunisia where you actively train/coach clients.
-                  </p>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 150, overflowY: "auto", paddingRight: 8 }}>
-                    {gyms.map(g => (
-                      <label key={g.id} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, cursor: "pointer", color: "var(--color-text)" }}>
-                        <input
-                          type="checkbox"
-                          checked={coachSelectedGyms.includes(g.id)}
-                          onChange={() => handleToggleGym(g.id)}
-                          style={{ accentColor: "var(--aura-cyan)" }}
-                        />
-                        <span>{g.name} <span style={{ fontSize: 11, color: "var(--color-text-3)" }}>({g.address})</span></span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Athlete List */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                <h2 style={{ fontSize: 14, fontWeight: 800, margin: 0, display: "flex", alignItems: "center", gap: 8, color: "var(--color-text)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                  <Users size={18} color="var(--color-text-3)" /> Active Athletes ({athletes.length})
-                </h2>
-                
-                {athletes.length === 0 ? (
-                  <div style={{ textAlign: "center", padding: 60, background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px dashed var(--border-card)", color: "var(--color-text-3)" }}>
-                    <div style={{ background: "rgba(255,255,255,0.05)", width: 64, height: 64, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-                      <Users size={32} opacity={0.5} />
-                    </div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: "var(--color-text)", marginBottom: 4 }}>No Athletes Yet</div>
-                    <div style={{ fontSize: 14 }}>Send an invite above to start coaching.</div>
-                  </div>
-                ) : (
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
-                    {athletes.map(a => (
-                      <div 
-                        key={a.relationship_id} 
-                        onClick={() => a.status === 'active' && loadAthleteStats(a)}
-                        style={{ 
-                          background: "var(--bg-glass)", border: "1px solid var(--border-card)", borderRadius: 20, 
-                          padding: 20, cursor: a.status === 'active' ? "pointer" : "default",
-                          transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
-                          position: "relative", overflow: "hidden"
-                        }}
-                        onMouseEnter={e => {
-                          if(a.status === 'active') {
-                            e.currentTarget.style.transform = "translateY(-4px)";
-                            e.currentTarget.style.borderColor = "var(--aura-accent)";
-                          }
-                        }}
-                        onMouseLeave={e => {
-                          if(a.status === 'active') {
-                            e.currentTarget.style.transform = "translateY(0)";
-                            e.currentTarget.style.borderColor = "var(--border-card)";
-                          }
-                        }}
-                      >
-                        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
-                          <div style={{ 
-                            width: 48, height: 48, borderRadius: 16, background: "var(--bg-card)",
-                            display: "flex", alignItems: "center", justifyContent: "center",
-                            fontSize: 18, fontWeight: 800, color: "var(--color-text)", overflow: "hidden"
-                          }}>
-                            {a.avatar_url ? (
-                              <img src={a.avatar_url} alt={a.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                            ) : (
-                              (a.name || a.email || 'A').charAt(0).toUpperCase()
-                            )}
-                          </div>
-                          <div>
-                            <div style={{ fontWeight: 800, fontSize: 16, color: "var(--color-text)" }}>{a.name || a.email.split('@')[0]}</div>
-                            <div style={{ fontSize: 12, color: "var(--color-text-3)", marginTop: 2 }}>{a.email}</div>
-                          </div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                      {/* Roster Top Options Grid */}
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 20, alignItems: "start" }}>
+                        {/* Invite Section */}
+                        <div style={{ background: "var(--bg-glass)", padding: 24, borderRadius: 24, border: "1px solid var(--border-card)", height: "100%" }}>
+                          <h2 style={{ fontSize: 14, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, marginBottom: 16, color: "var(--color-text)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                            <UserPlus size={18} color="var(--aura-accent)" /> Invite Athlete
+                          </h2>
+                          <form onSubmit={handleInvite} style={{ display: "flex", gap: 12, flexDirection: "column" }}>
+                            <div style={{ position: "relative" }}>
+                              <Search size={16} color="var(--color-text-3)" style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)" }} />
+                              <input
+                                type="text"
+                                className="themed-input"
+                                value={inviteIdentifier}
+                                onChange={e => setInviteIdentifier(e.target.value)}
+                                placeholder="Athlete's email or nickname"
+                                style={{ width: "100%", paddingLeft: 40, height: 48, borderRadius: 14 }}
+                                required
+                              />
+                            </div>
+                            <button type="submit" className="btn-primary" style={{ borderRadius: 14, fontWeight: 700, height: 48 }}>
+                              Send Invite
+                            </button>
+                          </form>
+                          {inviteStatus && (
+                            <div style={{
+                              marginTop: 16, fontSize: 13, padding: "12px 16px", borderRadius: 12, fontWeight: 600,
+                              background: inviteStatus.type === "error" ? "rgba(239, 68, 68, 0.1)" : "rgba(34, 197, 94, 0.1)",
+                              color: inviteStatus.type === "error" ? "#EF4444" : "#22C55E",
+                              border: `1px solid ${inviteStatus.type === "error" ? "rgba(239, 68, 68, 0.2)" : "rgba(34, 197, 94, 0.2)"}`
+                            }}>
+                              {inviteStatus.msg}
+                            </div>
+                          )}
                         </div>
 
-                        {a.status === 'pending' ? (
-                          a.initiated_by === 'athlete' ? (
-                            <div style={{ display: "flex", gap: 8 }}>
-                              <button 
-                                onClick={(e) => { e.stopPropagation(); handleResponse(a.relationship_id, 'accept'); }} 
-                                className="btn-primary" 
-                                style={{ 
-                                  flex: 1, 
-                                  display: "flex", 
-                                  alignItems: "center", 
-                                  justifyContent: "center", 
-                                  gap: 6, 
-                                  padding: "6px 0", 
-                                  borderRadius: 8, 
-                                  fontSize: 12, 
-                                  fontWeight: 700, 
-                                  height: 36,
-                                  width: "auto"
-                                }}
-                              >
-                                <Check size={14} /> Accept Request
-                              </button>
-                              <button 
-                                onClick={(e) => { e.stopPropagation(); handleResponse(a.relationship_id, 'decline'); }} 
-                                style={{ 
-                                  flex: 1, 
-                                  display: "flex", 
-                                  alignItems: "center", 
-                                  justifyContent: "center", 
-                                  gap: 6, 
-                                  padding: "6px 0", 
-                                  background: "rgba(255,255,255,0.05)", 
-                                  border: "1px solid var(--border-card)", 
-                                  color: "#fff", 
-                                  borderRadius: 8, 
-                                  fontSize: 12, 
-                                  fontWeight: 700, 
-                                  height: 36, 
-                                  cursor: "pointer" 
-                                }}
-                              >
-                                <X size={14} /> Decline
-                              </button>
+                        {/* Manage Gym Locations */}
+                        <div style={{ background: "var(--bg-glass)", padding: 24, borderRadius: 24, border: "1px solid var(--border-card)", height: "100%" }}>
+                          <h2 style={{ fontSize: 14, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, marginBottom: 16, color: "var(--color-text)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                            <Activity size={18} color="var(--aura-cyan)" /> Manage Gym Locations
+                          </h2>
+                          <p style={{ fontSize: 12, color: "var(--color-text-3)", margin: "0 0 16px" }}>
+                            Select the gyms in Tunisia where you actively train/coach clients.
+                          </p>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 10, maxHeight: 150, overflowY: "auto", paddingRight: 8 }}>
+                            {gyms.map(g => (
+                              <label key={g.id} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, cursor: "pointer", color: "var(--color-text)" }}>
+                                <input
+                                  type="checkbox"
+                                  checked={coachSelectedGyms.includes(g.id)}
+                                  onChange={() => handleToggleGym(g.id)}
+                                  style={{ accentColor: "var(--aura-cyan)" }}
+                                />
+                                <span>{g.name} <span style={{ fontSize: 11, color: "var(--color-text-3)" }}>({g.address})</span></span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Athlete List */}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                        <h2 style={{ fontSize: 14, fontWeight: 800, margin: 0, display: "flex", alignItems: "center", gap: 8, color: "var(--color-text)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                          <Users size={18} color="var(--color-text-3)" /> Active Athletes ({athletes.length})
+                        </h2>
+
+                        {athletes.length === 0 ? (
+                          <div style={{ textAlign: "center", padding: 60, background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px dashed var(--border-card)", color: "var(--color-text-3)" }}>
+                            <div style={{ background: "rgba(255,255,255,0.05)", width: 64, height: 64, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+                              <Users size={32} opacity={0.5} />
                             </div>
-                          ) : (
-                            <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(234, 179, 8, 0.1)", color: "#EAB308", padding: "8px 12px", borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
-                              <AlertCircle size={14} /> Invite Pending (Waiting for Athlete)
-                            </div>
-                          )
+                            <div style={{ fontSize: 16, fontWeight: 700, color: "var(--color-text)", marginBottom: 4 }}>No Athletes Yet</div>
+                            <div style={{ fontSize: 14 }}>Send an invite above to start coaching.</div>
+                          </div>
                         ) : (
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 16 }}>
-                            <div style={{ display: "flex", gap: 24 }}>
-                              <div>
-                                <div style={{ fontSize: 10, color: "var(--color-text-3)", fontWeight: 800, marginBottom: 2 }}>SESSIONS</div>
-                                <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-text)" }}>{a.total_sessions}</div>
-                              </div>
-                              <div>
-                                <div style={{ fontSize: 10, color: "var(--color-text-3)", fontWeight: 800, marginBottom: 2 }}>LAST ACTIVE</div>
-                                <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text)" }}>{a.last_session ? new Date(a.last_session).toLocaleDateString() : "Never"}</div>
-                              </div>
-                            </div>
-                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleKickAthlete(a.relationship_id, a.name);
-                                }}
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 16 }}>
+                            {athletes.map(a => (
+                              <div
+                                key={a.relationship_id}
+                                onClick={() => a.status === 'active' && loadAthleteStats(a)}
                                 style={{
-                                  background: "rgba(239, 68, 68, 0.1)",
-                                  color: "#EF4444",
-                                  border: "none",
-                                  padding: "6px 12px",
-                                  borderRadius: "8px",
-                                  fontSize: "11px",
-                                  fontWeight: "700",
-                                  cursor: "pointer",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 4
+                                  background: "var(--bg-glass)", border: "1px solid var(--border-card)", borderRadius: 20,
+                                  padding: 20, cursor: a.status === 'active' ? "pointer" : "default",
+                                  transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                                  position: "relative", overflow: "hidden"
+                                }}
+                                onMouseEnter={e => {
+                                  if (a.status === 'active') {
+                                    e.currentTarget.style.transform = "translateY(-4px)";
+                                    e.currentTarget.style.borderColor = "var(--aura-accent)";
+                                  }
+                                }}
+                                onMouseLeave={e => {
+                                  if (a.status === 'active') {
+                                    e.currentTarget.style.transform = "translateY(0)";
+                                    e.currentTarget.style.borderColor = "var(--border-card)";
+                                  }
                                 }}
                               >
-                                <X size={12} /> Kick
-                              </button>
-                              <ChevronRight size={20} color="var(--color-text-3)" />
-                            </div>
+                                <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
+                                  <div style={{
+                                    width: 48, height: 48, borderRadius: 16, background: "var(--bg-card)",
+                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                    fontSize: 18, fontWeight: 800, color: "var(--color-text)", overflow: "hidden"
+                                  }}>
+                                    {a.avatar_url ? (
+                                      <img src={a.avatar_url} alt={a.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                    ) : (
+                                      (a.name || a.email || 'A').charAt(0).toUpperCase()
+                                    )}
+                                  </div>
+                                  <div>
+                                    <div style={{ fontWeight: 800, fontSize: 16, color: "var(--color-text)" }}>{a.name || a.email.split('@')[0]}</div>
+                                    <div style={{ fontSize: 12, color: "var(--color-text-3)", marginTop: 2 }}>{a.email}</div>
+                                  </div>
+                                </div>
+
+                                {a.status === 'pending' ? (
+                                  a.initiated_by === 'athlete' ? (
+                                    <div style={{ display: "flex", gap: 8 }}>
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); handleResponse(a.relationship_id, 'accept'); }}
+                                        className="btn-primary"
+                                        style={{
+                                          flex: 1,
+                                          display: "flex",
+                                          alignItems: "center",
+                                          justifyContent: "center",
+                                          gap: 6,
+                                          padding: "6px 0",
+                                          borderRadius: 8,
+                                          fontSize: 12,
+                                          fontWeight: 700,
+                                          height: 36,
+                                          width: "auto"
+                                        }}
+                                      >
+                                        <Check size={14} /> Accept Request
+                                      </button>
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); handleResponse(a.relationship_id, 'decline'); }}
+                                        style={{
+                                          flex: 1,
+                                          display: "flex",
+                                          alignItems: "center",
+                                          justifyContent: "center",
+                                          gap: 6,
+                                          padding: "6px 0",
+                                          background: "rgba(255,255,255,0.05)",
+                                          border: "1px solid var(--border-card)",
+                                          color: "#fff",
+                                          borderRadius: 8,
+                                          fontSize: 12,
+                                          fontWeight: 700,
+                                          height: 36,
+                                          cursor: "pointer"
+                                        }}
+                                      >
+                                        <X size={14} /> Decline
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(234, 179, 8, 0.1)", color: "#EAB308", padding: "8px 12px", borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
+                                      <AlertCircle size={14} /> Invite Pending (Waiting for Athlete)
+                                    </div>
+                                  )
+                                ) : (
+                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: 16 }}>
+                                    <div style={{ display: "flex", gap: 24 }}>
+                                      <div>
+                                        <div style={{ fontSize: 10, color: "var(--color-text-3)", fontWeight: 800, marginBottom: 2 }}>SESSIONS</div>
+                                        <div style={{ fontSize: 16, fontWeight: 800, color: "var(--color-text)" }}>{a.total_sessions}</div>
+                                      </div>
+                                      <div>
+                                        <div style={{ fontSize: 10, color: "var(--color-text-3)", fontWeight: 800, marginBottom: 2 }}>LAST ACTIVE</div>
+                                        <div style={{ fontSize: 14, fontWeight: 700, color: "var(--color-text)" }}>{a.last_session ? new Date(a.last_session).toLocaleDateString() : "Never"}</div>
+                                      </div>
+                                    </div>
+                                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleKickAthlete(a.relationship_id, a.name);
+                                        }}
+                                        style={{
+                                          background: "rgba(239, 68, 68, 0.1)",
+                                          color: "#EF4444",
+                                          border: "none",
+                                          padding: "6px 12px",
+                                          borderRadius: "8px",
+                                          fontSize: "11px",
+                                          fontWeight: "700",
+                                          cursor: "pointer",
+                                          display: "flex",
+                                          alignItems: "center",
+                                          gap: 4
+                                        }}
+                                      >
+                                        <X size={12} /> Kick
+                                      </button>
+                                      <ChevronRight size={20} color="var(--color-text-3)" />
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
                           </div>
                         )}
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      )}
-    </div>
-  </RequireCoachRole>
-) : location.pathname.startsWith("/coach/events") ? (
-  <EventsSection />
-) : (
-    <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+          </RequireCoachRole>
+        ) : location.pathname.startsWith("/coach/events") ? (
+          <EventsSection />
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             {/* Active Coaches */}
             <div>
               <h2 style={{ fontSize: 14, fontWeight: 800, margin: "0 0 16px", display: "flex", alignItems: "center", gap: 8, color: "var(--color-text)", letterSpacing: "0.05em", textTransform: "uppercase" }}>
                 <Users size={18} color="var(--color-text-3)" /> Your Coach
               </h2>
-              
+
               {activeOrPending.length === 0 ? (
                 <div style={{ textAlign: "center", padding: 60, background: "rgba(255,255,255,0.02)", borderRadius: 24, border: "1px dashed var(--border-card)", color: "var(--color-text-3)" }}>
                   <div style={{ background: "rgba(255,255,255,0.05)", width: 64, height: 64, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
@@ -2173,12 +2173,12 @@ export default function CoachDashboard() {
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                   {activeOrPending.map(c => (
-                    <div key={c.relationship_id} style={{ 
-                      background: "var(--bg-glass)", border: "1px solid var(--border-card)", borderRadius: 20, 
+                    <div key={c.relationship_id} style={{
+                      background: "var(--bg-glass)", border: "1px solid var(--border-card)", borderRadius: 20,
                       padding: 24, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16
                     }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                        <div style={{ 
+                        <div style={{
                           width: 56, height: 56, borderRadius: 16, background: "var(--bg-card)",
                           display: "flex", alignItems: "center", justifyContent: "center",
                           fontSize: 20, fontWeight: 800, color: "var(--aura-accent)", overflow: "hidden"
@@ -2217,16 +2217,16 @@ export default function CoachDashboard() {
                         )
                       ) : (
                         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                          <button 
+                          <button
                             onClick={() => setChatRecipient({ ...c, id: c.coach_id, name: c.coach_name, avatar_url: c.coach_avatar })}
-                            className="btn-secondary" 
+                            className="btn-secondary"
                             style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700 }}
                           >
                             <MessageSquare size={16} /> Chat
                           </button>
-                          <button 
+                          <button
                             onClick={() => setActiveVideoCall({ athleteId: user?.id || user?.user_id, coachId: c.coach_id, role: 'athlete' })}
-                            className="btn-secondary" 
+                            className="btn-secondary"
                             style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 12, fontSize: 13, fontWeight: 700, background: "rgba(99, 102, 241, 0.15)", color: "#818cf8", border: "1px solid rgba(99, 102, 241, 0.3)" }}
                           >
                             <Video size={16} /> Video Call
@@ -2243,10 +2243,10 @@ export default function CoachDashboard() {
             </div>
 
             {/* Gym Map Explorer Section */}
-            <div style={{ 
-              background: "var(--bg-glass)", 
-              border: "1px solid var(--border-card)", 
-              borderRadius: 28, 
+            <div style={{
+              background: "var(--bg-glass)",
+              border: "1px solid var(--border-card)",
+              borderRadius: 28,
               padding: 28,
               boxShadow: "0 10px 30px rgba(0, 0, 0, 0.2)",
               backdropFilter: "blur(16px)"
@@ -2260,23 +2260,23 @@ export default function CoachDashboard() {
                     Discover top fitness facilities in Tunisia and connect with their certified resident coaches.
                   </p>
                 </div>
-                
-                <div style={{ 
-                  background: "rgba(255, 255, 255, 0.02)", 
-                  border: "1px solid var(--border-card)", 
-                  borderRadius: 12, 
-                  padding: "6px 12px", 
-                  fontSize: 11, 
+
+                <div style={{
+                  background: "rgba(255, 255, 255, 0.02)",
+                  border: "1px solid var(--border-card)",
+                  borderRadius: 12,
+                  padding: "6px 12px",
+                  fontSize: 11,
                   color: "var(--color-text-3)",
                   display: "flex",
                   alignItems: "center",
                   gap: 6
                 }}>
-                  <Navigation size={12} color="var(--aura-accent)" /> 
+                  <Navigation size={12} color="var(--aura-accent)" />
                   Location: <span style={{ color: "#fff", fontWeight: 700 }}>{userLoc.lat.toFixed(4)}°N, {userLoc.lng.toFixed(4)}°E</span>
                 </div>
               </div>
-              
+
               <div style={{ display: "flex", gap: 24, width: "100%" }}>
                 {/* Map Area */}
                 <div style={{ flex: 1.7, minWidth: 0, display: "flex", flexDirection: "column", gap: 12 }}>
@@ -2297,11 +2297,11 @@ export default function CoachDashboard() {
                               background: isSelected ? "var(--aura-cyan)" : "rgba(255,255,255,0.03)",
                               color: isSelected ? "#000" : "var(--color-text-2)",
                               border: isSelected ? "1px solid var(--aura-cyan)" : "1px solid var(--border-card)",
-                              padding: "8px 18px", 
-                              borderRadius: 12, 
-                              fontSize: 12, 
-                              fontWeight: 800, 
-                              cursor: "pointer", 
+                              padding: "8px 18px",
+                              borderRadius: 12,
+                              fontSize: 12,
+                              fontWeight: 800,
+                              cursor: "pointer",
                               whiteSpace: "nowrap",
                               transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
                               boxShadow: isSelected ? "0 0 12px rgba(6, 182, 212, 0.3)" : "none"
@@ -2343,17 +2343,17 @@ export default function CoachDashboard() {
                   </div>
 
                   {/* Leaflet Map Widget */}
-                  <div 
-                    id="leaflet-coaches-map" 
-                    style={{ 
-                      height: 560, 
+                  <div
+                    id="leaflet-coaches-map"
+                    style={{
+                      height: 560,
                       width: "100%",
-                      borderRadius: 20, 
+                      borderRadius: 20,
                       border: "1px solid var(--border-card)",
                       boxShadow: "inset 0 0 20px rgba(0,0,0,0.8)",
-                      background: "#111", 
+                      background: "#111",
                       overflow: "hidden"
-                    }} 
+                    }}
                   />
                 </div>
 
@@ -2362,22 +2362,22 @@ export default function CoachDashboard() {
                   <h4 style={{ fontSize: 11, fontWeight: 900, margin: "0 0 4px", color: "var(--color-text-3)", letterSpacing: "0.08em", textTransform: "uppercase" }}>
                     Gym Directory ({nearestGyms.length} Facilities)
                   </h4>
-                  
-                  <div style={{ 
-                    display: "flex", 
-                    flexDirection: "column", 
-                    gap: 14, 
-                    maxHeight: 560, 
-                    overflowY: "auto", 
+
+                  <div style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 14,
+                    maxHeight: 560,
+                    overflowY: "auto",
                     paddingRight: 10
                   }}>
                     {nearestGyms.map(g => (
-                      <div 
-                        key={g.id} 
-                        style={{ 
-                          background: "linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%)", 
-                          border: "1px solid var(--border-card)", 
-                          borderRadius: 20, 
+                      <div
+                        key={g.id}
+                        style={{
+                          background: "linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%)",
+                          border: "1px solid var(--border-card)",
+                          borderRadius: 20,
                           padding: 16,
                           transition: "all 0.2s"
                         }}
@@ -2395,14 +2395,14 @@ export default function CoachDashboard() {
                             <div style={{ fontSize: 15, fontWeight: 800, color: "var(--color-text)" }}>{g.name}</div>
                             <div style={{ fontSize: 11, color: "var(--color-text-3)", marginTop: 2 }}>{g.address}</div>
                           </div>
-                          
+
                           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
-                            <div style={{ 
-                              background: "rgba(6, 182, 212, 0.08)", 
-                              color: "var(--aura-cyan)", 
-                              fontSize: 10, 
-                              fontWeight: 800, 
-                              padding: "4px 10px", 
+                            <div style={{
+                              background: "rgba(6, 182, 212, 0.08)",
+                              color: "var(--aura-cyan)",
+                              fontSize: 10,
+                              fontWeight: 800,
+                              padding: "4px 10px",
                               borderRadius: 8,
                               border: "1px solid rgba(6, 182, 212, 0.15)",
                               display: "flex",
@@ -2434,15 +2434,15 @@ export default function CoachDashboard() {
                             </button>
                           </div>
                         </div>
-                        
+
                         {g.coaches && g.coaches.length > 0 ? (
-                          <div style={{ 
-                            display: "flex", 
-                            flexDirection: "column", 
-                            gap: 12, 
-                            marginTop: 12, 
-                            borderTop: "1px solid rgba(255,255,255,0.04)", 
-                            paddingTop: 12 
+                          <div style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 12,
+                            marginTop: 12,
+                            borderTop: "1px solid rgba(255,255,255,0.04)",
+                            paddingTop: 12
                           }}>
                             {g.coaches.map(c => {
                               // Find if athlete has existing coach connection/status in coaches list
@@ -2451,12 +2451,12 @@ export default function CoachDashboard() {
                               const isPending = match?.status === 'pending';
 
                               return (
-                                <div 
-                                  key={c.coach_id} 
+                                <div
+                                  key={c.coach_id}
                                   onClick={() => setSelectedCoachForInfo(c)}
-                                  style={{ 
-                                    display: "flex", 
-                                    justifyContent: "space-between", 
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
                                     alignItems: "center",
                                     cursor: "pointer",
                                     padding: "6px 8px",
@@ -2468,17 +2468,17 @@ export default function CoachDashboard() {
                                   onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                                 >
                                   <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
-                                    <div style={{ 
-                                      width: 36, 
-                                      height: 36, 
-                                      borderRadius: 10, 
-                                      background: "var(--color-surface-h)", 
-                                      display: "flex", 
-                                      alignItems: "center", 
-                                      justifyContent: "center", 
-                                      fontSize: 14, 
-                                      fontWeight: 900, 
-                                      color: "var(--aura-cyan)", 
+                                    <div style={{
+                                      width: 36,
+                                      height: 36,
+                                      borderRadius: 10,
+                                      background: "var(--color-surface-h)",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      fontSize: 14,
+                                      fontWeight: 900,
+                                      color: "var(--aura-cyan)",
                                       overflow: "hidden",
                                       border: "1px solid var(--border-card)",
                                       flexShrink: 0
@@ -2498,14 +2498,14 @@ export default function CoachDashboard() {
                                       </div>
                                     </div>
                                   </div>
-                                  
+
                                   {isHired ? (
-                                    <div style={{ 
-                                      background: "rgba(34, 197, 94, 0.08)", 
-                                      color: "#22c55e", 
-                                      fontSize: 11, 
-                                      fontWeight: 800, 
-                                      padding: "4px 10px", 
+                                    <div style={{
+                                      background: "rgba(34, 197, 94, 0.08)",
+                                      color: "#22c55e",
+                                      fontSize: 11,
+                                      fontWeight: 800,
+                                      padding: "4px 10px",
                                       borderRadius: 8,
                                       display: "flex",
                                       alignItems: "center",
@@ -2515,12 +2515,12 @@ export default function CoachDashboard() {
                                       <Check size={12} /> Active
                                     </div>
                                   ) : isPending ? (
-                                    <div style={{ 
-                                      background: "rgba(245, 158, 11, 0.08)", 
-                                      color: "#f59e0b", 
-                                      fontSize: 11, 
-                                      fontWeight: 800, 
-                                      padding: "4px 10px", 
+                                    <div style={{
+                                      background: "rgba(245, 158, 11, 0.08)",
+                                      color: "#f59e0b",
+                                      fontSize: 11,
+                                      fontWeight: 800,
+                                      padding: "4px 10px",
                                       borderRadius: 8,
                                       display: "flex",
                                       alignItems: "center",
@@ -2530,12 +2530,12 @@ export default function CoachDashboard() {
                                       <AlertCircle size={12} /> Pending
                                     </div>
                                   ) : (
-                                    <button 
+                                    <button
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         handleHireCoach(c.coach_id);
                                       }}
-                                      className="btn-primary" 
+                                      className="btn-primary"
                                       style={{ padding: "6px 14px", borderRadius: 10, fontSize: 11, fontWeight: 800, flexShrink: 0, width: "auto" }}
                                     >
                                       Hire
@@ -2572,10 +2572,10 @@ export default function CoachDashboard() {
                     const cReviews = c.review_count || 12;
                     const cAthletes = c.athletes_count || 18;
                     return (
-                      <div key={c.coach_id} 
+                      <div key={c.coach_id}
                         onClick={() => setSelectedCoachForInfo(c)}
-                        style={{ 
-                          background: "var(--bg-glass)", border: "1px solid var(--border-card)", borderRadius: 20, 
+                        style={{
+                          background: "var(--bg-glass)", border: "1px solid var(--border-card)", borderRadius: 20,
                           padding: 18, display: "flex", justifyContent: "space-between", alignItems: "center",
                           cursor: "pointer", transition: "all 0.2s ease"
                         }}
@@ -2583,7 +2583,7 @@ export default function CoachDashboard() {
                         onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border-card)"}
                       >
                         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                          <div style={{ 
+                          <div style={{
                             width: 48, height: 48, borderRadius: 14, background: "var(--bg-card)",
                             display: "flex", alignItems: "center", justifyContent: "center",
                             fontSize: 16, fontWeight: 800, color: "var(--aura-accent)", overflow: "hidden",
@@ -2597,7 +2597,7 @@ export default function CoachDashboard() {
                           </div>
                           <div>
                             <div style={{ fontWeight: 800, fontSize: 15, color: "var(--color-text)" }}>{c.coach_name || c.coach_email.split('@')[0]}</div>
-                            
+
                             {/* Rating and Athletes stats */}
                             <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
                               <div style={{ display: "flex", alignItems: "center", gap: 3, fontSize: 11, fontWeight: 700, color: "#f59e0b" }}>
@@ -2616,12 +2616,12 @@ export default function CoachDashboard() {
                           </div>
                         </div>
 
-                        <button 
+                        <button
                           onClick={(e) => {
                             e.stopPropagation();
                             handleHireCoach(c.coach_id);
                           }}
-                          className="btn-primary" 
+                          className="btn-primary"
                           style={{ padding: "6px 16px", borderRadius: 10, fontSize: 12, fontWeight: 700, width: "auto" }}
                         >
                           Hire
@@ -2633,13 +2633,13 @@ export default function CoachDashboard() {
               )}
             </div>
           </div>
-      )}
+        )}
 
       </div>
 
       {showSuggestModal && selectedAthlete && (
-        <SuggestWorkoutModal 
-          athlete={selectedAthlete} 
+        <SuggestWorkoutModal
+          athlete={selectedAthlete}
           onClose={() => setShowSuggestModal(false)}
           onSuggest={() => {
             setShowSuggestModal(false);
@@ -2648,9 +2648,9 @@ export default function CoachDashboard() {
       )}
 
       {chatRecipient && (
-        <CoachChatModal 
-          recipient={chatRecipient} 
-          onClose={() => setChatRecipient(null)} 
+        <CoachChatModal
+          recipient={chatRecipient}
+          onClose={() => setChatRecipient(null)}
         />
       )}
 
@@ -2680,7 +2680,7 @@ export default function CoachDashboard() {
             display: "flex", flexDirection: "column", gap: 20, position: "relative",
             boxShadow: "0 20px 40px rgba(0,0,0,0.4)"
           }}>
-            <button 
+            <button
               onClick={() => setShowNutritionModal(false)}
               style={{
                 position: "absolute", top: 20, right: 20,
@@ -2691,7 +2691,7 @@ export default function CoachDashboard() {
             >
               ×
             </button>
-            
+
             <div>
               <h3 style={{ margin: 0, fontSize: 18, color: "var(--color-text)", fontWeight: 800 }}>Assign Nutrition Targets</h3>
               <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--color-text-3)" }}>
@@ -2702,8 +2702,8 @@ export default function CoachDashboard() {
             <form onSubmit={handleAssignNutrition} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <label style={{ fontSize: 11, fontWeight: 700, color: "var(--color-text-2)" }}>Target Calories (kcal)</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   value={nutrCal}
                   onChange={e => setNutrCal(e.target.value)}
                   style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 10, padding: "8px 12px", color: "#fff", fontSize: 13 }}
@@ -2714,8 +2714,8 @@ export default function CoachDashboard() {
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <label style={{ fontSize: 11, fontWeight: 700, color: "var(--color-text-2)" }}>Protein (g)</label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     value={nutrProt}
                     onChange={e => setNutrProt(e.target.value)}
                     style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 10, padding: "8px 12px", color: "#fff", fontSize: 13 }}
@@ -2724,8 +2724,8 @@ export default function CoachDashboard() {
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <label style={{ fontSize: 11, fontWeight: 700, color: "var(--color-text-2)" }}>Carbs (g)</label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     value={nutrCarb}
                     onChange={e => setNutrCarb(e.target.value)}
                     style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 10, padding: "8px 12px", color: "#fff", fontSize: 13 }}
@@ -2734,8 +2734,8 @@ export default function CoachDashboard() {
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                   <label style={{ fontSize: 11, fontWeight: 700, color: "var(--color-text-2)" }}>Fats (g)</label>
-                  <input 
-                    type="number" 
+                  <input
+                    type="number"
                     value={nutrFat}
                     onChange={e => setNutrFat(e.target.value)}
                     style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-card)", borderRadius: 10, padding: "8px 12px", color: "#fff", fontSize: 13 }}
@@ -2744,9 +2744,9 @@ export default function CoachDashboard() {
                 </div>
               </div>
 
-              <button 
-                type="submit" 
-                className="btn-primary" 
+              <button
+                type="submit"
+                className="btn-primary"
                 style={{ marginTop: 10, height: 40, borderRadius: 10, fontWeight: 800, fontSize: 13 }}
                 disabled={submittingNutrition}
               >
@@ -2770,7 +2770,7 @@ export default function CoachDashboard() {
             overflowY: "auto", display: "flex", flexDirection: "column", gap: 20, position: "relative",
             boxShadow: "0 20px 40px rgba(0,0,0,0.4)"
           }}>
-            <button 
+            <button
               onClick={() => setShowCheckInModal(false)}
               style={{
                 position: "absolute", top: 20, right: 20,
@@ -2781,7 +2781,7 @@ export default function CoachDashboard() {
             >
               ×
             </button>
-            
+
             <div>
               <h3 style={{ margin: 0, fontSize: 18, color: "var(--color-text)", fontWeight: 800 }}>Log Weekly Review</h3>
               <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--color-text-3)" }}>
@@ -2796,8 +2796,8 @@ export default function CoachDashboard() {
                   <label style={{ fontSize: 11, fontWeight: 700, color: "var(--color-text-2)" }}>Client Weekly Adherence</label>
                   <span style={{ fontSize: 13, fontWeight: 800, color: "var(--aura-cyan)" }}>{checkInAdherence}%</span>
                 </div>
-                <input 
-                  type="range" 
+                <input
+                  type="range"
                   min="0"
                   max="100"
                   step="5"
@@ -2810,7 +2810,7 @@ export default function CoachDashboard() {
               {/* Status indicator */}
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <label style={{ fontSize: 11, fontWeight: 700, color: "var(--color-text-2)" }}>Status Assessment</label>
-                <select 
+                <select
                   value={checkInStatus}
                   onChange={e => setCheckInStatus(e.target.value)}
                   style={{
@@ -2827,7 +2827,7 @@ export default function CoachDashboard() {
               {/* Feedback text */}
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <label style={{ fontSize: 11, fontWeight: 700, color: "var(--color-text-2)" }}>Progress Review & Feedback</label>
-                <textarea 
+                <textarea
                   placeholder="Analyze their fatigue levels, sleep compliance, weight trends, and specify technique adjustments..."
                   value={checkInFeedback}
                   onChange={e => setCheckInFeedback(e.target.value)}
@@ -2842,8 +2842,8 @@ export default function CoachDashboard() {
               {/* Focus areas */}
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <label style={{ fontSize: 11, fontWeight: 700, color: "var(--color-text-2)" }}>Next Week's Focus Areas (comma-separated)</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="e.g. Sleep 8h+, High protein, Bench technique, Load progression"
                   value={checkInFocusAreas}
                   onChange={e => setCheckInFocusAreas(e.target.value)}
@@ -2851,9 +2851,9 @@ export default function CoachDashboard() {
                 />
               </div>
 
-              <button 
-                type="submit" 
-                className="btn-primary" 
+              <button
+                type="submit"
+                className="btn-primary"
                 style={{ marginTop: 10, height: 40, borderRadius: 10, fontWeight: 800, fontSize: 13 }}
                 disabled={submittingCheckIn}
               >
@@ -2888,7 +2888,7 @@ export default function CoachDashboard() {
                 <h3 style={{ margin: 0, fontSize: 20, color: "var(--color-text)", fontWeight: 800 }}>{selectedWorkoutDetail.workout_name}</h3>
                 <span style={{ fontSize: 12, color: "var(--color-text-3)" }}>{new Date(selectedWorkoutDetail.session_date).toLocaleDateString()} • {Math.round(selectedWorkoutDetail.duration_sec / 60)} mins</span>
               </div>
-              <button 
+              <button
                 onClick={() => { setSelectedWorkoutDetail(null); setSessionNotes([]); }}
                 style={{ background: "rgba(255,255,255,0.05)", border: "none", color: "#fff", width: 36, height: 36, borderRadius: "50%", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}
               >
@@ -2944,7 +2944,7 @@ export default function CoachDashboard() {
               <h4 style={{ margin: "0 0 12px", fontSize: 14, fontWeight: 800, color: "var(--aura-accent)", display: "flex", alignItems: "center", gap: 6 }}>
                 <MessageSquare size={16} /> Coach Feedback & Recommendations
               </h4>
-              
+
               {sessionNotes.length > 0 ? (
                 <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
                   {sessionNotes.map(n => (
@@ -2963,7 +2963,7 @@ export default function CoachDashboard() {
 
               {role === 'coach' && (
                 <form onSubmit={handleAddSessionNote} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                  <textarea 
+                  <textarea
                     placeholder="Leave feedback or recommendations for this session..."
                     value={newSessionNote}
                     onChange={e => setNewSessionNote(e.target.value)}
@@ -2973,10 +2973,10 @@ export default function CoachDashboard() {
                     }}
                     required
                   />
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     disabled={submittingNote || !newSessionNote.trim()}
-                    className="btn-primary" 
+                    className="btn-primary"
                     style={{ alignSelf: "flex-end", padding: "8px 16px", borderRadius: 10, fontSize: 12, fontWeight: 700 }}
                   >
                     {submittingNote ? "Submitting..." : "Add Feedback"}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Apple, Plus, History, Settings, Brain, Save, Search, Utensils, Zap, 
+import {
+  Apple, Plus, History, Settings, Brain, Save, Search, Utensils, Zap,
   Clipboard, Copy, Camera, Droplet, Sparkles, ChevronLeft, ChevronRight,
   Calendar, Trash2, PieChart, Flame, Footprints, Clock, Award, ShieldCheck,
   Sunrise, Sun, Moon, BookOpen, LayoutDashboard, TrendingUp, Play, Square,
@@ -201,7 +201,7 @@ export default function Nutrition() {
     const d = new Date(selectedDate);
     d.setDate(d.getDate() - 1);
     const yStr = d.toISOString().split('T')[0];
-    
+
     try {
       await api.copyMeals(yStr, selectedDate);
       if (toast?.success) toast.success("Meals copied from previous day!");
@@ -261,38 +261,38 @@ export default function Nutrition() {
   return (
     <div style={{ minHeight: "100vh", paddingBottom: 100 }}>
       <Header title="Nutrition Hub" subtitle="MyFitnessPal-Style Food Logging & Energy Tracker" />
-      
+
       <div className="page-inner" style={{ maxWidth: 880, margin: "0 auto", padding: "0 16px" }}>
-        
+
         {/* ── Sub-Navigation Bar (Tabs matching design system) ── */}
-        <div style={{ 
-          display: "flex", 
-          gap: 6, 
-          background: "var(--color-bg-card)", 
-          padding: 6, 
-          borderRadius: 16, 
+        <div style={{
+          display: "flex",
+          gap: 6,
+          background: "var(--color-bg-card)",
+          padding: 6,
+          borderRadius: 16,
           border: "1px solid var(--color-border)",
           marginBottom: 20
         }}>
-          <button 
+          <button
             onClick={() => setActiveTab("diary")}
             className={`tab-btn ${activeTab === "diary" ? "active" : ""}`}
           >
             <BookOpen size={16} /> Diary & Meals
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab("dashboard")}
             className={`tab-btn ${activeTab === "dashboard" ? "active" : ""}`}
           >
             <LayoutDashboard size={16} /> Dashboard
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab("report")}
             className={`tab-btn ${activeTab === "report" ? "active" : ""}`}
           >
             <BarChart2 size={16} /> Weekly Report & Archive
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab("ai_tools")}
             className={`tab-btn ${activeTab === "ai_tools" ? "active" : ""}`}
           >
@@ -301,11 +301,11 @@ export default function Nutrition() {
         </div>
 
         {/* ── DATE NAVIGATION BAR ── */}
-        <div className="card" style={{ 
-          padding: "12px 20px", 
-          marginBottom: 20, 
-          display: "flex", 
-          justifyContent: "space-between", 
+        <div className="card" style={{
+          padding: "12px 20px",
+          marginBottom: 20,
+          display: "flex",
+          justifyContent: "space-between",
           alignItems: "center",
           background: "var(--color-bg-card)",
           borderRadius: 16
@@ -330,7 +330,7 @@ export default function Nutrition() {
         </div>
 
         {/* ── TOP CALORIE REMAINING RING HEADER ── */}
-        <CalorieRingHeader 
+        <CalorieRingHeader
           targets={targets}
           foodCalories={foodCalories}
           exerciseBurned={exerciseBurned}
@@ -346,9 +346,9 @@ export default function Nutrition() {
         {activeTab === "diary" && (
           <div>
             {/* Fasting Tracker Section */}
-            <div className="card" style={{ 
-              padding: "16px 20px", 
-              marginBottom: 20, 
+            <div className="card" style={{
+              padding: "16px 20px",
+              marginBottom: 20,
               background: "linear-gradient(135deg, rgba(186, 85, 211, 0.08) 0%, rgba(0, 242, 254, 0.05) 100%)",
               border: "1px solid rgba(186, 85, 211, 0.2)",
               borderRadius: 16,
@@ -363,13 +363,13 @@ export default function Nutrition() {
                 <div>
                   <div style={{ fontSize: 14, fontWeight: 800 }}>Fasting ({fasting.windowLabel})</div>
                   <div style={{ fontSize: 12, color: "var(--color-text-3)" }}>
-                    {fasting.active 
-                      ? `Elapsed: ${formatFastingTime(elapsedFastingSeconds)}` 
+                    {fasting.active
+                      ? `Elapsed: ${formatFastingTime(elapsedFastingSeconds)}`
                       : "20:00 - 10:00 Window"}
                   </div>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={toggleFasting}
                 style={{
                   padding: "8px 18px",
@@ -420,9 +420,9 @@ export default function Nutrition() {
                     ) : (
                       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
                         {categoryMeals.map(item => (
-                          <div key={item.id} style={{ 
-                            display: "flex", 
-                            justifyContent: "space-between", 
+                          <div key={item.id} style={{
+                            display: "flex",
+                            justifyContent: "space-between",
                             alignItems: "center",
                             padding: "8px 12px",
                             background: "rgba(255,255,255,0.02)",
@@ -448,7 +448,7 @@ export default function Nutrition() {
 
                     {/* Action Bar (+ ADD FOOD & QUICK ADD) */}
                     <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
-                      <button 
+                      <button
                         onClick={() => openFoodSearch(cat.id)}
                         style={{
                           flex: 1,
@@ -468,7 +468,7 @@ export default function Nutrition() {
                       >
                         <Plus size={16} /> ADD FOOD
                       </button>
-                      <button 
+                      <button
                         onClick={() => openQuickAdd(cat.id)}
                         style={{
                           padding: "10px 14px",
@@ -491,8 +491,8 @@ export default function Nutrition() {
 
             {/* Bottom Copy Prev Day Action */}
             <div style={{ marginTop: 20, textAlign: "center" }}>
-              <button 
-                onClick={handleCopyYesterday} 
+              <button
+                onClick={handleCopyYesterday}
                 className="date-nav-btn"
                 style={{ margin: "0 auto", padding: "10px 20px" }}
               >
@@ -582,13 +582,13 @@ export default function Nutrition() {
         {/* TAB 3: WEEKLY REPORT & DAYS ARCHIVE                       */}
         {/* ========================================================= */}
         {activeTab === "report" && (
-          <WeeklyReportView 
-            targets={targets} 
-            history={history} 
+          <WeeklyReportView
+            targets={targets}
+            history={history}
             onSelectDate={(dateStr) => {
               setSelectedDate(dateStr);
               setActiveTab("diary");
-            }} 
+            }}
           />
         )}
 
@@ -598,11 +598,11 @@ export default function Nutrition() {
         {activeTab === "ai_tools" && (
           <div>
             {/* Featured AI Vision Meal Scanner Card */}
-            <div 
-              className="card" 
-              style={{ 
-                padding: 24, 
-                marginBottom: 20, 
+            <div
+              className="card"
+              style={{
+                padding: 24,
+                marginBottom: 20,
                 background: "color-mix(in srgb, var(--aura-accent) 12%, var(--bg-card))",
                 border: "1px solid var(--border-card)",
                 borderRadius: 20,
@@ -612,14 +612,14 @@ export default function Nutrition() {
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                <div style={{ 
-                  width: 52, 
-                  height: 52, 
-                  borderRadius: 16, 
-                  background: "var(--aura-accent)", 
-                  display: "flex", 
-                  justifyContent: "center", 
-                  alignItems: "center", 
+                <div style={{
+                  width: 52,
+                  height: 52,
+                  borderRadius: 16,
+                  background: "var(--aura-accent)",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
                   color: "var(--color-on-accent)",
                   boxShadow: "0 4px 15px color-mix(in srgb, var(--aura-accent) 30%, transparent)"
                 }}>
@@ -632,7 +632,7 @@ export default function Nutrition() {
                   </p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setActiveModal('vision')}
                 style={{
                   padding: "12px 22px",
@@ -658,7 +658,7 @@ export default function Nutrition() {
               <h2 style={{ fontSize: 16, fontWeight: 800, display: "flex", alignItems: "center", gap: 8, marginBottom: 12, color: "var(--color-text)" }}>
                 <Brain size={20} color="var(--aura-accent)" /> AI Meal Text Assistant
               </h2>
-              
+
               {/* Obligatory Meal Category Pills */}
               <div style={{ marginBottom: 12 }}>
                 <label style={{ fontSize: 11, fontWeight: 700, color: "var(--aura-accent)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 6, display: "block" }}>
@@ -688,27 +688,27 @@ export default function Nutrition() {
               </div>
 
               <div style={{ display: "flex", gap: 12 }}>
-                <input 
-                  type="text" 
-                  className="themed-input" 
+                <input
+                  type="text"
+                  className="themed-input"
                   placeholder={`Describe a meal for ${targetCategory} (e.g. 2 eggs and toast)...`}
                   style={{ flex: 1 }}
                   value={scanText}
                   onChange={(e) => setScanText(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleScanText(); }}
                 />
-                  value={scanText}
-                  onChange={(e) => setScanText(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleScanText(); }}
+                value={scanText}
+                onChange={(e) => setScanText(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleScanText(); }}
                 />
-                <button 
+                <button
                   onClick={handleScanText}
                   disabled={scanningText}
-                  className="themed-input" 
-                  style={{ 
-                    width: "auto", 
-                    background: "linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)", 
-                    color: "#000", 
+                  className="themed-input"
+                  style={{
+                    width: "auto",
+                    background: "linear-gradient(135deg, #00f2fe 0%, #4facfe 100%)",
+                    color: "#000",
                     fontWeight: 800,
                     display: "flex",
                     alignItems: "center",
@@ -749,44 +749,44 @@ export default function Nutrition() {
 
       {/* ── MODALS ── */}
       {activeModal === 'search' && (
-        <FoodSearchModal 
+        <FoodSearchModal
           initialCategory={targetCategory}
           targetDate={selectedDate}
-          onClose={() => setActiveModal(null)} 
-          onLog={() => refreshData(selectedDate)} 
-          onSwitchToCustom={() => setActiveModal('custom')} 
+          onClose={() => setActiveModal(null)}
+          onLog={() => refreshData(selectedDate)}
+          onSwitchToCustom={() => setActiveModal('custom')}
         />
       )}
       {activeModal === 'quick' && (
-        <QuickAddModal 
+        <QuickAddModal
           initialCategory={targetCategory}
           targetDate={selectedDate}
-          onClose={() => setActiveModal(null)} 
-          onLog={() => refreshData(selectedDate)} 
+          onClose={() => setActiveModal(null)}
+          onLog={() => refreshData(selectedDate)}
         />
       )}
       {activeModal === 'recipe' && (
-        <RecipeBuilderModal 
-          onClose={() => setActiveModal(null)} 
-          onSave={() => refreshData(selectedDate)} 
+        <RecipeBuilderModal
+          onClose={() => setActiveModal(null)}
+          onSave={() => refreshData(selectedDate)}
         />
       )}
       {activeModal === 'custom' && (
-        <CustomFoodModal 
-          onClose={() => setActiveModal(null)} 
-          onSave={() => refreshData(selectedDate)} 
+        <CustomFoodModal
+          onClose={() => setActiveModal(null)}
+          onSave={() => refreshData(selectedDate)}
         />
       )}
       {activeModal === 'vision' && (
-        <MealScanModal 
+        <MealScanModal
           initialCategory={targetCategory}
           targetDate={selectedDate}
-          onClose={() => setActiveModal(null)} 
-          onLog={() => refreshData(selectedDate)} 
+          onClose={() => setActiveModal(null)}
+          onLog={() => refreshData(selectedDate)}
         />
       )}
       {activeModal === 'calculator' && (
-        <div 
+        <div
           className="modal-overlay"
           style={{
             position: "fixed",
@@ -801,40 +801,40 @@ export default function Nutrition() {
             padding: 16
           }}
         >
-          <div 
-            className="card" 
-            style={{ 
-              maxWidth: 720, 
-              width: "100%", 
-              maxHeight: "90vh", 
-              overflowY: "auto", 
-              background: "#0d1117", 
-              borderRadius: 24, 
-              border: "1px solid var(--aura-accent, #00f2fe)", 
+          <div
+            className="card"
+            style={{
+              maxWidth: 720,
+              width: "100%",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              background: "#0d1117",
+              borderRadius: 24,
+              border: "1px solid var(--aura-accent, #00f2fe)",
               padding: 24,
               boxShadow: "0 20px 50px rgba(0,0,0,0.8)"
             }}
           >
             <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 12 }}>
-              <button 
+              <button
                 onClick={() => setActiveModal(null)}
                 style={{ background: "none", border: "none", color: "#aaa", fontSize: 20, cursor: "pointer", fontWeight: 800 }}
               >
                 ✕
               </button>
             </div>
-            <NutritionCalculator 
+            <NutritionCalculator
               onSaveSuccess={() => {
                 fetchTargets();
                 refreshData(selectedDate);
                 setActiveModal(null);
-              }} 
+              }}
             />
           </div>
         </div>
       )}
       {activeModal === 'edit_goals' && (
-        <EditGoalsModal 
+        <EditGoalsModal
           currentTargets={targets}
           onClose={() => setActiveModal(null)}
           onSave={(newTargets) => setTargets(newTargets)}

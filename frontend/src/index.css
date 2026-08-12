@@ -4806,3 +4806,25 @@ html {
   filter: brightness(0) invert(1) !important;
   -webkit-filter: brightness(0) invert(1) !important;
 }
+
+.page-slide-enter {
+  animation: page-slide-in 0.3s ease-out;
+}
+
+/* ── Smooth scroll ────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ── Focus visible for accessibility ──────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--aura-accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Force Auth Logo to White ────────────────────────────── */
+.hpi-logo-img-white {
+  filter: brightness(0) invert(1) !important;
+  -webkit-filter: brightness(0) invert(1) !important;
+}

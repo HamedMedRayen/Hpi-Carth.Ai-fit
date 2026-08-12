@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Apple, Settings, Brain, Search, Utensils, Zap, Clipboard, Copy, 
+import {
+  Apple, Settings, Brain, Search, Utensils, Zap, Clipboard, Copy,
   Droplet, Sparkles, Camera, ChevronLeft, ChevronRight, Calendar,
   Clock, Trash2, Plus, Footprints, Flame, ShieldCheck, Edit3, BarChart2,
   Sunrise, Sun, Moon, BookOpen, LayoutDashboard, TrendingUp, Play, Square
@@ -39,20 +39,20 @@ const MacroRing = ({ value, target, color, label }) => {
       <div style={{ position: "relative", width: 58, height: 58 }}>
         <svg width="58" height="58" style={{ transform: "rotate(-90deg)" }}>
           <circle cx="29" cy="29" r={radius} stroke="rgba(255,255,255,0.06)" strokeWidth="4.5" fill="transparent" />
-          <circle 
-            cx="29" 
-            cy="29" 
-            r={radius} 
-            stroke={color} 
-            strokeWidth="4.5" 
-            fill="transparent" 
-            strokeDasharray={circumference} 
-            strokeDashoffset={offset} 
-            strokeLinecap="round" 
-            style={{ 
+          <circle
+            cx="29"
+            cy="29"
+            r={radius}
+            stroke={color}
+            strokeWidth="4.5"
+            fill="transparent"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            style={{
               transition: "stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1)",
               filter: `drop-shadow(0 0 3px ${color}80)`
-            }} 
+            }}
           />
         </svg>
         <div style={{ position: "absolute", inset: 0, display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
@@ -79,7 +79,7 @@ export default function MobileNutrition() {
   const [todayData, setTodayData] = useState({ meals: [], totals: { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 } });
   const [history, setHistory] = useState([]);
   const [todayWater, setTodayWater] = useState(0);
-  const [activeModal, setActiveModal] = useState(null); 
+  const [activeModal, setActiveModal] = useState(null);
   const [targetCategory, setTargetCategory] = useState("Breakfast");
   const [showSettings, setShowSettings] = useState(false);
   const [scanInput, setScanInput] = useState("");
@@ -213,7 +213,7 @@ export default function MobileNutrition() {
     const d = new Date(selectedDate);
     d.setDate(d.getDate() - 1);
     const yStr = d.toISOString().split('T')[0];
-    
+
     try {
       await api.copyMeals(yStr, selectedDate);
       refreshData(selectedDate);
@@ -319,7 +319,7 @@ export default function MobileNutrition() {
       </div>
 
       {/* ── TOP CALORIE REMAINING RING HEADER ── */}
-      <CalorieRingHeader 
+      <CalorieRingHeader
         targets={targets}
         foodCalories={foodCalories}
         exerciseBurned={exerciseBurned}
@@ -335,8 +335,8 @@ export default function MobileNutrition() {
       {activeTab === "diary" && (
         <div>
           {/* Fasting Card */}
-          <div className="mobile-card" style={{ 
-            padding: "12px 14px", marginBottom: 16, 
+          <div className="mobile-card" style={{
+            padding: "12px 14px", marginBottom: 16,
             background: "linear-gradient(135deg, rgba(186, 85, 211, 0.1) 0%, rgba(0, 242, 254, 0.05) 100%)",
             border: "1px solid rgba(186, 85, 211, 0.25)",
             display: "flex", justifyContent: "space-between", alignItems: "center"
@@ -478,13 +478,13 @@ export default function MobileNutrition() {
       {/* TAB 3: WEEKLY REPORT & ARCHIVE                             */}
       {/* ========================================================= */}
       {activeTab === "report" && (
-        <WeeklyReportView 
-          targets={targets} 
-          history={history} 
+        <WeeklyReportView
+          targets={targets}
+          history={history}
           onSelectDate={(dateStr) => {
             setSelectedDate(dateStr);
             setActiveTab("diary");
-          }} 
+          }}
         />
       )}
 
@@ -494,11 +494,11 @@ export default function MobileNutrition() {
       {activeTab === "ai_tools" && (
         <div>
           {/* AI Vision Camera Scan Featured Card */}
-          <div 
-            className="mobile-card" 
-            style={{ 
-              padding: "16px", 
-              marginBottom: 14, 
+          <div
+            className="mobile-card"
+            style={{
+              padding: "16px",
+              marginBottom: 14,
               background: "linear-gradient(135deg, rgba(0, 242, 254, 0.2) 0%, rgba(186, 85, 211, 0.25) 100%)",
               border: "1px solid rgba(0, 242, 254, 0.4)",
               borderRadius: 16,
@@ -508,14 +508,14 @@ export default function MobileNutrition() {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <div style={{ 
-                width: 44, 
-                height: 44, 
-                borderRadius: 12, 
-                background: "var(--aura-accent)", 
-                display: "flex", 
-                justifyContent: "center", 
-                alignItems: "center", 
+              <div style={{
+                width: 44,
+                height: 44,
+                borderRadius: 12,
+                background: "var(--aura-accent)",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
                 color: "var(--color-on-accent)",
                 boxShadow: "0 4px 12px color-mix(in srgb, var(--aura-accent) 30%, transparent)"
               }}>
@@ -528,7 +528,7 @@ export default function MobileNutrition() {
                 </p>
               </div>
             </div>
-            <button 
+            <button
               onClick={() => setActiveModal('vision')}
               style={{
                 padding: "8px 14px",
@@ -551,7 +551,7 @@ export default function MobileNutrition() {
             <h3 style={{ fontSize: 13, fontWeight: 800, color: "var(--color-text)", margin: "0 0 8px", display: "flex", alignItems: "center", gap: 6 }}>
               <Brain size={16} color="var(--aura-accent)" /> AI Nutrition Text Assistant
             </h3>
-            
+
             {/* Obligatory Meal Category Selector */}
             <div style={{ marginBottom: 8 }}>
               <label style={{ fontSize: 10, fontWeight: 700, color: "var(--aura-accent)", textTransform: "uppercase", marginBottom: 4, display: "block" }}>
@@ -581,7 +581,7 @@ export default function MobileNutrition() {
             </div>
 
             <div style={{ display: "flex", gap: 6 }}>
-              <input 
+              <input
                 type="text"
                 className="themed-input"
                 placeholder={`Describe meal for ${targetCategory}...`}
@@ -590,7 +590,7 @@ export default function MobileNutrition() {
                 onChange={(e) => setScanInput(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleScan(); }}
               />
-              <button 
+              <button
                 onClick={handleScan}
                 disabled={scanningText}
                 style={{ background: "var(--aura-accent)", color: "var(--color-on-accent)", border: "none", borderRadius: 10, padding: "0 12px", fontWeight: 800, fontSize: 11, cursor: "pointer", opacity: scanningText ? 0.7 : 1 }}
@@ -636,44 +636,44 @@ export default function MobileNutrition() {
 
       {/* Modals */}
       {activeModal === 'search' && (
-        <FoodSearchModal 
+        <FoodSearchModal
           initialCategory={targetCategory}
           targetDate={selectedDate}
-          onClose={() => setActiveModal(null)} 
-          onLog={() => refreshData(selectedDate)} 
-          onSwitchToCustom={() => setActiveModal('custom')} 
+          onClose={() => setActiveModal(null)}
+          onLog={() => refreshData(selectedDate)}
+          onSwitchToCustom={() => setActiveModal('custom')}
         />
       )}
       {activeModal === 'quick' && (
-        <QuickAddModal 
+        <QuickAddModal
           initialCategory={targetCategory}
           targetDate={selectedDate}
-          onClose={() => setActiveModal(null)} 
-          onLog={() => refreshData(selectedDate)} 
+          onClose={() => setActiveModal(null)}
+          onLog={() => refreshData(selectedDate)}
         />
       )}
       {activeModal === 'recipe' && (
-        <RecipeBuilderModal 
-          onClose={() => setActiveModal(null)} 
-          onSave={() => refreshData(selectedDate)} 
+        <RecipeBuilderModal
+          onClose={() => setActiveModal(null)}
+          onSave={() => refreshData(selectedDate)}
         />
       )}
       {activeModal === 'custom' && (
-        <CustomFoodModal 
-          onClose={() => setActiveModal(null)} 
-          onSave={() => refreshData(selectedDate)} 
+        <CustomFoodModal
+          onClose={() => setActiveModal(null)}
+          onSave={() => refreshData(selectedDate)}
         />
       )}
       {activeModal === 'vision' && (
-        <MealScanModal 
+        <MealScanModal
           initialCategory={targetCategory}
           targetDate={selectedDate}
-          onClose={() => setActiveModal(null)} 
-          onLog={() => refreshData(selectedDate)} 
+          onClose={() => setActiveModal(null)}
+          onLog={() => refreshData(selectedDate)}
         />
       )}
       {activeModal === 'calculator' && (
-        <div 
+        <div
           className="modal-overlay"
           style={{
             position: "fixed",
@@ -688,40 +688,40 @@ export default function MobileNutrition() {
             padding: 12
           }}
         >
-          <div 
-            className="card" 
-            style={{ 
-              maxWidth: 480, 
-              width: "100%", 
-              maxHeight: "90vh", 
-              overflowY: "auto", 
-              background: "#0d1117", 
-              borderRadius: 20, 
-              border: "1px solid var(--aura-cyan)", 
+          <div
+            className="card"
+            style={{
+              maxWidth: 480,
+              width: "100%",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              background: "#0d1117",
+              borderRadius: 20,
+              border: "1px solid var(--aura-cyan)",
               padding: 16,
               boxShadow: "0 20px 50px rgba(0,0,0,0.8)"
             }}
           >
             <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
-              <button 
+              <button
                 onClick={() => setActiveModal(null)}
                 style={{ background: "none", border: "none", color: "#aaa", fontSize: 18, cursor: "pointer", fontWeight: 800 }}
               >
                 ✕
               </button>
             </div>
-            <NutritionCalculator 
+            <NutritionCalculator
               onSaveSuccess={() => {
                 fetchTargets();
                 refreshData(selectedDate);
                 setActiveModal(null);
-              }} 
+              }}
             />
           </div>
         </div>
       )}
       {activeModal === 'edit_goals' && (
-        <EditGoalsModal 
+        <EditGoalsModal
           currentTargets={targets}
           onClose={() => setActiveModal(null)}
           onSave={(newTargets) => setTargets(newTargets)}

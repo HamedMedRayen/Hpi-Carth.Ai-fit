@@ -11,20 +11,20 @@ export default function MacroRing({ value, target, color, label, unit }) {
       <div style={{ position: "relative", width: 72, height: 72 }}>
         <svg width="72" height="72" style={{ transform: "rotate(-90deg)" }}>
           <circle cx="36" cy="36" r={radius} stroke="rgba(255,255,255,0.06)" strokeWidth="6" fill="transparent" />
-          <circle 
-            cx="36" 
-            cy="36" 
-            r={radius} 
-            stroke={color} 
-            strokeWidth="6" 
-            fill="transparent" 
-            strokeDasharray={circumference} 
-            strokeDashoffset={offset} 
-            strokeLinecap="round" 
-            style={{ 
+          <circle
+            cx="36"
+            cy="36"
+            r={radius}
+            stroke={color}
+            strokeWidth="6"
+            fill="transparent"
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            style={{
               transition: "stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1)",
               filter: `drop-shadow(0 0 4px ${color}80)`
-            }} 
+            }}
           />
         </svg>
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column" }}>
@@ -36,3 +36,4 @@ export default function MacroRing({ value, target, color, label, unit }) {
     </div>
   );
 }
+

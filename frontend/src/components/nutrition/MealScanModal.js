@@ -211,23 +211,23 @@ export default function MealScanModal({ onClose, onLog }) {
   };
 
   return (
-    <div className="modal-overlay" style={{ 
-      zIndex: 1000, 
+    <div className="modal-overlay" style={{
+      zIndex: 1000,
       position: "fixed",
       inset: 0,
-      display: "flex", 
-      justifyContent: "center", 
+      display: "flex",
+      justifyContent: "center",
       alignItems: "center",
       background: "var(--overlay-bg, rgba(0, 0, 0, 0.8))",
       backdropFilter: "blur(14px)",
       WebkitBackdropFilter: "blur(14px)"
     }}>
-      <div className="card modal-content" style={{ 
-        maxWidth: 460, 
-        width: "92%", 
-        maxHeight: "88vh", 
+      <div className="card modal-content" style={{
+        maxWidth: 460,
+        width: "92%",
+        maxHeight: "88vh",
         overflowY: "auto",
-        borderRadius: 22, 
+        borderRadius: 22,
         border: "1px solid var(--border-card)",
         background: "var(--bg-card)",
         padding: 18,
@@ -237,8 +237,8 @@ export default function MealScanModal({ onClose, onLog }) {
         {/* Modal Top Header Bar */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ 
-              width: 34, height: 34, borderRadius: 10, 
+            <div style={{
+              width: 34, height: 34, borderRadius: 10,
               background: "color-mix(in srgb, var(--aura-accent) 15%, transparent)",
               border: "1px solid var(--color-border)",
               display: "flex", justifyContent: "center", alignItems: "center", color: "var(--aura-accent)"
@@ -267,12 +267,12 @@ export default function MealScanModal({ onClose, onLog }) {
               border: "2px solid #00f2fe", maxHeight: 260, background: "#000",
               display: "flex", justifyContent: "center", alignItems: "center"
             }}>
-              <video 
-                ref={videoRef} 
-                autoPlay 
-                playsInline 
-                muted 
-                style={{ width: "100%", height: "100%", objectFit: "cover", maxHeight: 260 }} 
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                style={{ width: "100%", height: "100%", objectFit: "cover", maxHeight: 260 }}
               />
 
               <div style={{
@@ -342,13 +342,13 @@ export default function MealScanModal({ onClose, onLog }) {
             </button>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              <input 
-                type="file" 
-                ref={cameraInputRef} 
-                accept="image/*" 
+              <input
+                type="file"
+                ref={cameraInputRef}
+                accept="image/*"
                 capture="environment"
-                style={{ display: "none" }} 
-                onChange={handleFileChange} 
+                style={{ display: "none" }}
+                onChange={handleFileChange}
               />
               <button
                 onClick={() => cameraInputRef.current && cameraInputRef.current.click()}
@@ -362,12 +362,12 @@ export default function MealScanModal({ onClose, onLog }) {
                 <Video size={16} color="#00f2fe" /> Device Camera
               </button>
 
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                accept="image/*" 
-                style={{ display: "none" }} 
-                onChange={handleFileChange} 
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handleFileChange}
               />
               <button
                 onClick={() => fileInputRef.current && fileInputRef.current.click()}
@@ -389,24 +389,24 @@ export default function MealScanModal({ onClose, onLog }) {
         {/* Selected Image & Scanning Loading State */}
         {!cameraActive && selectedImage && scanning && (
           <div style={{ position: "relative", marginBottom: 16 }}>
-            <div style={{ 
-              position: "relative", borderRadius: 16, overflow: "hidden", 
-              border: "1px solid rgba(255,255,255,0.15)", height: 210, 
+            <div style={{
+              position: "relative", borderRadius: 16, overflow: "hidden",
+              border: "1px solid rgba(255,255,255,0.15)", height: 210,
               background: "#000", display: "flex", justifyContent: "center", alignItems: "center"
             }}>
-              <img 
-                src={selectedImage} 
-                alt="Meal to scan" 
-                style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.6)" }} 
+              <img
+                src={selectedImage}
+                alt="Meal to scan"
+                style={{ width: "100%", height: "100%", objectFit: "cover", filter: "brightness(0.6)" }}
               />
-              
+
               <div style={{
-                position: "absolute", inset: 0, 
+                position: "absolute", inset: 0,
                 background: "linear-gradient(180deg, rgba(0,242,254,0.15) 0%, rgba(186,85,211,0.2) 100%)",
                 display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 12
               }}>
                 <div style={{
-                  width: 44, height: 44, borderRadius: "50%", 
+                  width: 44, height: 44, borderRadius: "50%",
                   border: "3px solid transparent", borderTopColor: "#00f2fe", borderRightColor: "#ba55d3",
                   animation: "spin 1s linear infinite"
                 }} />
@@ -424,12 +424,12 @@ export default function MealScanModal({ onClose, onLog }) {
 
             {/* Top Image Container with Change Image button */}
             <div style={{ position: "relative", borderRadius: 16, overflow: "hidden", height: 200 }}>
-              <img 
-                src={selectedImage} 
-                alt={scanResult.meal_name || "Scanned meal"} 
-                style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+              <img
+                src={selectedImage}
+                alt={scanResult.meal_name || "Scanned meal"}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
-              <button 
+              <button
                 onClick={() => { setSelectedImage(null); setScanResult(null); startCamera(); }}
                 style={{
                   position: "absolute", top: 12, right: 12,
@@ -447,8 +447,8 @@ export default function MealScanModal({ onClose, onLog }) {
             </div>
 
             {/* Detected Dish Container Card */}
-            <div style={{ 
-              background: "rgba(255, 255, 255, 0.03)", borderRadius: 14, padding: 14, 
+            <div style={{
+              background: "rgba(255, 255, 255, 0.03)", borderRadius: 14, padding: 14,
               border: "1px solid rgba(255, 255, 255, 0.08)"
             }}>
               <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.5px", color: "#6366f1", fontWeight: 800, marginBottom: 4 }}>
@@ -568,7 +568,7 @@ export default function MealScanModal({ onClose, onLog }) {
                         padding: "10px 4px",
                         borderRadius: 10,
                         border: isSelected ? "2px solid #00f2fe" : "1px solid rgba(255, 255, 255, 0.1)",
-                        background: isSelected 
+                        background: isSelected
                           ? "linear-gradient(135deg, rgba(0, 242, 254, 0.25) 0%, rgba(186, 85, 211, 0.25) 100%)"
                           : "rgba(255, 255, 255, 0.03)",
                         color: isSelected ? "#00f2fe" : "rgba(255, 255, 255, 0.6)",

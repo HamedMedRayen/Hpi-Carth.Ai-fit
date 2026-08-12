@@ -59,7 +59,7 @@ export default function ProgressPhotos() {
   const handleUpload = async (e) => {
     e.preventDefault();
     if (!file) return;
-    
+
     setUploading(true);
     try {
       const token = getSyncItem("aura_token");
@@ -67,13 +67,13 @@ export default function ProgressPhotos() {
       formData.append("file", file);
       formData.append("date", date);
       if (weight) formData.append("weight", weight);
-      
+
       const res = await fetch(`${API}/progress-photos/upload`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
         body: formData
       });
-      
+
       if (res.ok) {
         setFile(null);
         setPreview(null);
@@ -124,17 +124,17 @@ export default function ProgressPhotos() {
           }
         }
       }
-      
+
       const image = await Camera.getPhoto({
         quality: 90,
         allowEditing: false,
         resultType: CameraResultType.Uri,
         source: CameraSource.Camera
       });
-      
+
       if (image && image.webPath) {
         setPreview(image.webPath);
-        
+
         const response = await fetch(image.webPath);
         const blob = await response.blob();
         const filename = `progress_${new Date().getTime()}.jpg`;
@@ -149,13 +149,13 @@ export default function ProgressPhotos() {
   return (
     <div style={{ minHeight: "100vh", paddingBottom: 100 }}>
       <Header title="Progress Photos" subtitle="Visual changes over time" />
-      
+
       <div className="page-inner">
         <div className="card" style={{ padding: 24, marginBottom: 24 }}>
           <h2 style={{ fontSize: 18, fontWeight: 600, display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
             <CameraIcon size={20} color="var(--aura-accent)" /> Add New Photo
           </h2>
-          
+
           <form onSubmit={handleUpload} style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-end" }}>
             {Capacitor.isNativePlatform() && (
               <div style={{ flex: "0 0 auto" }}>
@@ -167,31 +167,31 @@ export default function ProgressPhotos() {
                 </button>
               </div>
             )}
-            
+
             <div style={{ flex: "1 1 200px" }}>
               <label style={{ display: "block", fontSize: 12, marginBottom: 6, color: "var(--text-muted)" }}>
                 {Capacitor.isNativePlatform() ? "Or Choose File" : "Photo"}
               </label>
               <input type="file" accept="image/*" onChange={handleFileChange} style={{ width: "100%", background: "var(--bg-input)", padding: 8, borderRadius: 8, border: "1px solid var(--border-input)", color: "var(--color-text)" }} />
             </div>
-            
+
             <div style={{ flex: "0 1 120px" }}>
               <label style={{ display: "block", fontSize: 12, marginBottom: 6, color: "var(--text-muted)" }}>Date</label>
               <input type="date" value={date} onChange={e => setDate(e.target.value)} required className="themed-input" style={{ width: "100%" }} />
             </div>
-            
+
             <div style={{ flex: "0 1 100px" }}>
               <label style={{ display: "block", fontSize: 12, marginBottom: 6, color: "var(--text-muted)" }}>Weight (kg)</label>
               <input type="number" step="0.1" value={weight} onChange={e => setWeight(e.target.value)} placeholder="—" className="themed-input" style={{ width: "100%" }} />
             </div>
-            
+
             <button type="submit" disabled={!file || uploading} style={{
               background: "var(--aura-accent)", color: "#000", border: "none", padding: "10px 20px", borderRadius: 8, fontWeight: 600, cursor: (!file || uploading) ? "not-allowed" : "pointer", opacity: (!file || uploading) ? 0.6 : 1, height: 38
             }}>
               {uploading ? "Uploading..." : "Upload"}
             </button>
           </form>
-          
+
           {preview && (
             <div style={{ marginTop: 16, width: 120, height: 160, borderRadius: 8, overflow: "hidden", border: "1px solid var(--aura-accent)" }}>
               <img src={preview} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
