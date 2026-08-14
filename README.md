@@ -67,7 +67,7 @@ An agentic, conversational AI fitness coach accessible on every view:
 ### 3. Smart Nutrition Hub & AI Vision Scanner
 Fuel your performance with a next-generation calorie and macronutrient manager:
 * **Macro Targets & Circular Progress**: Real-time tracking of Calories, Protein, Carbs, Fats, and Water Hydration against customizable target rings (`MacroRing`).
-* **Gemini 2.5 Vision & Groq AI Meal Scanner**: Capture or upload meal photos directly from your camera or gallery (`MealScanModal`). The AI vision engine analyzes the image, identifies food items, estimates portion sizes, calculates macros/calories, and logs the meal instantly.
+* **qwen3.6-27b Vision & Groq AI Meal Scanner**: Capture or upload meal photos directly from your camera or gallery (`MealScanModal`). The AI vision engine analyzes the image, identifies food items, estimates portion sizes, calculates macros/calories, and logs the meal instantly.
 * **Fuzzy & Full-Text Food Search**: High-speed hybrid PostgreSQL `pg_trgm` fuzzy matching over thousands of food items with recency ranking (`FoodSearchModal`).
 * **Scientific BMR/TDEE Calculator**: Calculates precise macro goals based on age, height, weight, activity levels, and training goals (Bulk, Cut, or Maintain) (`NutritionCalculator`).
 * **Speed Log Utilities**: Quick Add calories/macros, Custom Recipe Builder, Custom Food Registry, and 1-click "Copy Meals from Yesterday".
