@@ -28,8 +28,9 @@ TEXT_COLUMNS = ["Exercises", "Equipment", "Diet", "Recommendation"]
 DUCKDB_TABLE = "gym_data"
 
 # Groq models
-CLASSIFICATION_MODEL = "llama-3.1-8b-instant"   # fast, cheap — classification only
-SQL_GENERATION_MODEL = "llama-3.3-70b-versatile" # accurate — SQL generation
+GROQ_CHAT_MODEL = os.getenv("GROQ_CHAT_MODEL", "openai/gpt-oss-120b")
+CLASSIFICATION_MODEL = os.getenv("CLASSIFICATION_MODEL", "llama-3.1-8b-instant")   # fast, cheap — classification only
+SQL_GENERATION_MODEL = os.getenv("SQL_GENERATION_MODEL", GROQ_CHAT_MODEL)          # accurate — SQL generation
 
 # ── Environment variables ──────────────────────────────────────
 QDRANT_URL = os.getenv("CLUSTER_ENDPOINT", "")
