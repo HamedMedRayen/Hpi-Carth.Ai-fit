@@ -19,6 +19,7 @@ load_dotenv(_BACKEND_DIR / ".env", override=False)
 
 
 log = logging.getLogger("hpi.chat")
+GROQ_CHAT_MODEL = os.getenv("GROQ_CHAT_MODEL", "openai/gpt-oss-120b")
 
 router = APIRouter(tags=["Chat"])
 
@@ -293,7 +294,7 @@ OR
 
 If no clear logging intent, output NONE."""
                 comp = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
+                    model=GROQ_CHAT_MODEL,
                     messages=[{"role": "system", "content": extractor_prompt}, {"role": "user", "content": user_input}],
                     temperature=0.1
                 )
@@ -468,7 +469,7 @@ async def vapi_custom_llm(
             full_messages.append({"role": m.get("role"), "content": m.get("content", "")})
 
     completion = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model=GROQ_CHAT_MODEL,
         messages=full_messages,
         temperature=0.7
     )
@@ -480,7 +481,7 @@ async def vapi_custom_llm(
         "id": "vapi-custom-llm-res",
         "object": "chat.completion",
         "created": int(os.environ.get("TIMESTAMP", 1700000000)),
-        "model": "llama-3.3-70b-versatile",
+        "model": GROQ_CHAT_MODEL,
         "choices": [
             {
                 "index": 0,
@@ -531,7 +532,7 @@ async def sync_vapi_transcript(
                         {"role": "user", "content": user_text}
                     ]
                     comp = client.chat.completions.create(
-                        model="llama-3.3-70b-versatile",
+                        model=GROQ_CHAT_MODEL,
                         messages=messages,
                         temperature=0.3
                     )
@@ -576,7 +577,7 @@ async def chat(
         messages.extend([{"role": m.role, "content": m.content} for m in body.messages])
 
         completion = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model=GROQ_CHAT_MODEL,
             messages=messages,
             temperature=0.7,
         )
