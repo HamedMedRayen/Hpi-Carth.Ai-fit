@@ -4,6 +4,7 @@ import "./HpiChat.css";
 import { API_BASE_URL as API_URL } from "../../utils/config";
 import { getSyncItem } from "../../utils/storage";
 import { startListening, stopListening } from "../../utils/speechRecognition";
+import { getChatHistory, saveChatHistory, subscribeChatHistory } from "../../utils/chatStorage";
 import VapiCallModal from "../VapiCallModal/VapiCallModal";
 import MarkdownMessage from "../common/MarkdownMessage";
 
