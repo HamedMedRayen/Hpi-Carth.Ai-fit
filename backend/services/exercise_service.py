@@ -128,27 +128,41 @@ CANONICAL_EXERCISES = [
 def seed_body_parts(conn: psycopg2.extensions.connection) -> Dict[str, int]:
     """Ensure body_parts table is populated. Returns {name: id}."""
     with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        try:
+            cur.execute("SELECT id, name FROM body_parts")
+            rows = cur.fetchall()
+            if rows and len(rows) >= len(BODY_PARTS):
+                return {r["name"]: r["id"] for r in rows}
+        except Exception:
+            rows = []
+
         for bp in BODY_PARTS:
             try:
                 cur.execute(
                     "INSERT INTO body_parts (name) VALUES (%s) ON CONFLICT (name) DO NOTHING",
                     (bp,)
                 )
-            except psycopg2.errors.QueryCanceled:
-                # Timeout during insert - skip and continue
-                conn.rollback()
-                print(f"[SEED] Warning: timeout inserting body part '{bp}', continuing anyway")
+            except Exception:
+                pass
         try:
             cur.execute("SELECT id, name FROM body_parts")
             rows = cur.fetchall()
-        except psycopg2.errors.QueryCanceled:
-            print("[SEED] Warning: timeout selecting body parts, returning empty map")
+        except Exception:
             rows = []
     return {r["name"]: r["id"] for r in rows} if rows else {}
 
 
 def seed_exercises(conn: psycopg2.extensions.connection) -> int:
     """Seed canonical exercises. Returns count inserted."""
+    with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        try:
+            cur.execute("SELECT COUNT(*) as cnt FROM exercises WHERE source = 'canonical'")
+            row = cur.fetchone()
+            if row and row["cnt"] >= len(CANONICAL_EXERCISES):
+                return row["cnt"]
+        except Exception:
+            pass
+
     bp_map = seed_body_parts(conn)
     count = 0
     with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:

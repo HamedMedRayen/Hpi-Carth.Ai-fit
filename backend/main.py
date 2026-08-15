@@ -48,33 +48,30 @@ async def lifespan(app: FastAPI):
             conn = get_fresh_conn(conn)
             from services.exercise_service import seed_body_parts, seed_exercises
             seed_body_parts(conn)
-            n_ex = seed_exercises(conn)
-            log.info(f"[SEED] {n_ex} canonical exercises ready")
+            seed_exercises(conn)
             conn.commit()
         except Exception as e:
-            log.warning(f"[SEED] Exercise seeding warning: {str(e)[:100]}")
+            log.warning(f"Exercise seeding warning: {str(e)[:100]}")
 
         # 3. Seed recommendation rules
         try:
             conn = get_fresh_conn(conn)
             from services.recommendation_service import seed_recommendation_rules
-            n_rules = seed_recommendation_rules(conn)
-            log.info(f"[SEED] {n_rules} recommendation rules ready")
+            seed_recommendation_rules(conn)
             conn.commit()
         except Exception as e:
-            log.warning(f"[SEED] Recommendation rules warning: {str(e)[:100]}")
+            log.warning(f"Recommendation rules warning: {str(e)[:100]}")
             
         # 4. Seed food items
         try:
             conn = get_fresh_conn(conn)
             from services.food_service import seed_food_items
             seed_food_items(conn)
-            log.info("[SEED] Food items seeding complete")
             conn.commit()
         except Exception as e:
-            log.warning(f"[SEED] Food items seeding warning: {str(e)[:100]}")
+            log.warning(f"Food items seeding warning: {str(e)[:100]}")
 
-        # 4. Seed dataset exercises
+        # 5. Seed dataset exercises if empty
         try:
             conn = get_fresh_conn(conn)
             with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
@@ -82,14 +79,10 @@ async def lifespan(app: FastAPI):
                 dataset_count = cur.fetchone()["cnt"]
             if dataset_count == 0:
                 from scripts.seed_exercises import seed
-                log.info("[SEED] Seeding 1324 exercises from local dataset...")
-                n = seed(conn)
-                log.info(f"[SEED] Dataset seeding complete — {n} exercises")
+                seed(conn)
                 conn.commit()
-            else:
-                log.info(f"[SEED] {dataset_count} dataset exercises already in DB")
         except Exception as e:
-            log.warning(f"[SEED] Dataset exercise seeding warning: {str(e)[:100]}")
+            log.warning(f"Dataset exercise seeding warning: {str(e)[:100]}")
 
         # 6. Ensure a legacy default user for CSV import
         try:
@@ -97,7 +90,7 @@ async def lifespan(app: FastAPI):
             user_id = _ensure_default_user(conn)
             conn.commit()
         except Exception as e:
-            log.warning(f"[SEED] Default user warning: {str(e)[:100]}")
+            log.warning(f"Default user warning: {str(e)[:100]}")
             user_id = 1
 
         # 6b. Seed synthetic events & registrations
@@ -106,9 +99,8 @@ async def lifespan(app: FastAPI):
             from database import seed_synthetic_events
             seed_synthetic_events(conn)
             conn.commit()
-            log.info("[SEED] Coach synthetic events seeding verified.")
         except Exception as e:
-            log.warning(f"[SEED] Synthetic events warning: {str(e)[:100]}")
+            log.warning(f"Synthetic events warning: {str(e)[:100]}")
 
         # 7. Auto-ingest CSV
         try:
