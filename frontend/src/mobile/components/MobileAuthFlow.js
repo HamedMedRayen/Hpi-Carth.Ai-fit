@@ -156,7 +156,7 @@ export default function MobileAuthFlow() {
           type="text"
           value={serverUrl}
           onChange={(e) => setServerUrl(e.target.value)}
-          placeholder="http://10.0.2.2:8000/api"
+          placeholder="http://127.0.0.1:8000/api"
           style={{
             flex: 1,
             background: 'rgba(0,0,0,0.4)',
@@ -199,7 +199,7 @@ export default function MobileAuthFlow() {
         </button>
       </div>
       <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.5)', marginTop: '8px', marginBottom: 0 }}>
-        Default: <code>http://10.0.2.2:8000/api</code> for Android Emulator or your PC's LAN IP (e.g. <code>http://192.168.x.x:8000/api</code>) for physical phone over Wi-Fi.
+        USB Debugging: <code>http://127.0.0.1:8000/api</code> (run <code>adb reverse tcp:8000 tcp:8000</code>). Emulator: <code>http://10.0.2.2:8000/api</code>.
       </p>
     </div>
   );

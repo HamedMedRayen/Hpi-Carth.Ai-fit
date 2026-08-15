@@ -47,6 +47,8 @@ const CoachDashboard = React.lazy(() => import("./pages/CoachDashboard"));
 const InjuryLog = React.lazy(() => import("./pages/InjuryLog"));
 const SleepTracker = React.lazy(() => import("./pages/SleepTracker"));
 const Challenges = React.lazy(() => import("./pages/Challenges"));
+const AdminDashboard = React.lazy(() => import("./pages/admin/AdminDashboard"));
+import RequireAdmin from "./components/auth/RequireAdmin";
 
 // ── Mobile App Shell ──
 const MobileAppShell = React.lazy(() => import("./mobile/MobileAppShell"));
@@ -60,8 +62,9 @@ function RequireAuth({ children }) {
   const location = useLocation();
   if (!user) return <Navigate to="/auth" replace />;
 
-  const isCompleted = user.onboarding_completed === true || user.profile?.onboarding_completed === true;
-  const isExplicitlyFalse = (user.onboarding_completed === false || user.profile?.onboarding_completed === false) && !isCompleted;
+  const isAdmin = user.role === "admin" || user.profile?.role === "admin";
+  const isCompleted = user.onboarding_completed === true || user.profile?.onboarding_completed === true || isAdmin;
+  const isExplicitlyFalse = !isAdmin && (user.onboarding_completed === false || user.profile?.onboarding_completed === false) && !isCompleted;
 
   if (isExplicitlyFalse && location.pathname !== "/onboarding") {
     return <Navigate to="/onboarding" replace />;
@@ -93,10 +96,11 @@ function AppShell() {
     );
   }
 
-  const isCompleted = user.onboarding_completed === true || user.profile?.onboarding_completed === true;
-  const isExplicitlyFalse = (user.onboarding_completed === false || user.profile?.onboarding_completed === false) && !isCompleted;
+  const isAdmin = user.role === "admin" || user.profile?.role === "admin";
+  const isCompleted = user.onboarding_completed === true || user.profile?.onboarding_completed === true || isAdmin;
+  const isExplicitlyFalse = !isAdmin && (user.onboarding_completed === false || user.profile?.onboarding_completed === false) && !isCompleted;
 
-  if (isExplicitlyFalse || (isOnboarding && !isCompleted)) {
+  if (isExplicitlyFalse || (isOnboarding && !isCompleted && !isAdmin)) {
     return (
       <PageWrap>
         <Suspense fallback={<PageLoader />}>
@@ -139,6 +143,7 @@ function AppShell() {
                 <Route path="/sleep" element={<RequireAuth><SleepTracker /></RequireAuth>} />
                 <Route path="/challenges" element={<RequireAuth><Challenges /></RequireAuth>} />
                 <Route path="/coach/*" element={<RequireAuth><CoachDashboard /></RequireAuth>} />
+                <Route path="/admin/*" element={<RequireAuth><RequireAdmin><AdminDashboard /></RequireAdmin></RequireAuth>} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </ErrorBoundary>

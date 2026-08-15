@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { auth as authApi, api, token } from "./api";
+import { auth as authApi, api, token, suppressAuthRedirect } from "./api";
 
 
 export const AuthContext = createContext(null);
@@ -10,14 +10,19 @@ export function useAuthProvider() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const u = token.user();
+    if (u) setUser(u);
+
     if (token.get()) {
       authApi.me().then(res => {
+        const isAdmin = res.role === "admin" || res.profile?.role === "admin";
+        const hasExplicitFalse = res.onboarding_completed === false || res.profile?.onboarding_completed === false;
         const userData = { 
           user_id: res.user_id, 
           nickname: res.nickname, 
           role: res.role, 
           avatar_url: res.avatar_url,
-          onboarding_completed: res.onboarding_completed ?? res.profile?.onboarding_completed ?? false,
+          onboarding_completed: isAdmin ? true : !hasExplicitFalse,
           onboarding_data: res.profile?.onboarding_data || res.onboarding_data || {},
           profile: res.profile 
         };
@@ -33,11 +38,15 @@ export function useAuthProvider() {
     try {
       const res = await authApi.login(nickname, password);
       await token.set(res.access_token);
+      suppressAuthRedirect();
+      const isAdmin = res.role === "admin" || res.profile?.role === "admin";
+      const hasExplicitFalse = res.onboarding_completed === false || res.profile?.onboarding_completed === false;
       const userData = { 
         user_id: res.user_id, 
         nickname: res.nickname, 
+        role: res.role,
         avatar_url: res.avatar_url,
-        onboarding_completed: res.onboarding_completed ?? res.profile?.onboarding_completed ?? false
+        onboarding_completed: isAdmin ? true : !hasExplicitFalse
       };
       await token.setUser(userData);
       setUser(userData);
@@ -57,11 +66,13 @@ export function useAuthProvider() {
     try {
       const res = await authApi.googleLogin(googleToken);
       await token.set(res.access_token);
+      suppressAuthRedirect();
+      const hasExplicitFalse = res.onboarding_completed === false || res.profile?.onboarding_completed === false;
       const userData = { 
         user_id: res.user_id, 
         nickname: res.nickname, 
         avatar_url: res.avatar_url,
-        onboarding_completed: res.onboarding_completed ?? res.profile?.onboarding_completed ?? false
+        onboarding_completed: !hasExplicitFalse
       };
       await token.setUser(userData);
       setUser(userData);
@@ -85,11 +96,13 @@ export function useAuthProvider() {
     try {
       const res = await authApi.verifyOtp(email, otp);
       await token.set(res.access_token);
+      suppressAuthRedirect();
+      const hasExplicitFalse = res.onboarding_completed === false || res.profile?.onboarding_completed === false;
       const userData = { 
         user_id: res.user_id, 
         nickname: res.nickname, 
         avatar_url: res.avatar_url,
-        onboarding_completed: res.onboarding_completed ?? res.profile?.onboarding_completed ?? false
+        onboarding_completed: !hasExplicitFalse
       };
       await token.setUser(userData);
       setUser(userData);
@@ -109,6 +122,7 @@ export function useAuthProvider() {
     try {
       const res = await authApi.register(nickname, password, email, role);
       await token.set(res.access_token);
+      suppressAuthRedirect();
       const userData = { 
         user_id: res.user_id, 
         nickname: res.nickname, 

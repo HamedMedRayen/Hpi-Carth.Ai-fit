@@ -2,6 +2,16 @@ import { Capacitor } from '@capacitor/core';
 
 let verifiedWorkingBaseUrl = null;
 
+function normalizeApiUrl(url) {
+  if (!url || !url.trim()) return "";
+  let trimmed = url.trim();
+  // If user entered https for local port 8000, convert to http to match uvicorn backend
+  if (trimmed.startsWith("https://") && (trimmed.includes(":8000") || trimmed.includes("10.0.2.2") || trimmed.includes("127.0.0.1") || trimmed.includes("localhost"))) {
+    trimmed = trimmed.replace("https://", "http://");
+  }
+  return trimmed.endsWith('/api') ? trimmed : `${trimmed.replace(/\/$/, '')}/api`;
+}
+
 export function getApiBaseUrl() {
   if (verifiedWorkingBaseUrl) {
     return verifiedWorkingBaseUrl;
@@ -10,29 +20,19 @@ export function getApiBaseUrl() {
   // 1. Check custom_api_url in localStorage
   const customUrl = localStorage.getItem("custom_api_url");
   if (customUrl && customUrl.trim()) {
-    const trimmed = customUrl.trim();
-    let resUrl = trimmed.endsWith('/api') ? trimmed : `${trimmed.replace(/\/$/, '')}/api`;
-    if (!Capacitor.isNativePlatform() && resUrl.includes("10.0.2.2")) {
-      resUrl = resUrl.replace("10.0.2.2", "127.0.0.1");
-    }
-    return resUrl;
+    return normalizeApiUrl(customUrl);
   }
 
   // 2. Check environment variable
   if (process.env.REACT_APP_API_URL && process.env.REACT_APP_API_URL.trim()) {
-    const envUrl = process.env.REACT_APP_API_URL.trim();
-    let formatted = envUrl.endsWith('/api') ? envUrl : `${envUrl.replace(/\/$/, '')}/api`;
-    const isNativeAndroid = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android';
-    if (isNativeAndroid && (formatted.includes("127.0.0.1") || formatted.includes("localhost"))) {
-      formatted = formatted.replace("127.0.0.1", "10.0.2.2").replace("localhost", "10.0.2.2");
-    }
-    return formatted;
+    return normalizeApiUrl(process.env.REACT_APP_API_URL);
   }
 
   // 3. Defaults based on platform
   const isNativeAndroid = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android';
   if (isNativeAndroid) {
-    return "http://10.0.2.2:8000/api";
+    // Default to 127.0.0.1 for USB debugging (via adb reverse tcp:8000 tcp:8000)
+    return "http://127.0.0.1:8000/api";
   }
 
   return "http://127.0.0.1:8000/api";
@@ -40,8 +40,7 @@ export function getApiBaseUrl() {
 
 export function setVerifiedWorkingBaseUrl(url) {
   if (!url) return;
-  const formatted = url.endsWith('/api') ? url : `${url.replace(/\/$/, '')}/api`;
-  verifiedWorkingBaseUrl = formatted;
+  verifiedWorkingBaseUrl = normalizeApiUrl(url);
 }
 
 export const API_BASE_URL = getApiBaseUrl();
@@ -51,20 +50,18 @@ export function getCandidateApiUrls() {
   
   const customUrl = localStorage.getItem("custom_api_url");
   if (customUrl && customUrl.trim()) {
-    const trimmed = customUrl.trim();
-    candidates.push(trimmed.endsWith('/api') ? trimmed : `${trimmed.replace(/\/$/, '')}/api`);
+    candidates.push(normalizeApiUrl(customUrl));
   }
 
   if (process.env.REACT_APP_API_URL && process.env.REACT_APP_API_URL.trim()) {
-    const envUrl = process.env.REACT_APP_API_URL.trim();
-    candidates.push(envUrl.endsWith('/api') ? envUrl : `${envUrl.replace(/\/$/, '')}/api`);
+    candidates.push(normalizeApiUrl(process.env.REACT_APP_API_URL));
   }
 
-  candidates.push("http://10.0.2.2:8000/api");
   candidates.push("http://127.0.0.1:8000/api");
+  candidates.push("http://10.0.2.2:8000/api");
   candidates.push("http://localhost:8000/api");
 
-  return Array.from(new Set(candidates));
+  return Array.from(new Set(candidates.filter(Boolean)));
 }
 
 export function resolveBackendUrl(url) {

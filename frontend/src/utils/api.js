@@ -1,6 +1,22 @@
 import { getApiBaseUrl, getCandidateApiUrls, setVerifiedWorkingBaseUrl } from './config';
 import { getSyncItem, setItem, removeItem } from './storage';
 
+// ── 401 debounce guard ────────────────────────────────────────
+// Prevents cascading logouts when multiple concurrent requests
+// all receive 401 and try to clear the token simultaneously.
+let isLoggingOut = false;
+let authSuppressionTimer = null;
+
+// Call after login to temporarily suppress 401 → logout behavior
+// while cached token propagates to all concurrent requests.
+export function suppressAuthRedirect(ms = 2000) {
+  clearTimeout(authSuppressionTimer);
+  isLoggingOut = false;
+  authSuppressionTimer = setTimeout(() => {
+    authSuppressionTimer = null;
+  }, ms);
+}
+
 // ── Token storage ─────────────────────────────────────────────
 export const token = {
   get: () => getSyncItem("aura_token"),
@@ -92,10 +108,20 @@ async function req(path, opts = {}) {
 
   // Handle unauthorized errors (except for auth routes themselves)
   if (res.status === 401 && !path.startsWith("/auth/")) {
-    token.clear();
-    // Redirect to login if not already there
-    if (window.location.pathname !== "/auth") {
-      window.location.href = "/auth";
+    // If we just logged in, don't nuke the token — it's a stale/racing request
+    if (authSuppressionTimer) {
+      console.warn(`[API] Suppressed 401 logout for ${path} (auth suppression active)`);
+      throw new Error("Unauthorized");
+    }
+    // Debounce: only the first 401 triggers logout
+    if (!isLoggingOut) {
+      isLoggingOut = true;
+      token.clear();
+      if (window.location.pathname !== "/auth") {
+        window.location.href = "/auth";
+      }
+      // Reset after a short delay so future real 401s still work
+      setTimeout(() => { isLoggingOut = false; }, 2000);
     }
     throw new Error("Unauthorized");
   }
@@ -333,6 +359,56 @@ export const api = {
   createEvent: (payload) => req("/events", { method: "POST", body: JSON.stringify(payload) }),
   deleteEvent: (eventId) => req(`/events/${eventId}`, { method: "DELETE" }),
   uploadEventPoster: (formData) => req("/events/upload-poster", { method: "POST", body: formData }),
+};
+
+// ── Admin API Client ──────────────────────────────────────────
+export const admin = {
+  getStats: () => req("/admin/stats"),
+  getVerifications: (status = "pending", page = 1, limit = 20) =>
+    req(`/admin/coach-verifications?status=${encodeURIComponent(status)}&page=${page}&limit=${limit}`),
+  getVerificationDetail: (id) => req(`/admin/coach-verifications/${id}`),
+  getAiReview: (id) => req(`/admin/coach-verifications/${id}/ai-review`, { method: "POST" }),
+  approveVerification: (id) => req(`/admin/coach-verifications/${id}/approve`, { method: "POST" }),
+  rejectVerification: (id, reason) => req(`/admin/coach-verifications/${id}/reject`, { method: "POST", body: JSON.stringify({ reason }) }),
+  getUsers: (role = "", search = "", status = "", page = 1, limit = 20) => {
+    const params = new URLSearchParams();
+    if (role) params.append("role", role);
+    if (search) params.append("search", search);
+    if (status) params.append("status", status);
+    params.append("page", String(page));
+    params.append("limit", String(limit));
+    return req(`/admin/users?${params.toString()}`);
+  },
+  suspendUser: (id, reason) => req(`/admin/users/${id}/suspend`, { method: "POST", body: JSON.stringify({ reason }) }),
+  reinstateUser: (id) => req(`/admin/users/${id}/reinstate`, { method: "POST" }),
+  getReports: (type = "", status = "", page = 1, limit = 20) => {
+    const params = new URLSearchParams();
+    if (type) params.append("type", type);
+    if (status) params.append("status", status);
+    params.append("page", String(page));
+    params.append("limit", String(limit));
+    return req(`/admin/reports?${params.toString()}`);
+  },
+  getReportDetail: (id) => req(`/admin/reports/${id}`),
+  resolveReport: (id, admin_notes, action_taken) => req(`/admin/reports/${id}/resolve`, { method: "POST", body: JSON.stringify({ admin_notes, action_taken }) }),
+  dismissReport: (id, admin_notes) => req(`/admin/reports/${id}/dismiss`, { method: "POST", body: JSON.stringify({ admin_notes }) }),
+  getAuditLog: (adminId = "", actionType = "", page = 1, limit = 20) => {
+    const params = new URLSearchParams();
+    if (adminId) params.append("admin_id", adminId);
+    if (actionType) params.append("action_type", actionType);
+    params.append("page", String(page));
+    params.append("limit", String(limit));
+    return req(`/admin/audit-log?${params.toString()}`);
+  },
+};
+
+// ── User Reports API Client ────────────────────────────────────
+export const reports = {
+  submitCoachReport: (coach_id, category, description) =>
+    req("/reports/coach", { method: "POST", body: JSON.stringify({ coach_id, category, description }) }),
+  submitBugReport: (category, description, screenshot_url = null, app_context = null) =>
+    req("/reports/bug", { method: "POST", body: JSON.stringify({ category, description, screenshot_url, app_context }) }),
+  getMyReports: () => req("/reports/mine"),
 };
 
 
