@@ -134,18 +134,16 @@ def compute_dashboard_summary(
             change_pct = round((recent_avg - prev_avg) / prev_avg * 100, 1)
         trend = "up" if change_pct > 5 else ("down" if change_pct < -5 else "stable")
 
-    # AI Insight Generation
-    insights = [
-        "You've been consistent with your volume! Try focusing on recovery today.",
-        "Your Chest volume is up 12% this week. Great intensity!",
-        "Fatigue levels are slightly rising. Consider a deload session soon.",
-        "You're only 2 sessions away from a new monthly PR record!",
-        "Consistency is key! You haven't missed a Monday in 4 weeks."
-    ]
-    import random
-    ai_insight = random.choice(insights)
-    if active_injuries_count > 0:
-        ai_insight = f"Careful with those {active_injuries_count} active areas. Prioritize mobility work today."
+    # Accurate Data-Driven AI Insight Generation
+    ai_insight = generate_accurate_daily_insight(
+        total_workouts=total_workouts,
+        total_volume_tonnes=total_volume_tonnes,
+        recent_prs=recent_pr_out,
+        muscle_split=muscle_split,
+        trend=trend,
+        change_pct=change_pct,
+        active_injuries_count=active_injuries_count
+    )
 
     return {
         "total_workouts": total_workouts,
@@ -159,3 +157,65 @@ def compute_dashboard_summary(
         "active_injuries_count": active_injuries_count,
         "ai_insight": ai_insight
     }
+
+
+def generate_accurate_daily_insight(
+    total_workouts: int,
+    total_volume_tonnes: float,
+    recent_prs: List[Dict[str, Any]],
+    muscle_split: Dict[str, float],
+    trend: str,
+    change_pct: float,
+    active_injuries_count: int,
+) -> str:
+    """Generate deterministic, data-driven daily insight based on athlete's real metrics."""
+    from datetime import date, datetime, timedelta
+
+    # 1. Critical priority: Active Injuries
+    if active_injuries_count > 0:
+        if active_injuries_count == 1:
+            return "Caution: You have 1 active injury area logged. Ensure thorough dynamic warm-ups and avoid pain-aggravating ranges of motion today."
+        return f"Caution: You have {active_injuries_count} active injury areas flagged. Prioritize active recovery, mobility, and lower intensity today."
+
+    # 2. High priority: Recent PR achieved in the last 7 days
+    today = date.today()
+    for pr in recent_prs:
+        pr_date_str = str(pr.get("date", ""))[:10]
+        if pr_date_str:
+            try:
+                pr_date = date.fromisoformat(pr_date_str)
+                if (today - pr_date).days <= 7:
+                    ex_name = pr.get("exercise", "your lift")
+                    one_rm = pr.get("one_rm", 0)
+                    weight = pr.get("weight_kg", 0)
+                    reps = pr.get("reps", 0)
+                    if one_rm > 0:
+                        return f"Outstanding milestone: You hit a new personal best on {ex_name} ({weight}kg x {reps} reps, est. 1RM {one_rm}kg) this week!"
+            except (ValueError, TypeError):
+                pass
+
+    # 3. Volume Progression (Up or Down trend)
+    if trend == "up" and change_pct >= 5.0:
+        return f"Training volume is up +{change_pct}% over the last 4 weeks. Progressive overload is progressing steadily."
+    elif trend == "down" and change_pct <= -5.0:
+        return f"Training volume is down {abs(change_pct)}% over the last 4 weeks. If in a deload phase, maintain movement quality; otherwise consider increasing weekly sets."
+
+    # 4. Muscle Group Focus / Imbalance
+    if muscle_split:
+        valid_muscles = [(k, v) for k, v in muscle_split.items() if k.lower() not in ("other", "unknown", "")]
+        if valid_muscles:
+            sorted_muscles = sorted(valid_muscles, key=lambda x: x[1], reverse=True)
+            top_muscle, top_pct = sorted_muscles[0]
+            if top_pct >= 40.0 and len(valid_muscles) > 1:
+                return f"Your training heavily emphasizes {top_muscle} ({top_pct}% of sessions). Ensure adequate antagonist volume for structural balance."
+
+    # 5. Lifetime consistency & tonnage milestones
+    if total_workouts >= 25:
+        return f"Strong dedication: You have completed {total_workouts} total sessions with {total_volume_tonnes} tonnes lifted lifetime."
+    elif total_workouts >= 5:
+        return f"Solid training baseline: {total_workouts} workouts logged so far. Focus on progressive overload and structured recovery."
+    elif total_workouts > 0:
+        return f"Great start to your training journey with {total_workouts} workout{'s' if total_workouts > 1 else ''} logged. Keep building consistent habits!"
+
+    # 6. Brand new athlete fallback
+    return "Welcome to HPI! Log your first workout to begin tracking volume metrics and receiving data-driven AI coaching."

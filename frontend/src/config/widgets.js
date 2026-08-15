@@ -1,9 +1,78 @@
 import {
   BarChart2, Scale, RefreshCw, Activity, TrendingUp,
-  Calendar, Zap, Heart, Target, Dumbbell, User
+  Calendar, Zap, Heart, Target, Dumbbell, User,
+  Flame, Trophy, Droplets, Layers, Users, Video, Brain, Shield
 } from 'lucide-react'
 
 export const WIDGET_REGISTRY = [
+  {
+    id: 'calorie_ring',
+    label: 'Calories & Macro Ring',
+    subtitle: 'Daily target donut ring and macro breakdown',
+    Icon: Flame,
+    pages: ['dashboard'],
+  },
+  {
+    id: 'readiness_score',
+    label: 'Daily Readiness Dial',
+    subtitle: 'Recovery and neuromuscular readiness score',
+    Icon: Zap,
+    pages: ['dashboard', 'progress'],
+  },
+  {
+    id: 'pr_trophy',
+    label: 'PR Trophy Shelf',
+    subtitle: 'Estimated 1RM records & milestone badges',
+    Icon: Trophy,
+    pages: ['dashboard', 'progress'],
+  },
+  {
+    id: 'hydration_quick',
+    label: '1-Tap Hydration Tracker',
+    subtitle: 'Quick +250ml / +500ml water progress meter',
+    Icon: Droplets,
+    pages: ['dashboard'],
+  },
+  {
+    id: 'weekly_adherence',
+    label: 'Weekly Adherence',
+    subtitle: '7-day target workout completion tracker',
+    Icon: Calendar,
+    pages: ['dashboard'],
+  },
+  {
+    id: 'muscle_recovery',
+    label: 'Muscle Recovery Status',
+    subtitle: 'Estimated recovery levels by muscle group',
+    Icon: Layers,
+    pages: ['dashboard', 'progress'],
+  },
+  // ── Coach-Exclusive Widgets ──
+  {
+    id: 'coach_roster',
+    label: 'Coach Athlete Roster',
+    subtitle: 'Active athletes, injury flags, and fatigue status',
+    Icon: Users,
+    role: 'coach',
+    pages: ['dashboard'],
+  },
+  {
+    id: 'coach_schedule',
+    label: "Today's Coaching Schedule",
+    subtitle: 'Upcoming 1-on-1 consultations and video calls',
+    Icon: Video,
+    role: 'coach',
+    pages: ['dashboard'],
+  },
+  {
+    id: 'coach_anomalies',
+    label: 'Athlete AI Anomaly Detector',
+    subtitle: 'Automated fatigue spikes and injury risk alerts',
+    Icon: Brain,
+    role: 'coach',
+    pages: ['dashboard'],
+  },
+  // ── Standard Widgets ──
   {
     id: 'workouts_per_week',
     label: 'Workouts per week',

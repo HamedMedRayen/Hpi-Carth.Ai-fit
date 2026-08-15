@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Brain, X, Send, Mic, MicOff, Phone } from "lucide-react";
+import { Brain, X, Send, Mic, MicOff, Phone, Paperclip } from "lucide-react";
 import "./HpiChat.css";
 import { API_BASE_URL as API_URL } from "../../utils/config";
 import { getSyncItem } from "../../utils/storage";
@@ -14,11 +14,13 @@ export default function HpiChat() {
   const [messages, setMessages] = useState(() => getChatHistory());
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [uploadingReport, setUploadingReport] = useState(false);
   const [error, setError] = useState(null);
   const [listening, setListening] = useState(false);
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   // Subscribe to central chat storage updates (from Vapi voice calls or other components)
   useEffect(() => {
@@ -101,6 +103,76 @@ export default function HpiChat() {
       setLoading(false);
     }
   }, [input, loading, messages]);
+
+  // Handle Medical Report File Upload (PDF or Image)
+  const handleReportUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Reset input so same file can be selected again if needed
+    e.target.value = "";
+
+    const userNote = input.trim();
+    const userMsgContent = userNote
+      ? `📋 **Uploaded Medical / Lab Report:** \`${file.name}\`\n\n${userNote}`
+      : `📋 **Uploaded Medical / Lab Report:** \`${file.name}\``;
+
+    const userMsg = {
+      role: "user",
+      content: userMsgContent,
+      reportFile: { name: file.name, type: file.type, size: file.size }
+    };
+
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
+    saveChatHistory(updatedMessages);
+
+    setInput("");
+    setLoading(true);
+    setUploadingReport(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      if (userNote) {
+        formData.append("user_notes", userNote);
+      }
+
+      const tokenVal = getSyncItem("aura_token");
+      const res = await fetch(`${API_URL}/chat/upload-report`, {
+        method: "POST",
+        headers: {
+          ...(tokenVal ? { "Authorization": `Bearer ${tokenVal}` } : {})
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || `HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      const assistantMsg = {
+        role: "assistant",
+        content: data.reply,
+        exercise: data.exercise || null,
+        reportMeta: {
+          file_name: data.file_name,
+          file_kind: data.file_kind
+        }
+      };
+      const finalMessages = [...updatedMessages, assistantMsg];
+      setMessages(finalMessages);
+      saveChatHistory(finalMessages);
+    } catch (err) {
+      setError(err.message || "Failed to analyze medical report. Try again.");
+    } finally {
+      setLoading(false);
+      setUploadingReport(false);
+    }
+  };
 
   // Handle Enter key
   const handleKeyDown = useCallback(
@@ -216,6 +288,9 @@ export default function HpiChat() {
               <span className="hpi-typing-dot" />
               <span className="hpi-typing-dot" />
               <span className="hpi-typing-dot" />
+              {uploadingReport && (
+                <span className="hpi-uploading-text">Analyzing medical report & biomarkers…</span>
+              )}
             </div>
           )}
 
@@ -227,11 +302,32 @@ export default function HpiChat() {
 
         {/* Input row */}
         <div className="hpi-input-row">
+          {/* Hidden File Input for PDF / Image Medical Reports */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,image/png,image/jpeg,image/jpg,image/webp,application/pdf"
+            style={{ display: "none" }}
+            onChange={handleReportUpload}
+            disabled={loading}
+          />
+
+          {/* Medical / Lab Report Upload Button */}
+          <button
+            className="hpi-attach-btn"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={loading}
+            aria-label="Upload Medical Report"
+            title="Upload Medical / Laboratory Report (PDF, Image)"
+          >
+            <Paperclip size={18} />
+          </button>
+
           <input
             ref={inputRef}
             className="hpi-input"
             type="text"
-            placeholder="Ask Hpi anything…"
+            placeholder="Ask Hpi anything or attach a lab report…"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -285,3 +381,4 @@ export default function HpiChat() {
     </>
   );
 }
+
