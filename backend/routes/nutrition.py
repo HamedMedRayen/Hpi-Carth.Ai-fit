@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
@@ -407,9 +408,10 @@ Respond ONLY with a JSON object:
 { "calories": int, "protein_g": float, "carbs_g": float, "fat_g": float, "fiber_g": float, "meal_name": "str" }
 Be accurate based on typical serving sizes."""
 
+    groq_chat_model = os.getenv("GROQ_CHAT_MODEL", "openai/gpt-oss-120b")
     try:
         completion = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model=groq_chat_model,
             messages=[{"role": "system", "content": prompt}, {"role": "user", "content": payload.description}],
             temperature=0.1,
         )
@@ -452,8 +454,9 @@ Be accurate based on typical serving sizes."""
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# Active Vision Transformer model on Groq
-GROQ_VISION_MODEL = "qwen/qwen3.6-27b"
+# Active Models on Groq
+GROQ_VISION_MODEL = os.getenv("GROQ_VISION_MODEL", "qwen/qwen3.6-27b")
+GROQ_CHAT_MODEL = os.getenv("GROQ_CHAT_MODEL", "openai/gpt-oss-120b")
 
 @router.post("/scan-vision")
 def scan_meal_vision(payload: ScanVisionRequest, user_id: int = Depends(get_current_user_id), db=Depends(get_db)):
@@ -525,8 +528,8 @@ Be thorough and list all distinct components visible in the photo."""
     # Clean reasoning tags if present
     clean_vision_text = re.sub(r'<think>.*?</think>', '', vision_output, flags=re.DOTALL).strip() if vision_output else ""
 
-    # --- STEP 2: Clinical Nutritional Calculation & JSON Structuring (Llama 3.3 70B) ---
-    print("[Aura Vision] Step 2: Clinical macro calculation & JSON formatting via Llama 3.3 70B...")
+    # --- STEP 2: Clinical Nutritional Calculation & JSON Structuring ---
+    print(f"[Aura Vision] Step 2: Clinical macro calculation & JSON formatting via {GROQ_CHAT_MODEL}...")
     refine_prompt = f"""You are 'Aura Vision', an elite AI clinical dietitian and sports nutritionist.
 Analyze the following visual observation of a scanned meal dish and generate a precise, accurate macronutrient breakdown:
 
@@ -562,7 +565,7 @@ Ensure 'totals' is the exact mathematical sum of all components."""
     data = None
     try:
         refinement = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model=GROQ_CHAT_MODEL,
             messages=[{"role": "user", "content": refine_prompt}],
             temperature=0.1,
             response_format={"type": "json_object"}
