@@ -60,6 +60,10 @@ An agentic, conversational AI fitness coach accessible on every view:
 - **Double-RAG Recommendation System**: A two-stage retrieval pipeline combining structured SQL-based filtering with semantic retrieval. The first stage filters relevant athlete data based on fitness goals, experience, demographics, and training context. The second stage uses BGE-M3 embeddings followed by a cross-encoder reranker to surface the most relevant recommendations before passing context to the LLM.
 - **Voice Dictation Mode**: Hands-free voice input integrated via the Web Speech API and native Capacitor speech recognition (`HpiChat.jsx`).
 - **Vapi Live Voice Calling**: Interactive real-time voice call modal (`VapiCallModal`) for conversational AI phone-style coaching sessions.
+- **Medical & Lab Report Analysis**: Upload a lab or medical report as an image or PDF directly in the Hpi chat, and the AI Coach interprets it — surfacing key values, flags, and context-aware training/nutrition guidance based on the report's contents. The pipeline behind it:
+  - **PDF Reader Engine** — `pypdf` (v6.16.1) via `pypdf.PdfReader` parses the PDF's internal Document Object Model directly, extracting text streams, font encodings, and multi-page layout structures. Because it reads the native digital text layer, extraction is deterministic and lossless — no OCR noise or misread numbers on digital PDFs. If a PDF is purely a scanned image with no embedded text layer, it's automatically routed through the OCR engine instead.
+  - **OCR Engine (Images & Scans)** — `EasyOCR` (v1.7.2), powered by PyTorch with GPU/CUDA acceleration (CPU fallback), runs two neural models in sequence: **CRAFT** (Character Region Awareness for Text Detection — a deep CNN with a VGG-16 backbone and U-Net-style skip connections) detects text boxes, tabular columns, and word boundaries across dense report layouts; **CRNN** (ResNet feature extraction + Bidirectional LSTM sequence modeling + CTC decoding) then transcribes the detected regions into alphanumeric characters, medical abbreviations, lab units (`mg/dL`, `ng/mL`, `µmol/L`, `U/L`, etc.), and clinical reference ranges.
+  - **Medical Analysis & Reasoning** — the extracted text is passed to Groq's `openai/gpt-oss-120b`, which performs clinical sports-medicine reasoning: cross-referencing biomarkers against standard physiological ranges, athletic recovery needs, and nutrition/training programming.
 - **Agentic Auto-Tracking**:
   > [!TIP]
   > Tell Hpi what you trained, ate, or drank in plain language (e.g., *"I did 3 sets of bench press at 80kg for 8 reps"* or *"I ate a chicken bowl with 600 kcal and drank 500ml water"*), and Hpi generates hidden action payload blocks. The backend intercepts and parses these blocks via regular expressions to **automatically log exercises, sets, foods, or hydration into the database on your behalf**!
@@ -123,6 +127,7 @@ A comprehensive two-way management portal connecting trainers with athletes:
 - **Workout Suggestion Engine**: Build custom workout splits and suggest routines directly into athletes' logging queues (`SuggestWorkoutModal`).
 - **Direct Coach Chat**: Real-time direct messaging between coaches and athletes with unread message badges (`CoachChatModal`).
 - **Program Builder**: Design multi-week custom workout plans (`PlanPickerModal`).
+- **Report a Client**: Trainers can flag a problematic or abusive client directly from the roster, submitting a report for platform moderation review.
 
 ### 11. RAG-Powered Insights Engine
 A hybrid retrieval-augmented generation pipeline grounding AI answers in real member data:
@@ -176,6 +181,8 @@ Hpi provides a full native mobile application built with Capacitor:
 | Uvicorn | High-speed ASGI server |
 | Groq SDK | `openai/gpt-oss-120b` for the Hpi AI Agent, unified workout generator, macro calculation refinement, and RAG SQL generation; `llama-3.1-8b-instant` for fast question classification |
 | Qwen Vision (via Groq) | `qwen/qwen3.6-27b` multi-modal perception API for photo-based meal scanning |
+| pypdf (v6.16.1) | Deterministic, lossless text extraction from digital PDFs' native text layer for lab/medical report uploads; falls back to OCR for scanned PDFs with no embedded text |
+| EasyOCR (v1.7.2) | PyTorch-based OCR (GPU/CUDA with CPU fallback) for scanned/image lab reports — CRAFT (CNN + VGG-16 backbone) for text detection, CRNN (ResNet + BiLSTM + CTC) for text recognition |
 | Qdrant Client | Vector database powering similarity search over indexed member/recommendation datasets |
 | Sentence-Transformers / PyTorch / Transformers | Local embedding generation (`bge-large-en-v1.5`), cross-encoder reranking (`bge-reranker-v2-m3`), and local ASR speech-to-text |
 | DuckDB | Embedded analytical SQL engine for fast in-memory filtering during RAG query execution |
