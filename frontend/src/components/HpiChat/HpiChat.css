@@ -301,8 +301,9 @@
   height: 18px;
 }
 
-/* ── Mic button ──────────────────────────────────────────── */
-.hpi-mic-btn {
+/* ── Mic & Attach buttons ────────────────────────────────── */
+.hpi-mic-btn,
+.hpi-attach-btn {
   width: 38px;
   height: 38px;
   border-radius: 12px;
@@ -317,12 +318,23 @@
   transition: all 0.2s;
 }
 
+.hpi-attach-btn:hover {
+  border-color: #10b981;
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.hpi-attach-btn:active {
+  transform: scale(0.95);
+}
+
 .hpi-mic-btn:hover {
   border-color: var(--aura-accent);
   color: var(--aura-accent);
 }
 
-.hpi-mic-btn:disabled {
+.hpi-mic-btn:disabled,
+.hpi-attach-btn:disabled {
   opacity: 0.35;
   cursor: not-allowed;
 }
@@ -332,6 +344,14 @@
   color: #EF4444;
   border-color: rgba(239, 68, 68, 0.3);
   animation: hpiMicPulse 1s ease-in-out infinite;
+}
+
+.hpi-uploading-text {
+  font-size: 11.5px;
+  color: #10b981;
+  font-weight: 500;
+  margin-left: 6px;
+  animation: hpi-fade-in 0.3s ease;
 }
 
 @keyframes hpiMicPulse {
