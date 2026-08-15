@@ -8,27 +8,28 @@ import FloatingBottomNav from "./components/FloatingBottomNav";
 import "./styles/mobile.css";
 import "./styles/mobile-themes.css";
 
-// Lazy-loaded mobile pages
-const MobileAuthFlow = React.lazy(() => import("./components/MobileAuthFlow"));
-const MobileDashboard = React.lazy(() => import("./pages/MobileDashboard"));
-const MobileTrainHub = React.lazy(() => import("./pages/MobileTrainHub"));
-const MobileWorkouts = React.lazy(() => import("./pages/MobileWorkouts"));
-const MobileNutrition = React.lazy(() => import("./pages/MobileNutrition"));
-const MobileProgress = React.lazy(() => import("./pages/MobileProgress"));
-const MobileBodyHub = React.lazy(() => import("./pages/MobileBodyHub"));
-const MobileCoachingZone = React.lazy(() => import("./pages/MobileCoachingZone"));
-const MobileInjuryLog = React.lazy(() => import("./pages/MobileInjuryLog"));
-const MobileSleep = React.lazy(() => import("./pages/MobileSleep"));
-const MobileChat = React.lazy(() => import("./pages/MobileChat"));
-const MobileChallenges = React.lazy(() => import("./pages/MobileChallenges"));
-const MobileProfile = React.lazy(() => import("./pages/MobileProfile"));
-const MobileExercises = React.lazy(() => import("./pages/MobileExercises"));
+// Primary Mobile Components (eagerly loaded for native performance)
+import MobileAuthFlow from "./components/MobileAuthFlow";
+import MobileDashboard from "./pages/MobileDashboard";
+import MobileTrainHub from "./pages/MobileTrainHub";
+import MobileWorkouts from "./pages/MobileWorkouts";
+import MobileNutrition from "./pages/MobileNutrition";
+import MobileProgress from "./pages/MobileProgress";
+import MobileBodyHub from "./pages/MobileBodyHub";
+import MobileCoachingZone from "./pages/MobileCoachingZone";
+import MobileInjuryLog from "./pages/MobileInjuryLog";
+import MobileSleep from "./pages/MobileSleep";
+import MobileChat from "./pages/MobileChat";
+import MobileChallenges from "./pages/MobileChallenges";
+import MobileProfile from "./pages/MobileProfile";
+import MobileExercises from "./pages/MobileExercises";
 
-// Web App Fallback Components for missing mobile ones
+// Web Fallback / Secondary Lazy Components
 const FatigueCheck = React.lazy(() => import("../pages/FatigueCheck"));
 const Measurements = React.lazy(() => import("../pages/Measurements"));
 const ProgressPhotos = React.lazy(() => import("../pages/ProgressPhotos"));
 const Exercises = React.lazy(() => import("../pages/Exercises"));
+const Recommend = React.lazy(() => import("../pages/Recommend"));
 const OnboardingFlow = React.lazy(() => import("../components/onboarding/OnboardingFlow"));
 
 function MobilePageLoader() {
@@ -37,15 +38,7 @@ function MobilePageLoader() {
 
 function RequireAuth({ children }) {
   const { user } = useAuth();
-  const location = useLocation();
   if (!user) return <Navigate to="/auth" replace />;
-
-  const isCompleted = user.onboarding_completed === true || user.profile?.onboarding_completed === true;
-  const isExplicitlyFalse = (user.onboarding_completed === false || user.profile?.onboarding_completed === false) && !isCompleted;
-
-  if (isExplicitlyFalse && location.pathname !== "/onboarding") {
-    return <Navigate to="/onboarding" replace />;
-  }
   return children;
 }
 
@@ -54,44 +47,35 @@ export default function MobileAppShell() {
   const { theme } = useTheme();
   const location = useLocation();
   const isAuth = location.pathname === "/auth";
-  const isOnboarding = location.pathname === "/onboarding";
+
+  // Force a supported mobile theme ("dark", "light", "queen"), defaulting to "dark"
+  const activeMobileTheme = (theme && ["dark", "light", "queen"].includes(theme)) ? theme : "dark";
 
   if (!user || isAuth) {
     return (
-      <div className="mobile-app" data-mobile-theme={theme}>
-        <Suspense fallback={<MobilePageLoader />}>
-          <Routes>
-            <Route path="/auth" element={<MobileAuthFlow />} />
-            <Route path="*" element={<Navigate to="/auth" replace />} />
-          </Routes>
-        </Suspense>
+      <div className="mobile-app" data-mobile-theme={activeMobileTheme}>
+        <ErrorBoundary title="Authentication Error" message="An error occurred during authentication." fullPage>
+          <Suspense fallback={<MobilePageLoader />}>
+            <Routes>
+              <Route path="/auth" element={<MobileAuthFlow />} />
+              <Route path="*" element={<Navigate to="/auth" replace />} />
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
       </div>
     );
   }
 
-  const isCompleted = user.onboarding_completed === true || user.profile?.onboarding_completed === true;
-  const isExplicitlyFalse = (user.onboarding_completed === false || user.profile?.onboarding_completed === false) && !isCompleted;
-
-  if (isExplicitlyFalse || (isOnboarding && !isCompleted)) {
-    return (
-      <div className="mobile-app" data-mobile-theme={theme}>
-        <Suspense fallback={<MobilePageLoader />}>
-          <Routes>
-            <Route path="/onboarding" element={<RequireAuth><OnboardingFlow /></RequireAuth>} />
-            <Route path="*" element={<Navigate to="/onboarding" replace />} />
-          </Routes>
-        </Suspense>
-      </div>
-    );
-  }
+  const isOnboarding = location.pathname === "/onboarding";
 
   return (
-    <div className="mobile-app" data-mobile-theme={theme}>
+    <div className="mobile-app" data-mobile-theme={activeMobileTheme}>
       <main className="mobile-main">
         <Suspense fallback={<MobilePageLoader />}>
           <ErrorBoundary title="Mobile Error" message="An error occurred. Tap to retry." fullPage>
             <Routes>
               <Route path="/" element={<RequireAuth><MobileDashboard /></RequireAuth>} />
+              <Route path="/onboarding" element={<RequireAuth><OnboardingFlow /></RequireAuth>} />
               <Route path="/workouts" element={<RequireAuth><MobileTrainHub /></RequireAuth>} />
               <Route path="/workouts/log" element={<RequireAuth><MobileWorkouts /></RequireAuth>} />
               <Route path="/nutrition" element={<RequireAuth><MobileNutrition /></RequireAuth>} />
@@ -103,6 +87,7 @@ export default function MobileAppShell() {
               <Route path="/chat" element={<RequireAuth><MobileChat /></RequireAuth>} />
               <Route path="/challenges" element={<RequireAuth><MobileChallenges /></RequireAuth>} />
               <Route path="/coach/*" element={<RequireAuth><MobileCoachingZone /></RequireAuth>} />
+              <Route path="/events" element={<RequireAuth><MobileCoachingZone /></RequireAuth>} />
               <Route path="/profile" element={<RequireAuth><MobileProfile /></RequireAuth>} />
               
               {/* Web App Routes linked by Mobile Hubs */}
@@ -119,7 +104,7 @@ export default function MobileAppShell() {
           </ErrorBoundary>
         </Suspense>
       </main>
-      <FloatingBottomNav />
+      {!isOnboarding && <FloatingBottomNav />}
     </div>
   );
 }

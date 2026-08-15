@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import {
-  X, Star, Users, MapPin, Award, Send, CheckCircle2, Clock, MessageSquare, AlertCircle, Sparkles
+  X, Star, Users, MapPin, Award, Send, CheckCircle2, Clock, MessageSquare, AlertCircle, Sparkles, Flag
 } from "lucide-react";
 import { api } from "../../utils/api";
+import ReportCoachModal from "./ReportCoachModal";
 
 const GOAL_LABELS = {
   muscle_gain: "Hypertrophy & Muscle Gain",
@@ -28,6 +29,7 @@ export default function CoachProfileModal({ coach, onClose, onHireCoach }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview"); // "overview" or "reviews"
+  const [showReportModal, setShowReportModal] = useState(false);
 
   // New review state
   const [newRating, setNewRating] = useState(5);
@@ -453,7 +455,27 @@ export default function CoachProfileModal({ coach, onClose, onHireCoach }) {
             ⭐ <strong style={{ color: "#ffffff" }}>{rating}</strong> / 5.0 rating
           </div>
 
-          <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <button
+              onClick={() => setShowReportModal(true)}
+              style={{
+                background: "rgba(239, 68, 68, 0.1)",
+                color: "#ef4444",
+                border: "1px solid rgba(239, 68, 68, 0.25)",
+                padding: "8px 14px",
+                borderRadius: 12,
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 6
+              }}
+              title="Report this coach"
+            >
+              <Flag size={14} /> Report
+            </button>
+
             {isHired ? (
               <div style={{
                 background: "rgba(34, 197, 94, 0.12)", color: "#22c55e",
@@ -489,6 +511,13 @@ export default function CoachProfileModal({ coach, onClose, onHireCoach }) {
         </div>
 
       </div>
+
+      {showReportModal && (
+        <ReportCoachModal
+          coach={coach}
+          onClose={() => setShowReportModal(false)}
+        />
+      )}
     </div>
   );
 }

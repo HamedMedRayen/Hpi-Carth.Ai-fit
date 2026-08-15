@@ -10,21 +10,21 @@ import { api } from "../../utils/api";
 export default function RequireCoachRole({ children }) {
   const { user } = useAuth();
   const location = useLocation();
-  const [role, setRole] = useState(user?.role || user?.profile?.role || null);
-  const [checking, setChecking] = useState(!role);
+  const [statusInfo, setStatusInfo] = useState(null);
+  const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
-    api.getCoachRole()
+    api.getCoachVerificationStatus()
       .then((res) => {
         if (isMounted) {
-          setRole(res?.role || "athlete");
+          setStatusInfo(res);
           setChecking(false);
         }
       })
       .catch(() => {
         if (isMounted) {
-          setRole(user?.role || "athlete");
+          setStatusInfo(null);
           setChecking(false);
         }
       });
@@ -41,8 +41,16 @@ export default function RequireCoachRole({ children }) {
     );
   }
 
+  const role = statusInfo?.role || user?.role || user?.profile?.role || "athlete";
+  const isApproved = statusInfo
+    ? (statusInfo.approved || statusInfo.coach_verified || statusInfo.verification_status === "approved")
+    : (user?.approved || user?.coach_verified || user?.verification_status === "approved");
+
   if (role !== "coach") {
-    // Athlete attempted direct URL access to a coach-only sub-route -> redirect to root /coach (athlete view)
+    return <Navigate to="/coach" replace state={{ from: location }} />;
+  }
+
+  if (!isApproved && location.pathname !== "/coach") {
     return <Navigate to="/coach" replace state={{ from: location }} />;
   }
 

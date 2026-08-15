@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { 
   Users, UserPlus, Check, X, Search, Activity, 
   ChevronRight, Dumbbell, Calendar, AlertCircle, 
-  MessageSquare, Send, ArrowLeft, Plus, Trash2, Award, Heart, ShieldAlert, FileText, MapPin, Star, Sliders, TrendingUp
+  MessageSquare, Send, ArrowLeft, Plus, Trash2, Award, Heart, ShieldAlert, FileText, MapPin, Star, Sliders, TrendingUp, Trophy
 } from "lucide-react";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { api } from "../../utils/api";
 import { resolveBackendUrl } from "../../utils/config";
 import { useToast } from "../../components/common/Toast";
@@ -16,6 +18,7 @@ import RequireCoachRole from "../../components/auth/RequireCoachRole";
 import ScheduleSection from "../../components/coach/ScheduleSection";
 import AiReportsSection from "../../components/coach/AiReportsSection";
 import EventsSection from "../../components/coach/EventsSection";
+import MobileGymMap from "../components/MobileGymMap";
 
 const GOAL_LABELS = {
   muscle_gain: "Muscle Gain & Hypertrophy",
@@ -40,6 +43,7 @@ const EXP_LABELS = {
 export default function MobileCoachingZone() {
   const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [role, setRole] = useState("athlete");
   const [activeTab, setActiveTab] = useState("my-coach"); // 'roster' | 'my-coach'
   const [athletes, setAthletes] = useState([]);
@@ -318,9 +322,23 @@ export default function MobileCoachingZone() {
   const [newSessionNote, setNewSessionNote] = useState("");
   const [submittingNote, setSubmittingNote] = useState(false);
 
+  // Fallback Tunisia Gyms (guarantees immediate display while API loads)
+  const DEFAULT_TUNISIA_GYMS = [
+    { id: 1, name: "California Gym (Lac 2)", address: "Les Berges du Lac 2, Tunis", latitude: 36.8475, longitude: 10.2652, coaches: [] },
+    { id: 2, name: "California Gym (Ben Arous)", address: "Avenue de France, Ben Arous", latitude: 36.7533, longitude: 10.2223, coaches: [] },
+    { id: 3, name: "California Gym (Ennasr)", address: "Avenue Hédi Nouira, Ennasr 2", latitude: 36.8576, longitude: 10.1704, coaches: [] },
+    { id: 4, name: "Oxygen Gym (Megrine)", address: "Rue de la Gare, Megrine, Ben Arous", latitude: 36.7441, longitude: 10.2285, coaches: [] },
+    { id: 5, name: "Giga Fit (Lac 1)", address: "Les Berges du Lac 1, Tunis", latitude: 36.8378, longitude: 10.2392, coaches: [] },
+    { id: 6, name: "Titanium Gym (La Marsa)", address: "La Marsa, Tunis", latitude: 36.8858, longitude: 10.3228, coaches: [] },
+    { id: 7, name: "Pro Fitness (Sousse)", address: "Route Touristique, Sousse", latitude: 35.8256, longitude: 10.6369, coaches: [] },
+    { id: 8, name: "Gym Box (El Manar)", address: "El Manar 2, Tunis", latitude: 36.8329, longitude: 10.1492, coaches: [] },
+    { id: 9, name: "California Gym (Sfax)", address: "Route de Teniour, Sfax", latitude: 34.7406, longitude: 10.7603, coaches: [] },
+    { id: 10, name: "The Fit Loft (La Soukra)", address: "Avenue de l'UMA, La Soukra", latitude: 36.8647, longitude: 10.2238, coaches: [] }
+  ];
+
   // Gym Finder states
-  const [gyms, setGyms] = useState([]);
-  const [mapLoaded, setMapLoaded] = useState(false);
+  const [gyms, setGyms] = useState(DEFAULT_TUNISIA_GYMS);
+  const [mapLoaded, setMapLoaded] = useState(true);
   const [userLoc, setUserLoc] = useState({ lat: 36.8065, lng: 10.1815 });
   const [nearestGyms, setNearestGyms] = useState([]);
   const [selectedRegion, setSelectedRegion] = useState("all");
@@ -347,137 +365,49 @@ export default function MobileCoachingZone() {
   };
 
   useEffect(() => {
-    if (window.L) {
-      setMapLoaded(true);
-      return;
+    // Inject dark-mode map styles
+    const styleId = 'leaflet-dark-styles';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.innerHTML = `
+        #leaflet-coaches-map {
+          background: #0f172a !important;
+          z-index: 1;
+        }
+        .leaflet-popup-content-wrapper {
+          background: #0f172a !important;
+          color: #fff !important;
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          border-radius: 12px !important;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important;
+        }
+        .leaflet-popup-tip {
+          background: #0f172a !important;
+        }
+      `;
+      document.head.appendChild(style);
     }
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-    document.head.appendChild(link);
-
-    const style = document.createElement("style");
-    style.innerHTML = `
-      #leaflet-coaches-map .leaflet-tile-container {
-        filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
-      }
-      #leaflet-coaches-map {
-        background: #111 !important;
-      }
-      .leaflet-popup-content-wrapper {
-        background: var(--color-bg) !important;
-        color: var(--color-text) !important;
-        border: 1px solid var(--border-card);
-      }
-      .leaflet-popup-tip {
-        background: var(--color-bg) !important;
-      }
-    `;
-    document.head.appendChild(style);
-
-    const script = document.createElement("script");
-    script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-    script.async = true;
-    script.onload = () => setMapLoaded(true);
-    document.body.appendChild(script);
   }, []);
 
   useEffect(() => {
     api.getGyms().then(res => {
-      setGyms(res || []);
+      if (res && res.length > 0) {
+        setGyms(res);
+      }
     }).catch(e => console.error(e));
   }, []);
 
   useEffect(() => {
-    if (!userLoc || !gyms.length) return;
-    const computed = gyms.map(g => {
+    const activeList = gyms.length ? gyms : DEFAULT_TUNISIA_GYMS;
+    const computed = activeList.map(g => {
       const dist = calculateDistance(userLoc.lat, userLoc.lng, g.latitude, g.longitude);
       return { ...g, distance: dist };
     }).sort((a, b) => a.distance - b.distance);
     setNearestGyms(computed);
   }, [userLoc, gyms]);
 
-  const mapRef = useRef(null);
 
-  useEffect(() => {
-    if (!mapLoaded || !gyms.length || activeTab !== 'my-coach') return;
-    
-    const container = window.L.DomUtil.get("leaflet-coaches-map");
-    if (!container) return;
-    
-    const L = window.L;
-    
-    // Clean up previous map instance if it exists
-    if (mapRef.current) {
-      try {
-        mapRef.current.remove();
-      } catch (err) {
-        console.error("Error removing old map:", err);
-      }
-      mapRef.current = null;
-    }
-    
-    const map = L.map("leaflet-coaches-map").setView([userLoc.lat, userLoc.lng], selectedRegion === 'all' ? 10 : 12);
-    mapRef.current = map;
-    
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; OpenStreetMap'
-    }).addTo(map);
-
-    // Force map invalidateSize after rendering
-    const timer = setTimeout(() => {
-      if (mapRef.current) {
-        mapRef.current.invalidateSize();
-      }
-    }, 250);
-
-    const userIcon = L.divIcon({
-      className: 'user-marker-icon',
-      html: `<div style="background: var(--aura-accent); border: 2px solid #000; width: 14px; height: 14px; border-radius: 50%; box-shadow: 0 0 10px var(--aura-accent);"></div>`,
-      iconSize: [14, 14],
-      iconAnchor: [7, 7]
-    });
-    
-    const userMarker = L.marker([userLoc.lat, userLoc.lng], { icon: userIcon, draggable: true }).addTo(map);
-    userMarker.on('dragend', (e) => {
-      const position = e.target.getLatLng();
-      setUserLoc({ lat: position.lat, lng: position.lng });
-    });
-
-    gyms.forEach(g => {
-      const gymIcon = L.divIcon({
-        className: 'gym-marker-icon',
-        html: `<div style="background: var(--aura-cyan); border: 2px solid #000; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 8px var(--aura-cyan); color: #000; font-size: 10px; font-weight: 800;">G</div>`,
-        iconSize: [16, 16],
-        iconAnchor: [8, 8]
-      });
-
-      const marker = L.marker([g.latitude, g.longitude], { icon: gymIcon }).addTo(map);
-      marker.bindPopup(`
-        <div style="color: #fff; font-family: sans-serif; font-size: 12px; padding: 4px;">
-          <strong style="font-size: 13px; color: var(--aura-cyan);">${g.name}</strong><br/>
-          <span style="color: #ccc;">${g.address || ""}</span><br/>
-          <strong style="color: var(--aura-accent);">${g.coaches?.length || 0} Coaches</strong>
-        </div>
-      `);
-      
-      marker.on('click', () => {
-        setUserLoc({ lat: g.latitude, lng: g.longitude });
-      });
-    });
-
-    return () => {
-      clearTimeout(timer);
-      if (mapRef.current) {
-        try {
-          mapRef.current.remove();
-        } catch (err) {
-          console.error("Error cleaning up map:", err);
-        }
-        mapRef.current = null;
-      }
-    };
-  }, [mapLoaded, gyms, selectedRegion, activeTab]);
 
   // Coach Chat states (for both coach chatting with athlete, or athlete chatting with coach)
   const [chattingWith, setChattingWith] = useState(null); // { id, name, avatar }
@@ -1833,10 +1763,98 @@ export default function MobileCoachingZone() {
       )}
     </div>
   </RequireCoachRole>
-) : location.pathname.startsWith("/coach/events") ? (
-  <EventsSection />
 ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    {/* Athlete Zone Navigation Bar */}
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      gap: 6,
+      padding: "6px",
+      margin: "0 0 12px 0",
+      background: "var(--bg-glass, rgba(15, 23, 42, 0.85))",
+      border: "1px solid var(--border-card, rgba(255, 255, 255, 0.08))",
+      borderRadius: "14px",
+      backdropFilter: "blur(14px)",
+    }}>
+      <button
+        type="button"
+        onClick={() => navigate('/coach')}
+        style={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 6,
+          padding: "10px 14px",
+          borderRadius: 10,
+          fontSize: 12,
+          fontWeight: (!location.pathname.startsWith('/coach/events') && !location.pathname.startsWith('/events')) ? 800 : 600,
+          color: (!location.pathname.startsWith('/coach/events') && !location.pathname.startsWith('/events')) ? "#fff" : "var(--color-text-2, rgba(255,255,255,0.6))",
+          background: (!location.pathname.startsWith('/coach/events') && !location.pathname.startsWith('/events'))
+            ? "linear-gradient(135deg, rgba(6, 182, 212, 0.3) 0%, rgba(59, 130, 246, 0.3) 100%)"
+            : "transparent",
+          border: (!location.pathname.startsWith('/coach/events') && !location.pathname.startsWith('/events'))
+            ? "1px solid rgba(6, 182, 212, 0.5)"
+            : "1px solid transparent",
+          boxShadow: (!location.pathname.startsWith('/coach/events') && !location.pathname.startsWith('/events'))
+            ? "0 0 12px rgba(6, 182, 212, 0.25)"
+            : "none",
+          cursor: "pointer",
+          transition: "all 0.2s ease"
+        }}
+      >
+        <Users size={15} style={{ color: (!location.pathname.startsWith('/coach/events') && !location.pathname.startsWith('/events')) ? "var(--aura-cyan)" : "inherit" }} />
+        <span>Find & My Coach</span>
+      </button>
+
+      <button
+        type="button"
+        onClick={() => navigate('/coach/events')}
+        style={{
+          flex: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 6,
+          padding: "10px 14px",
+          borderRadius: 10,
+          fontSize: 12,
+          fontWeight: (location.pathname.startsWith('/coach/events') || location.pathname.startsWith('/events')) ? 800 : 600,
+          color: (location.pathname.startsWith('/coach/events') || location.pathname.startsWith('/events')) ? "#fff" : "var(--color-text-2, rgba(255,255,255,0.6))",
+          background: (location.pathname.startsWith('/coach/events') || location.pathname.startsWith('/events'))
+            ? "linear-gradient(135deg, rgba(139, 92, 246, 0.3) 0%, rgba(236, 72, 153, 0.3) 100%)"
+            : "transparent",
+          border: (location.pathname.startsWith('/coach/events') || location.pathname.startsWith('/events'))
+            ? "1px solid rgba(139, 92, 246, 0.5)"
+            : "1px solid transparent",
+          boxShadow: (location.pathname.startsWith('/coach/events') || location.pathname.startsWith('/events'))
+            ? "0 0 12px rgba(139, 92, 246, 0.25)"
+            : "none",
+          cursor: "pointer",
+          transition: "all 0.2s ease"
+        }}
+      >
+        <Trophy size={15} style={{ color: (location.pathname.startsWith('/coach/events') || location.pathname.startsWith('/events')) ? "var(--aura-accent)" : "inherit" }} />
+        <span>Events</span>
+        <span style={{
+          fontSize: 8,
+          fontWeight: 900,
+          padding: "1px 5px",
+          borderRadius: 4,
+          background: "var(--aura-accent, #8b5cf6)",
+          color: "#fff",
+          lineHeight: 1,
+        }}>
+          LIVE
+        </span>
+      </button>
+    </div>
+
+    {location.pathname.startsWith("/coach/events") || location.pathname.startsWith("/events") ? (
+      <EventsSection />
+    ) : (
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {/* Active / Pending Coach Relationships */}
           <div>
             <h3 style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text)", marginBottom: 12, display: "flex", alignItems: "center", gap: 6 }}>
@@ -1920,8 +1938,9 @@ export default function MobileCoachingZone() {
             <h3 style={{ fontSize: 14, fontWeight: 800, color: "var(--color-text)", marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
               <MapPin size={18} color="var(--aura-cyan)" style={{ filter: "drop-shadow(0 0 3px var(--aura-cyan))" }} /> Gym Map Explorer
             </h3>
+
             <p style={{ fontSize: 11, color: "var(--text-secondary)", margin: "0 0 12px", lineHeight: 1.4 }}>
-              Select your region or drag the gold marker to find nearest gyms and their active coaches.
+              Select your region or drag the marker to find nearest gyms and their active coaches.
             </p>
             
             {/* Region Selector */}
@@ -1954,17 +1973,13 @@ export default function MobileCoachingZone() {
               })}
             </div>
 
-            {/* Map Container */}
-            <div 
-              id="leaflet-coaches-map" 
-              style={{ 
-                height: 340, 
-                borderRadius: 16, 
-                border: "1px solid var(--color-border)",
-                background: "#111", 
-                overflow: "hidden", 
-                marginBottom: 16
-              }} 
+            {/* Dedicated Mobile Leaflet Map */}
+            <MobileGymMap
+              gyms={gyms}
+              userLoc={userLoc}
+              setUserLoc={setUserLoc}
+              selectedRegion={selectedRegion}
+              onSelectGym={(g) => setUserLoc({ lat: g.latitude, lng: g.longitude })}
             />
 
             {/* Nearest Gyms & Coaches List */}
@@ -2124,15 +2139,17 @@ export default function MobileCoachingZone() {
           </div>
         </div>
       )}
-
-      {selectedCoachForInfo && (
-        <CoachProfileModal
-          coach={selectedCoachForInfo}
-          onClose={() => setSelectedCoachForInfo(null)}
-          onHireCoach={handleHireCoach}
-        />
-      )}
     </div>
+  )}
+
+  {selectedCoachForInfo && (
+    <CoachProfileModal
+      coach={selectedCoachForInfo}
+      onClose={() => setSelectedCoachForInfo(null)}
+      onHireCoach={handleHireCoach}
+    />
+  )}
+</div>
   );
 }
 

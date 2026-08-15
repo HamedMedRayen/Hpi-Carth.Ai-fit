@@ -6,8 +6,9 @@ import { api } from "../../utils/api";
 import { HpiLogo } from "../../utils/icons";
 import {
   LayoutDashboard, Dumbbell, Dna, Users, Sparkles,
-  Moon, Trophy, Settings, LogOut, Activity, Flame, ArrowUpRight
+  Moon, Trophy, Settings, LogOut, Activity, Flame, ArrowUpRight, ShieldCheck, Bug
 } from "lucide-react";
+import ReportBugModal from "../modals/ReportBugModal";
 
 /* ── Main Theme Section Groups ────────────────────── */
 const MAIN_SECTIONS = [
@@ -53,6 +54,9 @@ export default function MainSidebar() {
   const location = useLocation();
   const [stats, setStats] = useState({});
   const [activeChallenge, setActiveChallenge] = useState(null);
+  const [showBugReportModal, setShowBugReportModal] = useState(false);
+
+  const isAdmin = user?.role === "admin" || user?.profile?.role === "admin";
 
   const activeSectionId = (() => {
     const p = location.pathname;
@@ -176,6 +180,24 @@ export default function MainSidebar() {
             </NavLink>
           );
         })}
+
+        {isAdmin && (
+          <NavLink
+            to="/admin"
+            className={`main-nav-item${location.pathname.startsWith("/admin") ? " active" : ""}`}
+          >
+            <div className="main-nav-item-icon">
+              <ShieldCheck size={18} color={location.pathname.startsWith("/admin") ? "#0ea5e9" : "#64748b"} />
+            </div>
+            <div className="main-nav-item-text">
+              <div className="main-nav-item-title">Admin Panel</div>
+              <div className="main-nav-item-sub">System Management</div>
+            </div>
+            <span className="main-nav-item-badge" style={{ background: "rgba(239, 68, 68, 0.2)", color: "#ef4444" }}>
+              Admin
+            </span>
+          </NavLink>
+        )}
       </nav>
 
       {/* ── Active Challenge Widget ── */}
@@ -193,6 +215,9 @@ export default function MainSidebar() {
 
       {/* ── Footer / Controls ── */}
       <div className="main-sidebar-footer">
+        <button className="main-icon-btn" onClick={() => setShowBugReportModal(true)} title="Report a Bug">
+          <Bug size={16} />
+        </button>
         <button className="main-icon-btn" onClick={() => navigate("/profile")} title="Settings">
           <Settings size={16} />
         </button>
@@ -211,6 +236,10 @@ export default function MainSidebar() {
           <span>v2.5 Sky</span>
         </div>
       </div>
+
+      {showBugReportModal && (
+        <ReportBugModal onClose={() => setShowBugReportModal(false)} />
+      )}
     </aside>
   );
 }

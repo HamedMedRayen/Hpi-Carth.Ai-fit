@@ -17,6 +17,11 @@ import CoachWorkspaceNav from "../components/coach/CoachWorkspaceNav";
 import ScheduleSection from "../components/coach/ScheduleSection";
 import AiReportsSection from "../components/coach/AiReportsSection";
 import EventsSection from "../components/coach/EventsSection";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+
+// Expose L globally for map initialization code
+if (!window.L) window.L = L;
 
 const GOAL_LABELS = {
   muscle_gain: "Muscle Gain & Hypertrophy",
@@ -383,41 +388,33 @@ export default function CoachDashboard() {
     return R * c;
   };
 
-  // Load Leaflet dynamically
+  // Load Leaflet - now imported via npm, always available
   useEffect(() => {
-    if (window.L) {
-      setMapLoaded(true);
-      return;
+    setMapLoaded(true);
+
+    // Inject dark-mode map styles
+    const styleId = 'leaflet-dark-styles';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.innerHTML = `
+        #leaflet-coaches-map .leaflet-tile-container {
+          filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+        }
+        #leaflet-coaches-map {
+          background: #111 !important;
+        }
+        .leaflet-popup-content-wrapper {
+          background: var(--color-bg) !important;
+          color: var(--color-text) !important;
+          border: 1px solid var(--border-card);
+        }
+        .leaflet-popup-tip {
+          background: var(--color-bg) !important;
+        }
+      `;
+      document.head.appendChild(style);
     }
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-    document.head.appendChild(link);
-
-    const style = document.createElement("style");
-    style.innerHTML = `
-      #leaflet-coaches-map .leaflet-tile-container {
-        filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
-      }
-      #leaflet-coaches-map {
-        background: #111 !important;
-      }
-      .leaflet-popup-content-wrapper {
-        background: var(--color-bg) !important;
-        color: var(--color-text) !important;
-        border: 1px solid var(--border-card);
-      }
-      .leaflet-popup-tip {
-        background: var(--color-bg) !important;
-      }
-    `;
-    document.head.appendChild(style);
-
-    const script = document.createElement("script");
-    script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
-    script.async = true;
-    script.onload = () => setMapLoaded(true);
-    document.body.appendChild(script);
   }, []);
 
   const fetchVerification = async () => {
@@ -1909,8 +1906,8 @@ export default function CoachDashboard() {
   const browseCoaches = coaches.filter(c => !c.status || c.status === 'declined');
   const isCoachUser = user?.role === 'coach' || user?.profile?.role === 'coach' || role === 'coach';
   const isCoachApproved = profile
-    ? (profile.approved || profile.coach_verified || profile.verification_status === "approved")
-    : (user?.approved || user?.coach_verified || user?.verification_status === "approved" || user?.role === "coach");
+    ? Boolean(profile.approved || profile.coach_verified || profile.verification_status === "approved")
+    : Boolean(user?.approved || user?.coach_verified || user?.verification_status === "approved");
 
   return (
     <div style={{ minHeight: "100vh", paddingBottom: 60, background: "var(--color-bg)", paddingTop: 24 }}>

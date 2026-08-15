@@ -238,7 +238,7 @@ export function HpiLogo({ size = 32, showText = true, style = {}, forceWhite = f
         width: size,
         height: size,
         flexShrink: 0,
-        backgroundColor: "var(--aura-accent)",
+        backgroundColor: "var(--aura-accent, #6366f1)",
         WebkitMaskImage: "url(/hpi-app-icon-512.png)",
         WebkitMaskSize: "contain",
         WebkitMaskRepeat: "no-repeat",
@@ -254,7 +254,7 @@ export function HpiLogo({ size = 32, showText = true, style = {}, forceWhite = f
           fontWeight: 800,
           fontSize: size * 0.65,
           letterSpacing: "0.06em",
-          color: forceWhite ? "#ffffff" : "var(--color-text)",
+          color: forceWhite ? "#ffffff" : "var(--color-text, #ffffff)",
           lineHeight: 1,
         }}>
           HPI

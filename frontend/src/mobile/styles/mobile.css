@@ -45,7 +45,8 @@
   width: 100vw;
   overflow: hidden;
   position: relative;
-  background: transparent;
+  background: #000000;
+  color: #ffffff;
 }
 
 .mobile-main {
@@ -296,9 +297,14 @@
 .mobile-auth-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  padding: var(--mobile-spacing-lg);
-  background: #0a110a; /* Dark green/black tint based on Sideskills ref */
+  flex: 1;
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+  padding: max(1rem, env(safe-area-inset-top)) var(--mobile-spacing-lg) max(1rem, env(safe-area-inset-bottom));
+  background: #020617;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .mobile-auth-input {
