@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { 
   Users, UserPlus, Check, X, Search, Activity, 
   ChevronRight, Dumbbell, Calendar, AlertCircle, 
-  MessageSquare, Send, ArrowLeft, Plus, Trash2, Award, Heart, ShieldAlert, FileText, MapPin, Star, Sliders, TrendingUp, Trophy
+  MessageSquare, Send, ArrowLeft, Plus, Trash2, Award, Heart, ShieldAlert, FileText, MapPin, Star, Sliders, TrendingUp, Trophy, Flag
 } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -13,6 +13,7 @@ import { useToast } from "../../components/common/Toast";
 import { fmt } from "../../utils/formatters";
 import { useAuth } from "../../utils/auth";
 import CoachProfileModal from "../../components/modals/CoachProfileModal";
+import ReportCoachModal from "../../components/modals/ReportCoachModal";
 import MobileCoachWorkspaceNav from "../components/MobileCoachWorkspaceNav";
 import RequireCoachRole from "../../components/auth/RequireCoachRole";
 import ScheduleSection from "../../components/coach/ScheduleSection";
@@ -411,6 +412,7 @@ export default function MobileCoachingZone() {
 
   // Coach Chat states (for both coach chatting with athlete, or athlete chatting with coach)
   const [chattingWith, setChattingWith] = useState(null); // { id, name, avatar }
+  const [reportingCoach, setReportingCoach] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [sendingMessage, setSendingMessage] = useState(false);
@@ -776,17 +778,29 @@ export default function MobileCoachingZone() {
             <h2 style={{ fontSize: 16, fontWeight: 800, color: "var(--color-text)", margin: 0 }}>{chattingWith.name || 'Chat'}</h2>
             <span style={{ fontSize: 11, color: "var(--aura-cyan)", fontWeight: 700 }}>Direct Chat</span>
           </div>
-          <button 
-            onClick={handleClearChat}
-            style={{ 
-              background: "none", border: "none", color: "var(--color-text)", 
-              cursor: "pointer", display: "flex", alignItems: "center", padding: 8,
-              marginLeft: "auto"
-            }}
-            title="Clear Conversation"
-          >
-            <Trash2 size={20} style={{ opacity: 0.7 }} />
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 4, marginLeft: "auto" }}>
+            <button 
+              onClick={() => setReportingCoach(chattingWith)}
+              style={{ 
+                background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.25)",
+                color: "#f87171", borderRadius: 8, cursor: "pointer",
+                display: "flex", alignItems: "center", padding: "6px 8px"
+              }}
+              title="Report Coach to Admin"
+            >
+              <Flag size={16} />
+            </button>
+            <button 
+              onClick={handleClearChat}
+              style={{ 
+                background: "none", border: "none", color: "var(--color-text)", 
+                cursor: "pointer", display: "flex", alignItems: "center", padding: 8
+              }}
+              title="Clear Conversation"
+            >
+              <Trash2 size={20} style={{ opacity: 0.7 }} />
+            </button>
+          </div>
         </div>
 
         {/* Messages list */}
@@ -1920,11 +1934,18 @@ export default function MobileCoachingZone() {
                           })}
                           style={{ flex: 1, background: "var(--aura-cyan)", color: "var(--color-bg)", border: "none", borderRadius: 10, padding: "10px 0", fontWeight: 800, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, cursor: "pointer" }}
                         >
-                          <MessageSquare size={14} /> Chat with Coach
+                          <MessageSquare size={14} /> Chat
                         </button>
-                        <div style={{ flex: 1, background: "rgba(34,197,94,0.08)", color: "#22c55e", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, fontSize: 12, fontWeight: 700 }}>
-                          <Check size={14} /> Active Coach
-                        </div>
+                        <button
+                          onClick={() => setReportingCoach({
+                            coach_id: c.coach_id,
+                            coach_name: c.coach_name
+                          })}
+                          style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.25)", color: "#f87171", borderRadius: 10, padding: "10px 14px", fontWeight: 800, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", gap: 4, cursor: "pointer" }}
+                          title="Report this coach to admin"
+                        >
+                          <Flag size={13} /> Report
+                        </button>
                       </div>
                     )}
                   </div>
@@ -2147,6 +2168,13 @@ export default function MobileCoachingZone() {
       coach={selectedCoachForInfo}
       onClose={() => setSelectedCoachForInfo(null)}
       onHireCoach={handleHireCoach}
+    />
+  )}
+
+  {reportingCoach && (
+    <ReportCoachModal
+      coach={reportingCoach}
+      onClose={() => setReportingCoach(null)}
     />
   )}
 </div>

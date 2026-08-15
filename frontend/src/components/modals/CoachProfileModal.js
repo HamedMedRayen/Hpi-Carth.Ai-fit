@@ -130,17 +130,37 @@ export default function CoachProfileModal({ coach, onClose, onHireCoach }) {
           <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--aura-cyan, #06b6d4)", fontWeight: 700 }}>
             <Sparkles size={16} /> CERTIFIED COACH PROFILE
           </div>
-          <button
-            onClick={onClose}
-            style={{
-              background: "rgba(255, 255, 255, 0.08)", border: "none", color: "#94a3b8",
-              width: 32, height: 32, borderRadius: "50%", cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              transition: "all 0.2s ease"
-            }}
-          >
-            <X size={18} />
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <button
+              onClick={() => setShowReportModal(true)}
+              style={{
+                background: "rgba(239, 68, 68, 0.1)", border: "1px solid rgba(239, 68, 68, 0.25)",
+                color: "#f87171", padding: "6px 12px", borderRadius: 10, cursor: "pointer",
+                display: "flex", alignItems: "center", gap: 6, fontSize: 12, fontWeight: 700,
+                transition: "all 0.2s ease"
+              }}
+              title="Report this coach to platform administrators"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(239, 68, 68, 0.2)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)";
+              }}
+            >
+              <Flag size={13} /> Report Coach
+            </button>
+            <button
+              onClick={onClose}
+              style={{
+                background: "rgba(255, 255, 255, 0.08)", border: "none", color: "#94a3b8",
+                width: 32, height: 32, borderRadius: "50%", cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                transition: "all 0.2s ease"
+              }}
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Body */}

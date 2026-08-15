@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { X, Send, User, MessageSquare, Trash2, Video } from "lucide-react";
+import { X, Send, User, MessageSquare, Trash2, Video, Flag } from "lucide-react";
 import { api, token } from "../../utils/api";
 import { useAuth } from "../../utils/auth";
 import VideoCallScreen from "../video/VideoCallScreen";
+import ReportCoachModal from "./ReportCoachModal";
 
 export default function CoachChatModal({ recipient, onClose }) {
   const { user } = useAuth();
@@ -10,6 +11,7 @@ export default function CoachChatModal({ recipient, onClose }) {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [showVideoCall, setShowVideoCall] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
   const scrollRef = useRef(null);
 
 
@@ -131,6 +133,28 @@ export default function CoachChatModal({ recipient, onClose }) {
               }}
             >
               <Video size={18} />
+            </button>
+            <button
+              onClick={() => setShowReportModal(true)}
+              title="Report Coach to Administrator"
+              style={{
+                background: "rgba(239, 68, 68, 0.12)",
+                border: "1px solid rgba(239, 68, 68, 0.25)",
+                color: "#f87171",
+                width: 32, height: 32, borderRadius: 10,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer", transition: "all 0.2s"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#ef4444";
+                e.currentTarget.style.color = "#fff";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(239, 68, 68, 0.12)";
+                e.currentTarget.style.color = "#f87171";
+              }}
+            >
+              <Flag size={16} />
             </button>
             <button
               onClick={handleClearChat}
@@ -262,6 +286,13 @@ export default function CoachChatModal({ recipient, onClose }) {
           />
         );
       })()}
+
+      {showReportModal && (
+        <ReportCoachModal
+          coach={recipient}
+          onClose={() => setShowReportModal(false)}
+        />
+      )}
 
       <style>{`
         @keyframes modalIn {
