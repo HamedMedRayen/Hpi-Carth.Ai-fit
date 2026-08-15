@@ -5,14 +5,13 @@ import { api } from "../utils/api";
 import {
   Plus, Dumbbell, Flame, Clock, Zap,
   Brain, AlertCircle, Scale, Activity,
-  ChevronRight, Calendar, TrendingUp
+  ChevronRight, Calendar, TrendingUp, Target, Play, Shield, Users
 } from "lucide-react";
 import { useWidgets } from "../hooks/useWidgets";
 import { useTheme } from "../utils/theme";
 import AddWidgetModal from "../components/modals/AddWidgetModal";
 import WidgetCard from "../components/widgets/WidgetCard";
 import ChallengeCheckinWidget from "../components/widgets/ChallengeCheckinWidget";
-import InlineHpiChat from "../components/coach/InlineHpiChat";
 
 import VolumeProgressionWidget from "../components/widgets/VolumeProgressionWidget";
 import WeeklyVolumeWidget from "../components/widgets/WeeklyVolumeWidget";
@@ -28,6 +27,19 @@ import ExerciseTrackerWidget from "../components/widgets/ExerciseTrackerWidget";
 import SleepWidget from "../components/widgets/SleepWidget";
 import BodyMapWidget from "../components/widgets/BodyMapWidget";
 
+// New Rich Widgets
+import CalorieRingWidget from "../components/widgets/CalorieRingWidget";
+import ReadinessScoreWidget from "../components/widgets/ReadinessScoreWidget";
+import PrTrophyWidget from "../components/widgets/PrTrophyWidget";
+import HydrationWidget from "../components/widgets/HydrationWidget";
+import WeeklyAdherenceWidget from "../components/widgets/WeeklyAdherenceWidget";
+import MuscleRecoveryWidget from "../components/widgets/MuscleRecoveryWidget";
+
+// Coach-Exclusive Widgets
+import CoachRosterWidget from "../components/widgets/CoachRosterWidget";
+import CoachScheduleWidget from "../components/widgets/CoachScheduleWidget";
+import CoachAnomalyWidget from "../components/widgets/CoachAnomalyWidget";
+
 const STAT_FMT = {
   kg: (val) => val >= 1000 ? `${(val / 1000).toFixed(1)}t` : `${Math.round(val)}kg`,
 };
@@ -35,6 +47,15 @@ const STAT_FMT = {
 function renderWidget(w) {
   const id = typeof w === 'string' ? w : w.id;
   switch (id) {
+    case 'calorie_ring': return <CalorieRingWidget />;
+    case 'readiness_score': return <ReadinessScoreWidget />;
+    case 'pr_trophy': return <PrTrophyWidget />;
+    case 'hydration_quick': return <HydrationWidget />;
+    case 'weekly_adherence': return <WeeklyAdherenceWidget />;
+    case 'muscle_recovery': return <MuscleRecoveryWidget />;
+    case 'coach_roster': return <CoachRosterWidget />;
+    case 'coach_schedule': return <CoachScheduleWidget />;
+    case 'coach_anomalies': return <CoachAnomalyWidget />;
     case 'workouts_per_week': return <WorkoutsPerWeekWidget />;
     case 'body_map': return <BodyMapWidget />;
     case 'weight_over_time': return <WeightOverTimeWidget />;
@@ -78,6 +99,8 @@ export default function Dashboard() {
     { icon: <Zap size={18} />, color: "var(--aura-accent4)", value: `${stats.current_streak_days || 0}d`, label: "STREAK", sub: "consecutive" },
   ];
 
+  const isCoach = user?.role === 'coach' || user?.profile?.role === 'coach';
+
   return (
     <div style={{ padding: "24px", display: "flex", flexDirection: "column", gap: 20 }}>
 
@@ -100,6 +123,46 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
+
+      {/* ── Coach Exclusive Banner ── */}
+      {isCoach && (
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(6, 182, 212, 0.06) 100%)',
+          border: '1px solid rgba(139, 92, 246, 0.3)',
+          borderRadius: 16, padding: '14px 18px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(139, 92, 246, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--aura-accent)' }}>
+              <Shield size={18} />
+            </div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--color-text)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                Coach Command Mode
+                <span style={{ fontSize: 9, fontWeight: 900, padding: '2px 6px', borderRadius: 4, background: 'var(--aura-accent)', color: '#fff', textTransform: 'uppercase' }}>Active</span>
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--color-text-3)' }}>
+                Manage athlete rosters, 1-on-1 consultations, and track athlete fatigue & injury alerts.
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => { if (!hasWidget('coach_roster')) addWidget('coach_roster'); }}
+              style={{ padding: '8px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--color-border)', color: 'var(--color-text-2)', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}
+            >
+              + Add Roster Widget
+            </button>
+            <button
+              onClick={() => navigate('/coach')}
+              className="btn-primary"
+              style={{ padding: '8px 14px', borderRadius: 10, fontSize: 12, fontWeight: 700, width: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}
+            >
+              <Users size={14} /> Open Coach Workspace <ChevronRight size={14} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ═══ TWO-COLUMN LAYOUT: Left = data, Right = AI chat ═══ */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 20, alignItems: 'start' }}>
@@ -207,15 +270,29 @@ export default function Dashboard() {
           </div>
 
           {widgets.length === 0 && (
-            <div className="right-card" style={{ textAlign: "center", color: "var(--color-text-3)", padding: 40, borderStyle: "dashed" }}>
+            <div className="right-card" style={{ textAlign: "center", color: "var(--color-text-3)", padding: 32, borderStyle: "dashed" }}>
               <TrendingUp size={24} style={{ marginBottom: 10, opacity: 0.2 }} />
-              <p style={{ fontWeight: 600, fontSize: 13, margin: '0 0 4px' }}>Your workspace is clean.</p>
-              <p style={{ fontSize: 12, margin: 0 }}>Add widgets to build your command center.</p>
+              <p style={{ fontWeight: 600, fontSize: 14, margin: '0 0 6px', color: 'var(--color-text)' }}>Customize your Command Center</p>
+              <p style={{ fontSize: 12, margin: '0 0 16px', color: 'var(--color-text-3)' }}>Quickly add widgets to track calories, readiness, PRs, and volume.</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
+                <button onClick={() => addWidget('calorie_ring')} style={{ padding: '6px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--color-border)', color: 'var(--color-text-2)', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                  + Calories & Macros
+                </button>
+                <button onClick={() => addWidget('readiness_score')} style={{ padding: '6px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--color-border)', color: 'var(--color-text-2)', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                  + Readiness Dial
+                </button>
+                <button onClick={() => addWidget('pr_trophy')} style={{ padding: '6px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--color-border)', color: 'var(--color-text-2)', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                  + PR Trophy Shelf
+                </button>
+                <button onClick={() => addWidget('hydration_quick')} style={{ padding: '6px 12px', borderRadius: 8, background: 'rgba(255,255,255,0.05)', border: '1px solid var(--color-border)', color: 'var(--color-text-2)', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                  + Hydration
+                </button>
+              </div>
             </div>
           )}
         </div>
 
-        {/* ── RIGHT COLUMN: Fixed Side Body Map + Inline AI Chat ── */}
+        {/* ── RIGHT COLUMN: Fixed Side Body Map ── */}
         <div style={{ position: 'sticky', top: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div className="right-card" style={{ padding: 18 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
@@ -226,7 +303,6 @@ export default function Dashboard() {
             </div>
             <BodyMapWidget />
           </div>
-          <InlineHpiChat />
         </div>
       </div>
 

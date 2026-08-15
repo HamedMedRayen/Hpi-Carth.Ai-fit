@@ -1,11 +1,18 @@
 import { WIDGET_REGISTRY, METRIC_LABELS } from '../../config/widgets'
-import { X, Check, ArrowLeft } from 'lucide-react'
+import { X, Check, ArrowLeft, Shield } from 'lucide-react'
 import React, { useEffect, useRef, useState } from 'react'
 import { api } from '../../utils/api'
+import { useAuth } from '../../utils/auth'
 import ExercisePicker from './../widgets/ExercisePicker'
 
 export default function AddWidgetModal({ page, widgets, hasWidget, onAdd, onClose }) {
-  const available = WIDGET_REGISTRY.filter(w => w.pages.includes(page))
+  const { user } = useAuth()
+  const isCoach = user?.role === 'coach' || user?.profile?.role === 'coach'
+  const available = WIDGET_REGISTRY.filter(w => {
+    if (!w.pages.includes(page)) return false
+    if (w.role === 'coach' && !isCoach) return false
+    return true
+  })
   const modalRef = useRef()
 
   // config flow state
@@ -99,10 +106,17 @@ export default function AddWidgetModal({ page, widgets, hasWidget, onAdd, onClos
                       border: '1px solid var(--border-card)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
-                      <w.Icon size={17} color="var(--text-muted)" />
+                      <w.Icon size={17} color={w.role === 'coach' ? 'var(--aura-accent)' : 'var(--text-muted)'} />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600, fontSize: 15, color: hasWidget(w.id) ? 'var(--text-muted)' : 'var(--text-primary)' }}>{w.label}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ fontWeight: 600, fontSize: 15, color: hasWidget(w.id) ? 'var(--text-muted)' : 'var(--text-primary)' }}>{w.label}</span>
+                        {w.role === 'coach' && (
+                          <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 4, background: 'rgba(139, 92, 246, 0.2)', color: 'var(--aura-accent)', textTransform: 'uppercase' }}>
+                            Coach
+                          </span>
+                        )}
+                      </div>
                       <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 2 }}>{w.subtitle}</div>
                     </div>
                     {hasWidget(w.id) ? (
