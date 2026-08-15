@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Brain, Send, Mic, MicOff } from "lucide-react";
+import { Brain, Send, Mic, MicOff, Paperclip } from "lucide-react";
 import { API_BASE_URL as API_URL } from "../../utils/config";
 import { getSyncItem } from "../../utils/storage";
 import { startListening, stopListening } from "../../utils/speechRecognition";
@@ -14,12 +14,13 @@ export default function InlineHpiChat() {
   const [messages, setMessages] = useState(() => getChatHistory());
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [uploadingReport, setUploadingReport] = useState(false);
   const [error, setError] = useState(null);
   const [listening, setListening] = useState(false);
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-  const recognitionRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     setMessages(getChatHistory());
@@ -76,6 +77,59 @@ export default function InlineHpiChat() {
     }
   }, [input, loading, messages]);
 
+  const handleReportUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    e.target.value = "";
+
+    const userNote = input.trim();
+    const userMsgContent = userNote
+      ? `📋 **Uploaded Medical / Lab Report:** \`${file.name}\`\n\n${userNote}`
+      : `📋 **Uploaded Medical / Lab Report:** \`${file.name}\``;
+
+    const userMsg = { role: "user", content: userMsgContent };
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
+    saveChatHistory(updatedMessages);
+
+    setInput("");
+    setLoading(true);
+    setUploadingReport(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      if (userNote) formData.append("user_notes", userNote);
+
+      const tokenVal = getSyncItem("aura_token");
+      const res = await fetch(`${API_URL}/chat/upload-report`, {
+        method: "POST",
+        headers: {
+          ...(tokenVal ? { "Authorization": `Bearer ${tokenVal}` } : {})
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || `HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      const assistantMsg = { role: "assistant", content: data.reply };
+      const finalMessages = [...updatedMessages, assistantMsg];
+      setMessages(finalMessages);
+      saveChatHistory(finalMessages);
+    } catch (err) {
+      setError(err.message || "Failed to analyze report.");
+    } finally {
+      setLoading(false);
+      setUploadingReport(false);
+    }
+  };
+
   const handleKeyDown = useCallback((e) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   }, [sendMessage]);
@@ -126,8 +180,8 @@ export default function InlineHpiChat() {
           <Brain size={18} />
         </div>
         <div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-text)' }}>Hpi AI Coach</div>
-          <div style={{ fontSize: 11, color: 'var(--color-text-3)', fontWeight: 500 }}>Always ready to help</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-text)' }}>Hpi AI Coach & Medical Expert</div>
+          <div style={{ fontSize: 11, color: 'var(--color-text-3)', fontWeight: 500 }}>Training, nutrition & lab report analysis</div>
         </div>
         <div style={{
           marginLeft: 'auto',
@@ -167,7 +221,7 @@ export default function InlineHpiChat() {
 
         {loading && (
           <div style={{
-            display: 'flex', alignItems: 'center', gap: 5,
+            display: 'flex', alignItems: 'center', gap: 6,
             padding: '12px 16px', alignSelf: 'flex-start',
             background: 'var(--color-surface-h)',
             border: '1px solid var(--color-border)',
@@ -180,6 +234,11 @@ export default function InlineHpiChat() {
                 animation: `hpi-dot-bounce 1.2s infinite ease-in-out ${i * 0.15}s`,
               }} />
             ))}
+            {uploadingReport && (
+              <span style={{ fontSize: 11.5, color: '#10b981', fontWeight: 500, marginLeft: 6 }}>
+                Analyzing medical report…
+              </span>
+            )}
           </div>
         )}
 
@@ -203,10 +262,38 @@ export default function InlineHpiChat() {
         borderTop: '1px solid var(--color-border)',
         flexShrink: 0,
       }}>
+        {/* Hidden File Input for PDF / Image Medical Reports */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf,image/png,image/jpeg,image/jpg,image/webp,application/pdf"
+          style={{ display: "none" }}
+          onChange={handleReportUpload}
+          disabled={loading}
+        />
+
+        {/* Medical / Lab Report Upload Button */}
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={loading}
+          title="Upload Medical / Laboratory Report (PDF, Image)"
+          style={{
+            width: 36, height: 36, borderRadius: 10,
+            border: '1px solid var(--color-border)',
+            background: 'transparent',
+            color: '#10b981',
+            cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'all 0.2s',
+          }}
+        >
+          <Paperclip size={16} />
+        </button>
+
         <input
           ref={inputRef}
           type="text"
-          placeholder="Ask Hpi anything…"
+          placeholder="Ask Hpi anything or attach a lab report…"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -251,3 +338,4 @@ export default function InlineHpiChat() {
     </div>
   );
 }
+
