@@ -60,10 +60,23 @@ An agentic, conversational AI fitness coach accessible on every view:
 - **Double-RAG Recommendation System**: A two-stage retrieval pipeline combining structured SQL-based filtering with semantic retrieval. The first stage filters relevant athlete data based on fitness goals, experience, demographics, and training context. The second stage uses BGE-M3 embeddings followed by a cross-encoder reranker to surface the most relevant recommendations before passing context to the LLM.
 - **Voice Dictation Mode**: Hands-free voice input integrated via the Web Speech API and native Capacitor speech recognition (`HpiChat.jsx`).
 - **Vapi Live Voice Calling**: Interactive real-time voice call modal (`VapiCallModal`) for conversational AI phone-style coaching sessions.
-- **Medical & Lab Report Analysis**: Upload a lab or medical report as an image or PDF directly in the Hpi chat, and the AI Coach interprets it — surfacing key values, flags, and context-aware training/nutrition guidance based on the report's contents. The pipeline behind it:
-  - **PDF Reader Engine** — `pypdf` (v6.16.1) via `pypdf.PdfReader` parses the PDF's internal Document Object Model directly, extracting text streams, font encodings, and multi-page layout structures. Because it reads the native digital text layer, extraction is deterministic and lossless — no OCR noise or misread numbers on digital PDFs. If a PDF is purely a scanned image with no embedded text layer, it's automatically routed through the OCR engine instead.
-  - **OCR Engine (Images & Scans)** — `EasyOCR` (v1.7.2), powered by PyTorch with GPU/CUDA acceleration (CPU fallback), runs two neural models in sequence: **CRAFT** (Character Region Awareness for Text Detection — a deep CNN with a VGG-16 backbone and U-Net-style skip connections) detects text boxes, tabular columns, and word boundaries across dense report layouts; **CRNN** (ResNet feature extraction + Bidirectional LSTM sequence modeling + CTC decoding) then transcribes the detected regions into alphanumeric characters, medical abbreviations, lab units (`mg/dL`, `ng/mL`, `µmol/L`, `U/L`, etc.), and clinical reference ranges.
-  - **Medical Analysis & Reasoning** — the extracted text is passed to Groq's `openai/gpt-oss-120b`, which performs clinical sports-medicine reasoning: cross-referencing biomarkers against standard physiological ranges, athletic recovery needs, and nutrition/training programming.
+- **Medical & Laboratory Report Analysis**: Upload a medical report, blood test, or laboratory panel (PDF or Image) directly in Hpi Chat for instant biomarker interpretation and athletic programming adjustments.
+  - 📄 **PDF Reader Engine**:
+    - **Library / Engine**: `pypdf` (v6.16.1) (`pypdf.PdfReader`)
+    - **Mechanism**: Directly parses the internal PDF Document Object Model (DOM) and extracts text streams, font encodings, and multi-page layout structures.
+    - **Benefit**: Because it reads the native digital text layer, extraction is 100% deterministic and lossless (zero OCR noise or misread numbers on digital PDFs). If a PDF is purely scanned (an image container with no embedded text layer), it automatically routes through the OCR engine.
+  - 🔬 **OCR Engine & Deep Learning Models (For Images & Scans)**:
+    - **Framework**: `EasyOCR` (v1.7.2) powered by PyTorch with GPU/CUDA hardware acceleration (CPU fallback).
+    - **Underlying Neural Network Models**:
+      1. **Text Detection Model — CRAFT (*Character Region Awareness for Text Detection*)**:
+         - *Architecture*: Deep CNN with a VGG-16 feature backbone and U-Net-style skip connections.
+         - *Role*: Accurately detects arbitrary text boxes, tabular columns, and word boundaries across dense laboratory and medical report layouts.
+      2. **Text Recognition Model — CRNN (*Convolutional Recurrent Neural Network*)**:
+         - *Architecture*: ResNet (feature extraction) + Bidirectional LSTM (BiLSTM) (sequence modeling) + CTC (*Connectionist Temporal Classification*) (decoder).
+         - *Role*: Transcribes detected text into alphanumeric characters, medical abbreviations, laboratory units (e.g., `mg/dL`, `ng/mL`, `µmol/L`, `U/L`), and clinical reference ranges.
+  - 🧠 **Medical Analysis & Reasoning**:
+    - **Model**: Groq LLM (`openai/gpt-oss-120b`)
+    - **Role**: Takes the extracted text payload and runs clinical sports medicine reasoning, cross-referencing biomarkers against standard physiological ranges, athletic recovery needs, and nutrition/training programming.
 - **Agentic Auto-Tracking**:
   > [!TIP]
   > Tell Hpi what you trained, ate, or drank in plain language (e.g., *"I did 3 sets of bench press at 80kg for 8 reps"* or *"I ate a chicken bowl with 600 kcal and drank 500ml water"*), and Hpi generates hidden action payload blocks. The backend intercepts and parses these blocks via regular expressions to **automatically log exercises, sets, foods, or hydration into the database on your behalf**!
