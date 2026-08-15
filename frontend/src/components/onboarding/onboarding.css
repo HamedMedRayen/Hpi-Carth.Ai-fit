@@ -13,7 +13,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   font-family: var(--font-sans, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
-  padding: 0 1rem;
+  padding: max(1.25rem, env(safe-area-inset-top)) 1rem max(1.5rem, env(safe-area-inset-bottom));
 }
 
 /* Ambient glow blobs */
