@@ -61,11 +61,11 @@ An agentic, conversational AI fitness coach accessible on every view:
 - **Voice Dictation Mode**: Hands-free voice input integrated via the Web Speech API and native Capacitor speech recognition (`HpiChat.jsx`).
 - **Vapi Live Voice Calling**: Interactive real-time voice call modal (`VapiCallModal`) for conversational AI phone-style coaching sessions.
 - **Medical & Laboratory Report Analysis**: Upload a medical report, blood test, or laboratory panel (PDF or Image) directly in Hpi Chat for instant biomarker interpretation and athletic programming adjustments.
-  - 📄 **PDF Reader Engine**:
+  - **PDF Reader Engine**:
     - **Library / Engine**: `pypdf` (v6.16.1) (`pypdf.PdfReader`)
     - **Mechanism**: Directly parses the internal PDF Document Object Model (DOM) and extracts text streams, font encodings, and multi-page layout structures.
     - **Benefit**: Because it reads the native digital text layer, extraction is 100% deterministic and lossless (zero OCR noise or misread numbers on digital PDFs). If a PDF is purely scanned (an image container with no embedded text layer), it automatically routes through the OCR engine.
-  - 🔬 **OCR Engine & Deep Learning Models (For Images & Scans)**:
+  - **OCR Engine & Deep Learning Models (For Images & Scans)**:
     - **Framework**: `EasyOCR` (v1.7.2) powered by PyTorch with GPU/CUDA hardware acceleration (CPU fallback).
     - **Underlying Neural Network Models**:
       1. **Text Detection Model — CRAFT (*Character Region Awareness for Text Detection*)**:
@@ -74,7 +74,7 @@ An agentic, conversational AI fitness coach accessible on every view:
       2. **Text Recognition Model — CRNN (*Convolutional Recurrent Neural Network*)**:
          - *Architecture*: ResNet (feature extraction) + Bidirectional LSTM (BiLSTM) (sequence modeling) + CTC (*Connectionist Temporal Classification*) (decoder).
          - *Role*: Transcribes detected text into alphanumeric characters, medical abbreviations, laboratory units (e.g., `mg/dL`, `ng/mL`, `µmol/L`, `U/L`), and clinical reference ranges.
-  - 🧠 **Medical Analysis & Reasoning**:
+  - **Medical Analysis & Reasoning**:
     - **Model**: Groq LLM (`openai/gpt-oss-120b`)
     - **Role**: Takes the extracted text payload and runs clinical sports medicine reasoning, cross-referencing biomarkers against standard physiological ranges, athletic recovery needs, and nutrition/training programming.
 - **Agentic Auto-Tracking**:
