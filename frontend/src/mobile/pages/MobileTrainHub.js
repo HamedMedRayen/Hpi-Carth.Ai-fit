@@ -48,6 +48,47 @@ export default function MobileTrainHub() {
         </div>
       </div>
 
+      {/* ── Community Events Banner ── */}
+      <div 
+        className="mobile-card" 
+        style={{ 
+          background: "linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%)", 
+          border: "1px solid rgba(139, 92, 246, 0.35)", 
+          display: "flex", 
+          alignItems: "center", 
+          justifyContent: "space-between",
+          cursor: "pointer", 
+          padding: "16px 18px",
+          marginBottom: 16
+        }}
+        onClick={() => navigate("/events")}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ 
+            width: 42, 
+            height: 42, 
+            borderRadius: 12, 
+            background: "linear-gradient(135deg, var(--aura-accent) 0%, #ec4899 100%)", 
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "center", 
+            color: "#fff",
+            boxShadow: "0 4px 12px rgba(139, 92, 246, 0.35)",
+            flexShrink: 0
+          }}>
+            <Trophy size={20} />
+          </div>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <h3 style={{ fontSize: 14, fontWeight: 800, color: "var(--text-primary)", margin: 0 }}>Community Events</h3>
+              <span style={{ fontSize: 9, fontWeight: 900, padding: "2px 6px", borderRadius: 6, background: "var(--aura-accent)", color: "#fff" }}>LIVE</span>
+            </div>
+            <span style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 500 }}>Live workshops, clinics & group sessions</span>
+          </div>
+        </div>
+        <ChevronRight size={18} color="var(--text-secondary)" />
+      </div>
+
       {/* ── Quick Hub Links (2x2 Grid) ── */}
       <div className="mobile-grid-2x2" style={{ marginBottom: 32 }}>
         <div className="mobile-grid-item" style={{ alignItems: "center", padding: "16px", cursor: "pointer" }} onClick={() => navigate("/coach")}>
