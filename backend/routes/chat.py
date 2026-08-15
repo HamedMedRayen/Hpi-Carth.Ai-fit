@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import List, Literal
 
 from dotenv import load_dotenv
-from fastapi import APIRouter, HTTPException, Depends, File, UploadFile
+from fastapi import APIRouter, HTTPException, Depends, File, UploadFile, Form
 from pydantic import BaseModel
 from database import get_db
 from routes.auth import get_current_user_id
@@ -72,7 +72,7 @@ Origin Story: Every serious athlete eventually hits the same wall: their trainin
 Name & Meaning: "Hpi" is short, sharp, and easy to say mid-set — deliberately un-corporate. It reads like a personal trainer's nickname, not a product name. The lowercase, glassmorphic "Hpi" logo mirrors the platform's own aesthetic: translucent, layered, always visible but never in the way.
 
 === WHAT HPI IS ===
-Hpi isn't a generic assistant wearing a fitness skin. It's an agentic system operator for one person's training life. It doesn't just answer questions about progressive overload or recovery — it acts. Tell it "I did 3×8 bench at 80kg" or "I ate a chicken rice bowl," and it silently generates an action block that the backend parses and executes: a set gets logged, a macro target gets nudged closer to complete, without the athlete ever touching a form. Hpi's competency isn't measured in conversational fluency — it's measured in how much friction it removes between doing the work and recording the work.
+Hpi isn't a generic assistant wearing a fitness skin. It's an agentic system operator for one person's training life. It doesn't just answer questions about progressive overload or recovery — it acts. Tell it "I did 3×8 bench at 80kg" or "I ate a chicken rice bowl," and it silently generates an action block that the backend parses and executes: a set gets logged, a macro target gets nudged closer to complete, without the athlete ever touching a form. Hpi's competency isn't measured in conversational fluency — it's measured in how much friction it removes between doing the work and recording the work. In addition to training and nutrition, Hpi is also an advanced medical, clinical sports physiology, and biomarker analysis expert capable of interpreting complex medical reports, laboratory blood panels, hormonal assays, and clinical health metrics.
 
 === PERSONALITY & VOICE ===
 Hpi's tone should mirror the platform's philosophy: precise, encouraging, and quietly technical. It's the training partner who knows your Epley 1RM without being asked, notices your sleep dipped before your volume did, and flags it — not as a lecture, but as a coach would, in passing, mid-conversation. It's confident in exercise science but never condescending. It celebrates PRs like a genuine win, not a notification. When giving advice, training tips, or nutritional plans, back them up with their source or logical basis so the athlete knows exactly why they should follow it.
@@ -85,6 +85,19 @@ Hpi is always present — a floating presence across every view of the platform,
 - Act — log workouts, meals, and hydration on the athlete's behalf, invisibly.
 - Correlate — connect sleep, nutrition, injury, and volume trends a human might miss.
 - Coach — offer real technique, programming, and recovery guidance grounded in the athlete's own historical data, not generic advice. Always provide the source or scientific rationale for any recommendation or coaching advice you give (e.g. citing peer-reviewed sports science research, standard guidelines like ACSM/NSCA, or referencing specific historical data/trends from the athlete's logs).
+- Analyze Medical & Lab Reports — decipher clinical biomarkers, blood work, metabolic panels, hormonal profiles, and medical pathology reports, translating laboratory data into actionable physiological insights for athletic performance, recovery, health optimization, and physician referral advice.
+
+=== MEDICAL EXPERTISE & LABORATORY REPORT ANALYSIS CAPABILITY ===
+Hpi is equipped with extensive clinical sports medicine, exercise physiology, endocrinology, hematology, and biochemistry expertise.
+When a user provides, uploads, or asks questions about a medical report, laboratory blood test, biomarker panel, pathology report, or clinical exam (via text, PDF, or image):
+1. Thoroughly parse and evaluate all biomarkers, laboratory units, reference intervals, and flagged out-of-range indicators (e.g., CBC/Hemoglobin/Hematocrit, Iron & Ferritin, Lipid Panels [HDL, LDL, Triglycerides, Total Cholesterol], Hormonal Profiles [Total & Free Testosterone, Estradiol, Cortisol, Thyroid TSH/fT3/fT4, DHEA-S, IGF-1], Metabolic/Organ Panels [Fasting Glucose, HbA1c, ALT, AST, Creatinine, eGFR, BUN, Bilirubin], Electrolytes [Sodium, Potassium, Magnesium, Calcium], Inflammatory Markers [hs-CRP, ESR], Micronutrients [Vitamin D, B12, Folate, Zinc], and Urinalysis).
+2. Deliver a structured, crystal-clear, and professional medical report analysis formatted in Markdown:
+   - **📋 Executive Health & Clinical Summary**: High-level synthesis of what the lab test indicates regarding the athlete's current physiological condition.
+   - **🔬 Biomarker Breakdown & Analysis**: Detailed breakdown of key tested parameters, highlighting abnormal or borderline metrics, explaining their physiological significance in plain, scientifically grounded language.
+   - **⚡ Impact on Athletic Performance, Energy & Recovery**: How the observed markers correlate with muscular fatigue, oxygen carrying capacity, anabolic/catabolic balance, recovery timelines, and injury susceptibility.
+   - **🥗 Targeted Nutritional & Lifestyle Recommendations**: Actionable, evidence-based recommendations for whole-food nutrition, micronutrient timing, hydration, sleep hygiene, and stress modulation.
+   - **🏋️‍♂️ Training Program Adaptations**: Prudent training adjustments (e.g. volume or intensity regulation, active recovery, cardiovascular pacing) aligned with the athlete's clinical status.
+   - **⚠️ Clinical Precautions & Physician Notice**: Highlight any severe or critical clinical abnormalities requiring immediate doctor attention. Always uphold ethical standards by noting that Hpi's analysis provides educational and physiological insights and that the athlete should consult their licensed physician for formal clinical diagnosis and prescriptions.
 
 === DATA TRACKING CAPABILITY ===
 If a user tells you what they did for a workout or what they ate, you MUST log it for them.
@@ -129,6 +142,10 @@ def should_trigger_rag(query: str) -> bool:
         return False
 
     q_lower = query.lower().strip()
+
+    # Skip RAG for direct uploaded report prompts (already contains raw biomarker context)
+    if query.startswith("[Athlete uploaded a medical"):
+        return False
 
     # 1. Skip RAG for clear data logging or tracking requests
     logging_keywords = [
@@ -659,3 +676,158 @@ async def transcribe_audio(
     except Exception as e:
         log.error(f"Error processing audio locally: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal error during audio processing.")
+
+
+# ── Medical & Laboratory Report Processing ─────────────────────
+_ocr_reader = None
+
+def get_ocr_reader():
+    """Lazy loader for EasyOCR reader instance."""
+    global _ocr_reader
+    if _ocr_reader is None:
+        try:
+            import easyocr
+            import torch
+            gpu = torch.cuda.is_available()
+            log.info(f"Initializing EasyOCR reader for medical reports (gpu={gpu})...")
+            _ocr_reader = easyocr.Reader(['en'], gpu=gpu)
+        except Exception as ex:
+            log.warning(f"Could not initialize EasyOCR reader: {ex}")
+            _ocr_reader = None
+    return _ocr_reader
+
+
+def extract_text_from_pdf(file_bytes: bytes) -> str:
+    """Extract clean text from PDF documents using pypdf."""
+    try:
+        import io
+        from pypdf import PdfReader
+        reader = PdfReader(io.BytesIO(file_bytes))
+        pages_text = []
+        for i, page in enumerate(reader.pages):
+            text = page.extract_text()
+            if text and text.strip():
+                pages_text.append(f"--- Page {i+1} ---\n{text.strip()}")
+        return "\n\n".join(pages_text).strip()
+    except Exception as e:
+        log.warning(f"Error reading PDF text with pypdf: {e}")
+        return ""
+
+
+def extract_text_from_image(file_bytes: bytes) -> str:
+    """Extract text from medical report images using EasyOCR."""
+    try:
+        reader = get_ocr_reader()
+        if not reader:
+            return ""
+        import io
+        from PIL import Image
+        import numpy as np
+        image = Image.open(io.BytesIO(file_bytes)).convert("RGB")
+        img_np = np.array(image)
+        results = reader.readtext(img_np)
+        lines = [res[1] for res in results if res and len(res) > 1 and res[1].strip()]
+        return "\n".join(lines).strip()
+    except Exception as e:
+        log.warning(f"Error running OCR on medical image: {e}")
+        return ""
+
+
+# ── POST /chat/upload-report ──────────────────────────────────
+@router.post("/chat/upload-report")
+async def upload_medical_report(
+    file: UploadFile = File(...),
+    user_notes: Optional[str] = Form(None),
+    user_id: int = Depends(get_current_user_id),
+    db = Depends(get_db)
+):
+    """
+    Accepts a PDF or Image (PNG/JPG/WEBP) medical report or laboratory test,
+    extracts biomarker and clinical data using PDF parsing / OCR,
+    and runs comprehensive Hpi Medical Expert Analysis.
+    """
+    api_key = os.getenv("GROQ_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="AI service is not configured on the server.")
+
+    filename = file.filename or "medical_report"
+    ext = filename.lower().split(".")[-1]
+    content_type = file.content_type or ""
+
+    file_bytes = await file.read()
+    if not file_bytes:
+        raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+
+    extracted_text = ""
+    file_kind = "Document"
+
+    if ext == "pdf" or "pdf" in content_type:
+        file_kind = "PDF Medical Report"
+        extracted_text = extract_text_from_pdf(file_bytes)
+        if not extracted_text:
+            log.info("PDF has no selectable text layer; falling back to image OCR if applicable...")
+            extracted_text = extract_text_from_image(file_bytes)
+    elif ext in ["png", "jpg", "jpeg", "webp", "bmp", "tiff"] or "image" in content_type:
+        file_kind = "Image Lab Report"
+        extracted_text = extract_text_from_image(file_bytes)
+    elif ext in ["txt", "csv", "json", "md"] or "text" in content_type:
+        file_kind = "Medical Document"
+        try:
+            extracted_text = file_bytes.decode("utf-8", errors="ignore")
+        except Exception:
+            extracted_text = ""
+    else:
+        extracted_text = extract_text_from_pdf(file_bytes)
+        if not extracted_text:
+            try:
+                extracted_text = file_bytes.decode("utf-8", errors="ignore")
+            except Exception:
+                extracted_text = extract_text_from_image(file_bytes)
+
+    if not extracted_text or len(extracted_text.strip()) < 5:
+        extracted_text = f"[Medical Report file: '{filename}' received. Automated text extraction returned minimal contents. Hpi will evaluate any noted values and provide standard biomarker analysis.]"
+
+    # Formulate medical report analysis prompt
+    report_prompt = f"""[Athlete uploaded a medical / laboratory report: "{filename}"]
+
+EXTRACTED MEDICAL & LABORATORY REPORT CONTENT:
+\"\"\"
+{extracted_text}
+\"\"\"
+"""
+    if user_notes and user_notes.strip():
+        report_prompt += f"\nAthlete's specific questions / notes:\n{user_notes.strip()}\n"
+
+    report_prompt += "\nPlease provide a comprehensive, structured clinical & physiological analysis of this report following your Medical Expert capabilities, detailing biomarker evaluations, athletic implications, nutrition, and training adjustments."
+
+    ctx = build_user_hpi_context(user_id=user_id, db=db, last_user_msg=report_prompt)
+
+    try:
+        from groq import Groq
+        client = Groq(api_key=api_key)
+
+        messages = [
+            {"role": "system", "content": ctx["system_prompt"]},
+            {"role": "user", "content": report_prompt}
+        ]
+
+        completion = client.chat.completions.create(
+            model=GROQ_CHAT_MODEL,
+            messages=messages,
+            temperature=0.4,
+        )
+
+        full_reply = completion.choices[0].message.content
+        reply_to_user, found_exercise, _ = execute_action_from_reply(full_reply, db, user_id, user_input=report_prompt)
+
+        return {
+            "reply": reply_to_user,
+            "exercise": found_exercise,
+            "file_name": filename,
+            "file_kind": file_kind,
+            "extracted_preview": extracted_text[:300]
+        }
+    except Exception as e:
+        log.error(f"Error analyzing medical report with Groq: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Medical report analysis error: {str(e)}")
+
