@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Download, FileText, Copy, Check } from "lucide-react";
-import { downloadFile, copyToClipboard, detectPlanTitle } from "../../utils/fileExport";
+import { Download, FileText, Copy, Check, Printer, FileDown } from "lucide-react";
+import { downloadFile, downloadPdf, copyToClipboard, detectPlanTitle } from "../../utils/fileExport";
 
 /**
  * Parses and renders Markdown text safely with syntax highlights,
- * tables, headers, and 1-click .md/.txt file downloads.
+ * tables, headers, and 1-click .md/.txt/.pdf file downloads.
  */
 export default function MarkdownMessage({ content, role = "assistant" }) {
   const [copied, setCopied] = useState(false);
@@ -78,6 +78,14 @@ export default function MarkdownMessage({ content, role = "assistant" }) {
                   title="Download as .txt file"
                 >
                   <FileText size={13} /> .txt
+                </button>
+                <button
+                  type="button"
+                  className="hpi-codeblock-btn"
+                  onClick={() => downloadPdf(codeText, planTitle)}
+                  title="Download / Print as .pdf file"
+                >
+                  <Printer size={13} /> .pdf
                 </button>
                 <button
                   type="button"
@@ -247,7 +255,7 @@ export default function MarkdownMessage({ content, role = "assistant" }) {
             title="Download formatted Markdown plan"
           >
             {downloadedType === "md" ? <Check size={12} /> : <Download size={12} />}
-            <span>{downloadedType === "md" ? "Downloaded .md" : ".md file"}</span>
+            <span>{downloadedType === "md" ? "Downloaded .md" : ".md"}</span>
           </button>
           <button
             type="button"
@@ -256,7 +264,16 @@ export default function MarkdownMessage({ content, role = "assistant" }) {
             title="Download plain text plan"
           >
             {downloadedType === "txt" ? <Check size={12} /> : <FileText size={12} />}
-            <span>{downloadedType === "txt" ? "Downloaded .txt" : ".txt file"}</span>
+            <span>{downloadedType === "txt" ? "Downloaded .txt" : ".txt"}</span>
+          </button>
+          <button
+            type="button"
+            className={`hpi-export-action-btn ${downloadedType === "pdf" ? "active" : ""}`}
+            onClick={() => handleDownload("pdf")}
+            title="Download or Print as styled PDF document"
+          >
+            {downloadedType === "pdf" ? <Check size={12} /> : <Printer size={12} />}
+            <span>{downloadedType === "pdf" ? "Opened .pdf" : ".pdf"}</span>
           </button>
           <button
             type="button"
