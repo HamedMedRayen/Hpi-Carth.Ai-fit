@@ -747,7 +747,8 @@ async def coach_onboarding(
         # Check if user is a coach
         cur.execute("SELECT role FROM users WHERE id = %s", (current_user_id,))
         usr = cur.fetchone()
-        if not usr or usr[0] != 'coach':
+        role = usr.get("role") if isinstance(usr, dict) else (usr[0] if usr else None)
+        if not usr or role != 'coach':
             raise HTTPException(status_code=400, detail="Only users with the 'coach' role can submit onboarding.")
 
         cur.execute("""
@@ -756,6 +757,12 @@ async def coach_onboarding(
                 approved = FALSE, coach_verified = FALSE, verification_status = 'pending', updated_at = NOW()
             WHERE id = %s
         """, (specialty, experience, age, sex, bio, cv_url, current_user_id))
+
+        import json
+        cur.execute("""
+            INSERT INTO coach_verifications (coach_id, status, document_urls, submitted_at)
+            VALUES (%s, 'pending', %s, NOW())
+        """, (current_user_id, json.dumps([cv_url])))
     
     db.commit()
     return {"success": True, "message": "Verification documents submitted successfully. Your profile is now under review."}

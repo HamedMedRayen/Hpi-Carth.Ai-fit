@@ -262,11 +262,15 @@ def create_app() -> FastAPI:
     from routes.events          import router as events_router
     from routes.onboarding     import router as onboarding_router
     from routes.video_call      import router as video_call_router
+    from routes.admin           import router as admin_router
+    from routes.reports         import router as reports_router
 
     API = settings.API_PREFIX
     app.include_router(auth_router,         prefix=API)
     app.include_router(onboarding_router,   prefix=API)
     app.include_router(video_call_router)
+    app.include_router(admin_router,        prefix=API)
+    app.include_router(reports_router,      prefix=API)
 
     app.include_router(users_router,        prefix=API)
     app.include_router(workouts_router,     prefix=API)

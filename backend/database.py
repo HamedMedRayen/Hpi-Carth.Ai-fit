@@ -76,6 +76,8 @@ CREATE TABLE IF NOT EXISTS users (
     hypertension TEXT    DEFAULT 'No',
     diabetes     TEXT    DEFAULT 'No',
     role         TEXT    DEFAULT 'athlete',
+    is_suspended BOOLEAN DEFAULT FALSE,
+    suspension_reason TEXT,
     created_at   TIMESTAMPTZ DEFAULT NOW(),
     updated_at   TIMESTAMPTZ DEFAULT NOW(),
     avatar_url   TEXT,
@@ -85,6 +87,53 @@ CREATE TABLE IF NOT EXISTS users (
     verification_status TEXT DEFAULT 'unsubmitted',
     rejection_reason TEXT
 );
+
+-- ── Coach Verifications ─────────────────────────────────────
+CREATE TABLE IF NOT EXISTS coach_verifications (
+    id               BIGSERIAL PRIMARY KEY,
+    coach_id         BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status           TEXT DEFAULT 'pending',
+    document_urls    JSONB DEFAULT '[]'::jsonb,
+    submitted_at     TIMESTAMPTZ DEFAULT NOW(),
+    reviewed_at      TIMESTAMPTZ,
+    reviewed_by      BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    rejection_reason TEXT
+);
+
+-- ── Admin Actions Audit Log ─────────────────────────────────
+CREATE TABLE IF NOT EXISTS admin_actions (
+    id           BIGSERIAL PRIMARY KEY,
+    admin_id     BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    action_type  TEXT NOT NULL,
+    target_type  TEXT NOT NULL,
+    target_id    BIGINT,
+    reason       TEXT,
+    created_at   TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ── User Reports (Coach & Bug Reports) ───────────────────────
+CREATE TABLE IF NOT EXISTS reports (
+    id             BIGSERIAL PRIMARY KEY,
+    reporter_id    BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    report_type    TEXT NOT NULL,
+    target_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    category       TEXT NOT NULL,
+    description    TEXT NOT NULL,
+    screenshot_url TEXT,
+    app_context    TEXT,
+    status         TEXT DEFAULT 'open',
+    created_at     TIMESTAMPTZ DEFAULT NOW(),
+    resolved_at    TIMESTAMPTZ,
+    resolved_by    BIGINT REFERENCES users(id) ON DELETE SET NULL,
+    admin_notes    TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_coach_verifications_status ON coach_verifications(status);
+CREATE INDEX IF NOT EXISTS idx_coach_verifications_coach ON coach_verifications(coach_id);
+CREATE INDEX IF NOT EXISTS idx_admin_actions_admin ON admin_actions(admin_id);
+CREATE INDEX IF NOT EXISTS idx_admin_actions_type ON admin_actions(action_type);
+CREATE INDEX IF NOT EXISTS idx_reports_type_status ON reports(report_type, status);
+CREATE INDEX IF NOT EXISTS idx_reports_reporter ON reports(reporter_id);
 
 -- ── Body parts ───────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS body_parts (
@@ -587,6 +636,93 @@ def seed_synthetic_coach_reviews(conn) -> None:
                     INSERT INTO coach_reviews (coach_id, user_name, user_avatar, rating, comment, created_at)
                     VALUES (%s, %s, %s, %s, %s, NOW() - INTERVAL '%s days')
                 """, (coach_id, name, avatar, rating, comment, days_ago))
+        conn.commit()
+
+
+def seed_synthetic_coach_verifications(conn) -> None:
+    """Seed coach_verifications records for synthetic coaches so they appear in Admin Coach Verification Queue."""
+    import json
+    with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute("SELECT COUNT(*) as count FROM coach_verifications")
+        if cur.fetchone()["count"] > 0:
+            return
+
+        cur.execute("SELECT id, name, email FROM users WHERE role = 'coach'")
+        coaches = cur.fetchall()
+        if not coaches:
+            return
+
+        sample_docs = [
+            ["https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=600&q=80", "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=600&q=80"],
+            ["https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=600&q=80"],
+            ["https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=600&q=80"]
+        ]
+
+        for idx, coach in enumerate(coaches):
+            coach_id = coach["id"]
+            if idx < 3:
+                status = "pending"
+                cur.execute(
+                    "UPDATE users SET coach_verified = FALSE, verification_status = 'pending', approved = FALSE WHERE id = %s",
+                    (coach_id,)
+                )
+                cur.execute(
+                    """
+                    INSERT INTO coach_verifications (coach_id, status, document_urls, submitted_at)
+                    VALUES (%s, %s, %s, NOW() - INTERVAL '%s days')
+                    """,
+                    (coach_id, status, json.dumps(sample_docs[idx % len(sample_docs)]), idx + 1)
+                )
+            else:
+                status = "approved"
+                cur.execute(
+                    "UPDATE users SET coach_verified = TRUE, verification_status = 'approved', approved = TRUE WHERE id = %s",
+                    (coach_id,)
+                )
+                cur.execute(
+                    """
+                    INSERT INTO coach_verifications (coach_id, status, document_urls, submitted_at, reviewed_at)
+                    VALUES (%s, %s, %s, NOW() - INTERVAL '%s days', NOW())
+                    """,
+                    (coach_id, status, json.dumps(sample_docs[idx % len(sample_docs)]), idx + 2)
+                )
+        conn.commit()
+
+
+def seed_synthetic_reports(conn) -> None:
+    """Seed sample coach and bug reports if empty."""
+    with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute("SELECT COUNT(*) as count FROM reports")
+        if cur.fetchone()["count"] > 0:
+            return
+
+        cur.execute("SELECT id FROM users WHERE role = 'athlete' LIMIT 2")
+        athletes = cur.fetchall()
+        cur.execute("SELECT id FROM users WHERE role = 'coach' LIMIT 2")
+        coaches = cur.fetchall()
+
+        if not athletes or not coaches:
+            return
+
+        reporter1 = athletes[0]["id"]
+        reporter2 = athletes[1]["id"] if len(athletes) > 1 else reporter1
+        target_coach = coaches[0]["id"]
+
+        cur.execute(
+            """
+            INSERT INTO reports (reporter_id, report_type, target_user_id, category, description, status, created_at)
+            VALUES (%s, 'coach', %s, 'Unresponsive', 'Coach did not provide weekly check-in feedback or workout plan updates for 2 consecutive weeks.', 'open', NOW() - INTERVAL '2 days')
+            """,
+            (reporter1, target_coach)
+        )
+
+        cur.execute(
+            """
+            INSERT INTO reports (reporter_id, report_type, category, description, app_context, status, created_at)
+            VALUES (%s, 'bug', 'UI issue', 'Macro progress ring layout overflows slightly on smaller mobile viewport widths.', '/nutrition', 'open', NOW() - INTERVAL '1 day')
+            """,
+            (reporter2,)
+        )
         conn.commit()
 
 
@@ -1144,13 +1280,73 @@ def _do_init_db() -> None:
                 cur.execute("ALTER TABLE events ADD COLUMN IF NOT EXISTS target_audience TEXT DEFAULT 'public'")
                 cur.execute("ALTER TABLE coach_notes ALTER COLUMN session_id DROP NOT NULL")
 
+                # --- ADMIN & REPORTING MODULE MIGRATIONS ---
+                cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS role TEXT DEFAULT 'athlete'")
+                cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_suspended BOOLEAN DEFAULT FALSE")
+                cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS suspension_reason TEXT")
+                cur.execute("UPDATE users SET onboarding_completed = TRUE WHERE role = 'admin'")
+
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS coach_verifications (
+                        id               BIGSERIAL PRIMARY KEY,
+                        coach_id         BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                        status           TEXT DEFAULT 'pending',
+                        document_urls    JSONB DEFAULT '[]'::jsonb,
+                        submitted_at     TIMESTAMPTZ DEFAULT NOW(),
+                        reviewed_at      TIMESTAMPTZ,
+                        reviewed_by      BIGINT REFERENCES users(id) ON DELETE SET NULL,
+                        rejection_reason TEXT
+                    )
+                """)
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_coach_verifications_status ON coach_verifications(status)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_coach_verifications_coach ON coach_verifications(coach_id)")
+
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS admin_actions (
+                        id           BIGSERIAL PRIMARY KEY,
+                        admin_id     BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                        action_type  TEXT NOT NULL,
+                        target_type  TEXT NOT NULL,
+                        target_id    BIGINT,
+                        reason       TEXT,
+                        created_at   TIMESTAMPTZ DEFAULT NOW()
+                    )
+                """)
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_admin_actions_admin ON admin_actions(admin_id)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_admin_actions_type ON admin_actions(action_type)")
+
+                cur.execute("""
+                    CREATE TABLE IF NOT EXISTS reports (
+                        id             BIGSERIAL PRIMARY KEY,
+                        reporter_id    BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                        report_type    TEXT NOT NULL,
+                        target_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,
+                        category       TEXT NOT NULL,
+                        description    TEXT NOT NULL,
+                        screenshot_url TEXT,
+                        app_context    TEXT,
+                        status         TEXT DEFAULT 'open',
+                        created_at     TIMESTAMPTZ DEFAULT NOW(),
+                        resolved_at    TIMESTAMPTZ,
+                        resolved_by    BIGINT REFERENCES users(id) ON DELETE SET NULL,
+                        admin_notes    TEXT
+                    )
+                """)
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_reports_type_status ON reports(report_type, status)")
+                cur.execute("CREATE INDEX IF NOT EXISTS idx_reports_reporter ON reports(reporter_id)")
+
                 conn.commit()
 
                 # Seed synthetic reviews if empty
                 seed_synthetic_coach_reviews(conn)
                 seed_synthetic_fares2024(conn)
+                seed_synthetic_coach_verifications(conn)
+                seed_synthetic_reports(conn)
 
-                print("[DB] Migration: all exercise, auth, chat, and coach review columns added/verified.", flush=True)
+                # Seed default admin user if missing
+                seed_default_admin(conn)
+
+                print("[DB] Migration: all exercise, auth, chat, coach review, and admin/report columns added/verified.", flush=True)
             except Exception as e:
                 conn.rollback()
                 import traceback
@@ -1191,3 +1387,39 @@ def _do_init_db() -> None:
         raise
     finally:
         conn.close()
+
+
+def seed_default_admin(conn):
+    """Seed default admin account if no user with role = 'admin' exists in DB."""
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute("SELECT id FROM users WHERE role = 'admin'")
+            admin_user = cur.fetchone()
+            if not admin_user:
+                from services.auth_service import hash_password
+                nickname = "admin"
+                email = "admin@hpi.local"
+                password = "admin"
+                pw_hash = hash_password(password)
+
+                cur.execute("SELECT id FROM auth_users WHERE nickname = %s OR email = %s", (nickname, email))
+                existing_auth = cur.fetchone()
+                if existing_auth:
+                    auth_id = existing_auth["id"]
+                else:
+                    cur.execute(
+                        "INSERT INTO auth_users (nickname, email, password_hash, provider) VALUES (%s, %s, %s, 'local') RETURNING id",
+                        (nickname, email, pw_hash)
+                    )
+                    auth_id = cur.fetchone()["id"]
+
+                cur.execute(
+                    "INSERT INTO users (auth_id, name, email, role, onboarding_completed) VALUES (%s, %s, %s, 'admin', TRUE)",
+                    (auth_id, nickname, email)
+                )
+                conn.commit()
+                print("⚠️  Default admin account (admin/admin) is active — change this password before deploying to production.", flush=True)
+    except Exception as e:
+        conn.rollback()
+        print(f"[DB] Default admin seed warning: {e}", flush=True)
+
