@@ -379,8 +379,9 @@ def generate_athlete_ai_report(
     try:
         from groq import Groq
         client = Groq(api_key=api_key)
+        model_name = os.getenv("GROQ_CHAT_MODEL", "openai/gpt-oss-120b")
         completion = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model=model_name,
             messages=[
                 {
                     "role": "system", 

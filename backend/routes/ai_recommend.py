@@ -296,8 +296,9 @@ async def ai_recommend(
         from groq import Groq
         client = Groq(api_key=api_key)
         system_prompt = payload.system if payload.system else COACH_BACKSTORY
+        model_name = os.getenv("GROQ_CHAT_MODEL", "openai/gpt-oss-120b")
         completion = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model=model_name,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt},

@@ -3,6 +3,7 @@ HPI — /api/admin routes
 Protected by require_admin dependency.
 """
 
+import os
 from typing import Optional, Dict, Any, List
 import json
 import psycopg2.extras
@@ -121,8 +122,9 @@ def generate_coach_ai_review(
         }}
         """
 
+        model_name = os.getenv("GROQ_CHAT_MODEL", "openai/gpt-oss-120b")
         completion = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model=model_name,
             messages=[
                 {"role": "system", "content": "You are HPI Fitness Senior Coaching Administrator and Credential Compliance Auditor. Respond ONLY with valid JSON."},
                 {"role": "user", "content": prompt}
