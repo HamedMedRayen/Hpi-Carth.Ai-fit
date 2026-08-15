@@ -4,6 +4,7 @@ import { API_BASE_URL as API_URL } from "../../utils/config";
 import { getSyncItem } from "../../utils/storage";
 import { startListening, stopListening } from "../../utils/speechRecognition";
 import { getChatHistory, saveChatHistory, subscribeChatHistory } from "../../utils/chatStorage";
+import MarkdownMessage from "../common/MarkdownMessage";
 
 /**
  * Inline version of HpiChat that renders as a card inside the dashboard,
@@ -160,7 +161,7 @@ export default function InlineHpiChat() {
             color: 'var(--color-text)',
             animation: 'hpi-msg-in 0.25s ease',
           }}>
-            <div dangerouslySetInnerHTML={{ __html: msg.content }} />
+            <MarkdownMessage content={msg.content} role={msg.role} />
           </div>
         ))}
 

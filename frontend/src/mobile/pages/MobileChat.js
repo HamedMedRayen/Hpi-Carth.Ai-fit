@@ -7,6 +7,7 @@ import { API_BASE_URL } from "../../utils/config";
 import { getSyncItem } from "../../utils/storage";
 import { startListening, stopListening } from "../../utils/speechRecognition";
 import { getChatHistory, saveChatHistory, subscribeChatHistory } from "../../utils/chatStorage";
+import MarkdownMessage from "../../components/common/MarkdownMessage";
 
 export default function MobileChat() {
   const navigate = useNavigate();
@@ -131,17 +132,18 @@ export default function MobileChat() {
         {messages.map(m => (
           <div key={m.id} style={{ alignSelf: m.role === "user" ? "flex-end" : "flex-start", maxWidth: "85%" }}>
             <div style={{
-              background: m.role === "user" ? "var(--aura-cyan)" : "rgba(255,255,255,0.05)",
-              color: m.role === "user" ? "#000" : "#fff",
+              maxWidth: "85%",
               padding: "12px 16px",
-              borderRadius: 20,
-              borderBottomRightRadius: m.role === "user" ? 4 : 20,
-              borderBottomLeftRadius: m.role === "assistant" ? 4 : 20,
-              fontSize: 15,
-              lineHeight: 1.4,
+              borderRadius: 18,
+              borderBottomRightRadius: m.role === "user" ? 4 : 18,
+              borderBottomLeftRadius: m.role === "assistant" ? 4 : 18,
+              background: m.role === "user" ? "var(--aura-cyan)" : "var(--color-surface-h)",
+              color: m.role === "user" ? "#000" : "var(--color-text)",
+              fontSize: 14.5,
+              lineHeight: 1.45,
               border: m.role === "assistant" ? "1px solid rgba(255,255,255,0.1)" : "none"
             }}>
-              {m.content}
+              <MarkdownMessage content={m.content} role={m.role} />
             </div>
           </div>
         ))}
