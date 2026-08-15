@@ -35,7 +35,7 @@
 
 ---
 
-**Hpi** is a premium, cross-platform fitness application (Web, Android, and iOS) built for athletes, coaches, and data-driven training enthusiasts. It goes far beyond standard workout logging — combining AI-generated training plans, progressive overload analytics, interactive anatomical visualizations, physical injury mapping, smart nutrition tracking with Gemini Vision AI meal scanning, sleep-to-volume correlation, progress photo galleries, subjective fatigue scoring, seasonal challenges, and a dedicated coach-to-athlete portal into a single, beautiful glassmorphism-styled platform accessible on any device.
+**Hpi** is a premium, cross-platform fitness application (Web, Android, and iOS) built for athletes, coaches, and data-driven training enthusiasts. It goes far beyond standard workout logging — combining AI-generated training plans, progressive overload analytics, interactive anatomical visualizations, physical injury mapping, smart nutrition tracking with Qwen 3.6B Vision AI meal scanning, sleep-to-volume correlation, progress photo galleries, subjective fatigue scoring, seasonal challenges, and a dedicated coach-to-athlete portal into a single, beautiful glassmorphism-styled platform accessible on any device.
 
 ---
 
@@ -55,7 +55,7 @@ A glassmorphism-styled analytics hub providing a complete view of your training 
 
 ### 2. Multi-Modal AI Coach — "Hpi"
 An agentic, conversational AI fitness coach accessible on every view:
-* **Natural Language Queries**: Powered by Groq (Llama-3.3-70b-versatile) for intelligent training advice, form tips, and customized guidance.
+* **Natural Language Queries**: Powered by Groq (`openai/gpt-oss-120b`) for intelligent training advice, form tips, and customized guidance.
 * **Voice Dictation Mode**: Hands-free voice input integrated via Web Speech API and native Capacitor speech recognition (`HpiChat.jsx`).
 * **Vapi Live Voice Calling**: Interactive real-time voice call modal (`VapiCallModal`) for conversational AI phone-style coaching sessions.
 * **Agentic Auto-Tracking**: 
@@ -67,7 +67,7 @@ An agentic, conversational AI fitness coach accessible on every view:
 ### 3. Smart Nutrition Hub & AI Vision Scanner
 Fuel your performance with a next-generation calorie and macronutrient manager:
 * **Macro Targets & Circular Progress**: Real-time tracking of Calories, Protein, Carbs, Fats, and Water Hydration against customizable target rings (`MacroRing`).
-* **Gemini 2.5 Vision & Groq AI Meal Scanner**: Capture or upload meal photos directly from your camera or gallery (`MealScanModal`). The AI vision engine analyzes the image, identifies food items, estimates portion sizes, calculates macros/calories, and logs the meal instantly.
+* **Qwen 3.6B Vision & Groq AI Meal Scanner**: Capture or upload meal photos directly from your camera or gallery (`MealScanModal`). The AI vision engine analyzes the image, identifies food items, estimates portion sizes, calculates macros/calories via `openai/gpt-oss-120b`, and logs the meal instantly.
 * **Fuzzy & Full-Text Food Search**: High-speed hybrid PostgreSQL `pg_trgm` fuzzy matching over thousands of food items with recency ranking (`FoodSearchModal`).
 * **Scientific BMR/TDEE Calculator**: Calculates precise macro goals based on age, height, weight, activity levels, and training goals (Bulk, Cut, or Maintain) (`NutritionCalculator`).
 * **Speed Log Utilities**: Quick Add calories/macros, Custom Recipe Builder, Custom Food Registry, and 1-click "Copy Meals from Yesterday".
@@ -194,8 +194,8 @@ Hpi provides a full native mobile application built with Capacitor:
 | Python 3.10+ | Core application language |
 | FastAPI | High-performance ASGI web framework with Pydantic typing, async lifespan hooks, and auto-generated Swagger/ReDoc docs |
 | Uvicorn | High-speed ASGI server |
-| Groq SDK | Llama-3.3-70b-versatile for the Hpi AI Agent, unified workout generator, and RAG SQL generation; Llama-3.1-8b-instant for fast question classification |
-| Gemini 2.5 Vision | AI Vision multi-modal API for photo-based meal scanner |
+| Groq SDK | `openai/gpt-oss-120b` for the Hpi AI Agent, unified workout generator, macro calculation refinement, and RAG SQL generation; `llama-3.1-8b-instant` for fast question classification |
+| Qwen 3.6B Vision | Multi-modal perception API via Groq (`qwen/qwen3.6-27b`) for photo-based meal scanning |
 | Qdrant Client | Vector database powering similarity search over indexed member/recommendation datasets |
 | Sentence-Transformers / PyTorch / Transformers | Local embedding generation (`bge-large-en-v1.5`), cross-encoder reranking (`bge-reranker-v2-m3`), and local ASR speech-to-text |
 | DuckDB | Embedded analytical SQL engine for fast in-memory filtering during RAG query execution |
@@ -276,8 +276,7 @@ Hpi/
 * Python 3.10+
 * Node.js 18+
 * A PostgreSQL instance ([Supabase free tier](https://supabase.com/) recommended)
-* A Groq API Key (for Hpi AI Assistant)
-* A Gemini API Key (for AI Vision Meal Scanner)
+* A Groq API Key (for Hpi AI Assistant, Vision Meal Scanner, and RAG inference)
 
 ### 1. Clone the Repository
 ```bash
@@ -290,7 +289,8 @@ Create a `.env` file inside the `backend/` directory:
 ```env
 DATABASE_URL=postgresql://user:password@host:port/dbname
 GROQ_API_KEY=gsk_your_groq_api_key_here
-GEMINI_API_KEY=your_gemini_api_key_here
+GROQ_CHAT_MODEL=openai/gpt-oss-120b
+GROQ_VISION_MODEL=qwen/qwen3.6-27b
 ```
 
 ### 3. Set Up the Backend

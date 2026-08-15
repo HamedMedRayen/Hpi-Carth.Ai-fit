@@ -17,7 +17,7 @@ The application serves three core audiences:
 - **Uvicorn (v0.30+)**: Lightning-fast ASGI server implementation for running FastAPI in development and production.
 - **Psycopg2-binary**: PostgreSQL database adapter for Python, connecting FastAPI to Supabase hosted PostgreSQL. Uses `RealDictCursor` for dict-like row parsing and `ThreadedConnectionPool` for connection pooling.
 - **Supabase (PostgreSQL 15+)**: Cloud relational database hosting application state, user profiles, workouts, sets, metrics, food items, chat logs, coach relationships, and community events.
-- **Groq SDK (v0.9+)**: High-speed AI inference provider powering the HPI AI Agent (Llama 3.3 70B Versatile), unified AI workout generator, SQL generator for RAG, and question classification (Llama 3.1 8B Instant).
+- **Groq SDK (v0.9+)**: High-speed AI inference provider powering the HPI AI Agent (`openai/gpt-oss-120b`), unified AI workout generator, SQL generator for RAG, vision meal perception (`qwen/qwen3.6-27b`), and question classification (`llama-3.1-8b-instant`).
 - **Qdrant Client (v1.10+)**: Vector database client powering vector similarity search across indexed gym recommendation datasets.
 - **Sentence-Transformers / PyTorch / Transformers**: Local embedding generation (`BAAI/bge-large-en-v1.5`), cross-encoder reranking (`BAAI/bge-reranker-v2-m3`), and local ASR speech-to-text (`TuniSpeech-AI/whisper-tunisian-dialect`).
 - **DuckDB (v1.0+)**: Embedded analytical SQL database engine used to run fast, in-memory SQL filtering over Pandas DataFrames loaded from Excel/CSV files during RAG query execution.
@@ -345,7 +345,7 @@ Hpi/
 - `question_classifier.classify_question(question: str) -> QuestionType`
   - *Summary*: Stage 1B: Classifies user query into one of 6 categories via Groq (`llama-3.1-8b-instant`).
 - `sql_generator.generate_sql(question, schema_context, question_type) -> str`
-  - *Summary*: Stage 1C: Generates read-only DuckDB SQL query using Groq (`llama-3.3-70b-versatile`).
+  - *Summary*: Stage 1C: Generates read-only DuckDB SQL query using Groq (`openai/gpt-oss-120b`).
 - `sql_executor.execute_sql(query: str) -> pd.DataFrame`
   - *Summary*: Stage 1D: Executes generated SQL against DuckDB DataFrame and returns matching rows.
 - `sql_executor.get_candidate_ids(df: pd.DataFrame) -> List[int]`
@@ -493,7 +493,7 @@ HPI uses a clean **Layered Architecture** combining the **Repository Pattern (Da
 1. **User Request**: User sends message to `POST /api/chat`: *"Logged 4 sets of squat at 120kg for 6 reps"*.
 2. **Authentication**: `get_current_user_id` dependency decodes JWT bearer token and extracts `user_id`.
 3. **Context Enrichment**: `chat()` router queries `users` table for athlete profile and 27-question onboarding responses.
-4. **LLM Execution**: System prompt + athlete context sent to Groq (`llama-3.3-70b-versatile`). LLM generates response text + appended hidden action block `[ACTION: {"type": "log_workout", "data": ...}]`.
+4. **LLM Execution**: System prompt + athlete context sent to Groq (`openai/gpt-oss-120b`). LLM generates response text + appended hidden action block `[ACTION: {"type": "log_workout", "data": ...}]`.
 5. **Action Parsing**: Router detects action block, extracts JSON, and invokes `WorkoutCreate` model.
 6. **Persistence**: `WorkoutRepository.create()` inserts workout row, `WorkoutRepository.insert_set()` inserts 4 set rows, and `ingestion_service.aggregate_session()` calculates session volume, INOL, and Epley 1RM.
 7. **Response**: FastAPI returns `ChatResponse(reply="Great work! I've logged 4 sets of Squat at 120kg (total volume: 2,880kg).")`.
