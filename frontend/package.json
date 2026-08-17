@@ -26,6 +26,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "dev": "react-scripts start",
     "build": "react-scripts build",
     "cap:build": "npm run build && npx cap sync",
     "cap:sync": "npx cap sync",

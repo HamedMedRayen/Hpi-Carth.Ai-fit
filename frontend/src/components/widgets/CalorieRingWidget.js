@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Flame, Utensils, ArrowUpRight } from "lucide-react";
 import { api } from "../../utils/api";
+import { getItem } from "../../utils/storage";
 
 export default function CalorieRingWidget() {
   const navigate = useNavigate();
@@ -12,25 +13,59 @@ export default function CalorieRingWidget() {
   useEffect(() => {
     let isMounted = true;
     Promise.all([
+      getItem("aura_macro_targets").catch(() => null),
       api.getLatestNutritionTargets().catch(() => null),
       api.getNutritionToday().catch(() => null),
-    ]).then(([tgtRes, todayRes]) => {
+    ]).then(([savedTargetsStr, tgtRes, todayRes]) => {
       if (!isMounted) return;
-      if (tgtRes) {
-        setTargets({
-          calories: tgtRes.calories || 2000,
-          protein: tgtRes.protein_g || 150,
-          carbs: tgtRes.carbs_g || 220,
-          fat: tgtRes.fat_g || 65,
-        });
+
+      let finalCalories = 2000;
+      let finalProtein = 150;
+      let finalCarbs = 220;
+      let finalFat = 65;
+
+      if (savedTargetsStr) {
+        try {
+          const parsed = typeof savedTargetsStr === "string" ? JSON.parse(savedTargetsStr) : savedTargetsStr;
+          if (parsed && typeof parsed === "object") {
+            if (parsed.calories) finalCalories = Number(parsed.calories);
+            if (parsed.protein) finalProtein = Number(parsed.protein);
+            if (parsed.carbs) finalCarbs = Number(parsed.carbs);
+            if (parsed.fat) finalFat = Number(parsed.fat);
+          }
+        } catch (e) {
+          console.error("Failed to parse saved targets in widget", e);
+        }
+      } else if (tgtRes) {
+        finalCalories = tgtRes.final_calories || tgtRes.calories || tgtRes.suggested_calories || 2000;
+        finalProtein = tgtRes.final_protein || tgtRes.protein_g || tgtRes.protein || tgtRes.suggested_protein || 150;
+        finalCarbs = tgtRes.final_carbs || tgtRes.carbs_g || tgtRes.carbs || tgtRes.suggested_carbs || 220;
+        finalFat = tgtRes.final_fat || tgtRes.fat_g || tgtRes.fat || tgtRes.suggested_fat || 65;
       }
+
+      setTargets({
+        calories: Math.round(finalCalories),
+        protein: Math.round(finalProtein),
+        carbs: Math.round(finalCarbs),
+        fat: Math.round(finalFat),
+      });
+
       if (todayRes) {
-        const meals = todayRes.meals || todayRes.logs || [];
-        const totalKcal = Math.round(meals.reduce((sum, m) => sum + (m.calories || 0), 0));
-        const totalP = Math.round(meals.reduce((sum, m) => sum + (m.protein_g || 0), 0));
-        const totalC = Math.round(meals.reduce((sum, m) => sum + (m.carbs_g || 0), 0));
-        const totalF = Math.round(meals.reduce((sum, m) => sum + (m.fat_g || 0), 0));
-        setToday({ calories: totalKcal, protein: totalP, carbs: totalC, fat: totalF });
+        if (todayRes.totals) {
+          setToday({
+            calories: Math.round(todayRes.totals.calories || 0),
+            protein: Math.round(todayRes.totals.protein_g || 0),
+            carbs: Math.round(todayRes.totals.carbs_g || 0),
+            fat: Math.round(todayRes.totals.fat_g || 0),
+          });
+        } else {
+          const meals = todayRes.meals || todayRes.logs || [];
+          const totalKcal = Math.round(meals.reduce((sum, m) => sum + (m.calories || 0), 0));
+          const totalP = Math.round(meals.reduce((sum, m) => sum + (m.protein_g || 0), 0));
+          const totalC = Math.round(meals.reduce((sum, m) => sum + (m.carbs_g || 0), 0));
+          const totalF = Math.round(meals.reduce((sum, m) => sum + (m.fat_g || 0), 0));
+          setToday({ calories: totalKcal, protein: totalP, carbs: totalC, fat: totalF });
+        }
       }
       setLoading(false);
     });
