@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Droplets, Plus } from "lucide-react";
 import { api } from "../../utils/api";
+import { getItem } from "../../utils/storage";
 
 export default function HydrationWidget() {
   const [waterMl, setWaterMl] = useState(0);
@@ -12,10 +13,20 @@ export default function HydrationWidget() {
     Promise.all([
       api.getWaterToday().catch(() => null),
       api.getLatestNutritionTargets().catch(() => null),
-    ]).then(([waterRes, tgtRes]) => {
+      getItem("aura_macro_targets").catch(() => null),
+    ]).then(([waterRes, tgtRes, savedTargetsStr]) => {
       if (!isMounted) return;
       if (waterRes) {
         setWaterMl(waterRes.amount_ml || waterRes.total_ml || 0);
+      }
+      if (savedTargetsStr) {
+        try {
+          const parsed = typeof savedTargetsStr === "string" ? JSON.parse(savedTargetsStr) : savedTargetsStr;
+          if (parsed?.water) {
+            setTargetMl(Number(parsed.water));
+            return;
+          }
+        } catch (e) {}
       }
       if (tgtRes && (tgtRes.water_ml || tgtRes.water)) {
         setTargetMl(tgtRes.water_ml || tgtRes.water || 3000);

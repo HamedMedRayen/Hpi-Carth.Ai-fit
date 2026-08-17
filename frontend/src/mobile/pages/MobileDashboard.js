@@ -12,12 +12,15 @@ import {
   Camera, ArrowUpRight, Sparkles, Heart, Award, Shield,
   Droplets, Check, Play, Clock, Target, Layers
 } from "lucide-react";
+import { getItem, setItem } from "../../utils/storage";
 import "../styles/mobile.css";
 import MobileBottomSheet from "../components/MobileBottomSheet";
 
 // Quick synchronous cache helper to prevent any 2000 kcal flashing/lag
 const getCachedTargets = () => {
   try {
+    const aura = localStorage.getItem("aura_macro_targets");
+    if (aura) return JSON.parse(aura);
     const saved = localStorage.getItem("hpi_cached_nutrition_targets");
     if (saved) return JSON.parse(saved);
   } catch {}
@@ -62,12 +65,13 @@ export default function MobileDashboard() {
     const uid = user?.user_id || user?.id;
     try {
       // Parallel fetch for speed
-      const [statsRes, todayNut, targetsRes, waterRes, workoutsRes] = await Promise.all([
+      const [statsRes, todayNut, targetsRes, waterRes, workoutsRes, savedTargetsStr] = await Promise.all([
         api.getDashboardStats().catch(() => ({})),
         api.getNutritionToday().catch(() => null),
         api.getLatestNutritionTargets().catch(() => null),
         api.getWaterToday().catch(() => null),
-        api.getWorkouts?.(5).catch(() => null)
+        api.getWorkouts?.(5).catch(() => null),
+        getItem("aura_macro_targets").catch(() => null)
       ]);
 
       setStats(statsRes || {});
@@ -76,17 +80,37 @@ export default function MobileDashboard() {
         api.getDashboardAnalytics(uid).then(setDashboardData).catch(() => {});
       }
 
-      if (targetsRes) {
-        const nextTargets = {
-          calories: targetsRes.calories || 2000,
-          protein: targetsRes.protein_g || 150,
-          carbs: targetsRes.carbs_g || 220,
-          fat: targetsRes.fat_g || 65,
+      let foundTargets = null;
+      if (savedTargetsStr) {
+        try {
+          const parsed = typeof savedTargetsStr === "string" ? JSON.parse(savedTargetsStr) : savedTargetsStr;
+          if (parsed && (parsed.calories || parsed.protein)) {
+            foundTargets = {
+              calories: Number(parsed.calories) || 2000,
+              protein: Number(parsed.protein) || 150,
+              carbs: Number(parsed.carbs) || 220,
+              fat: Number(parsed.fat) || 65,
+              water: Number(parsed.water) || 3000
+            };
+          }
+        } catch (e) {}
+      }
+
+      if (!foundTargets && targetsRes) {
+        foundTargets = {
+          calories: targetsRes.final_calories || targetsRes.calories || targetsRes.suggested_calories || 2000,
+          protein: targetsRes.final_protein || targetsRes.protein_g || targetsRes.protein || targetsRes.suggested_protein || 150,
+          carbs: targetsRes.final_carbs || targetsRes.carbs_g || targetsRes.carbs || targetsRes.suggested_carbs || 220,
+          fat: targetsRes.final_fat || targetsRes.fat_g || targetsRes.fat || targetsRes.suggested_fat || 65,
           water: targetsRes.water_ml || targetsRes.water || 3000
         };
-        setNutritionTargets(nextTargets);
+      }
+
+      if (foundTargets) {
+        setNutritionTargets(foundTargets);
         try {
-          localStorage.setItem("hpi_cached_nutrition_targets", JSON.stringify(nextTargets));
+          localStorage.setItem("hpi_cached_nutrition_targets", JSON.stringify(foundTargets));
+          localStorage.setItem("aura_macro_targets", JSON.stringify(foundTargets));
         } catch {}
       }
 

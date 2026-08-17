@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { api } from "../../utils/api";
 import { useToast } from "../common/Toast";
+import { setItem } from "../../utils/storage";
 
 export default function NutritionCalculator({ onSaveSuccess }) {
   const [loading, setLoading] = useState(false);
@@ -129,6 +130,7 @@ export default function NutritionCalculator({ onSaveSuccess }) {
       };
 
       await api.saveNutritionTargets(payload);
+      await setItem("aura_macro_targets", JSON.stringify(payload.final));
       
       if (onSaveSuccess) onSaveSuccess();
       toast.success("Targets applied and saved successfully!");
