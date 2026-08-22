@@ -30,6 +30,7 @@ import HpiChat from "./components/HpiChat/HpiChat";
 import IncomingCallListener from "./components/video/IncomingCallListener";
 
 // ── Lazy-loaded pages — code-split for faster initial load ──
+const LandingPage = React.lazy(() => import("./pages/LandingPage"));
 const AuthPage = React.lazy(() => import("./pages/AuthPage"));
 const OnboardingFlow = React.lazy(() => import("./components/onboarding/OnboardingFlow"));
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
@@ -60,7 +61,7 @@ function PageLoader() {
 function RequireAuth({ children }) {
   const { user } = useAuth();
   const location = useLocation();
-  if (!user) return <Navigate to="/auth" replace />;
+  if (!user) return <Navigate to="/" replace />;
 
   const isAdmin = user.role === "admin" || user.profile?.role === "admin";
   const isCompleted = user.onboarding_completed === true || user.profile?.onboarding_completed === true || isAdmin;
@@ -82,14 +83,17 @@ function AppShell() {
   const location = useLocation();
   const isAuth = location.pathname === "/auth";
   const isOnboarding = location.pathname === "/onboarding";
+  const isLanding = location.pathname === "/landing" || (!user && location.pathname === "/");
 
-  if (!user || isAuth) {
+  if (!user || isAuth || isLanding) {
     return (
       <PageWrap>
         <Suspense fallback={<PageLoader />}>
           <Routes>
+            <Route path="/" element={user ? <RequireAuth><Dashboard /></RequireAuth> : <LandingPage />} />
+            <Route path="/landing" element={<LandingPage />} />
             <Route path="/auth" element={<AuthPage />} />
-            <Route path="*" element={<Navigate to="/auth" replace />} />
+            <Route path="*" element={<Navigate to={user ? "/" : "/"} replace />} />
           </Routes>
         </Suspense>
       </PageWrap>
@@ -115,7 +119,7 @@ function AppShell() {
 
   const { theme, previewTheme } = useTheme();
   const activeTheme = previewTheme || theme;
-  const isMainArchitecture = activeTheme === 'main' || activeTheme === 'dark';
+  const isMainArchitecture = activeTheme === 'main' || activeTheme === 'dark' || activeTheme === 'monochrome';
 
   return (
     <div className="app-shell">
@@ -149,7 +153,7 @@ function AppShell() {
             </ErrorBoundary>
           </Suspense>
         </PageWrap>
-        {activeTheme !== 'main' && <BottomNav />}
+        {!isMainArchitecture && <BottomNav />}
       </main>
     </div>
   );
@@ -218,7 +222,8 @@ export default function App() {
 
 function AppContent() {
   const location = useLocation();
-  const isAuth = location.pathname === "/auth";
+  const { user } = useAuth();
+  const isPublicPage = location.pathname === "/auth" || location.pathname === "/landing" || (!user && location.pathname === "/");
   const isNative = Capacitor.isNativePlatform();
 
   useEffect(() => {
@@ -240,8 +245,8 @@ function AppContent() {
       <Suspense fallback={<PageLoader />}>
         {isNative ? <MobileAppShell /> : <AppShell />}
       </Suspense>
-      {!isAuth && <HpiChat />}
-      {!isAuth && <IncomingCallListener />}
+      {!isPublicPage && <HpiChat />}
+      {!isPublicPage && <IncomingCallListener />}
 
       {!isNative && (
         <style>{`

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../utils/auth";
 import { HpiLogo } from "../utils/icons";
 import { getApiBaseUrl } from "../utils/config";
@@ -12,8 +12,13 @@ import GrowthBackground from "../components/backgrounds/GrowthBackground";
 
 export default function AuthPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, register, loginGoogle, requestOtp, verifyOtp } = useAuth();
-  const [mode,    setMode]    = useState("login");
+  
+  const queryParams = new URLSearchParams(location.search);
+  const initialMode = queryParams.get("mode") === "signup" || queryParams.get("mode") === "register" ? "register" : "login";
+  
+  const [mode,    setMode]    = useState(initialMode);
   const [useOtp,  setUseOtp]  = useState(false);
   const [nickname, setNickname] = useState("");
   const [email,   setEmail]   = useState("");

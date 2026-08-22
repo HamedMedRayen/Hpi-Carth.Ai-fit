@@ -50,6 +50,8 @@ const MAIN_SECTIONS = [
 
 export default function MainSidebar() {
   const { user, logout } = useAuth();
+  const { theme, previewTheme } = useTheme();
+  const activeTheme = previewTheme || theme;
   const navigate = useNavigate();
   const location = useLocation();
   const [stats, setStats] = useState({});
@@ -109,7 +111,9 @@ export default function MainSidebar() {
               WebkitFilter: "brightness(0) invert(1)",
             }}
           />
-          <span className="main-brand-pill">MAIN</span>
+          <span className="main-brand-pill">
+            {activeTheme === 'monochrome' ? 'MONO' : activeTheme === 'dark' ? 'DARK' : 'MAIN'}
+          </span>
         </div>
         <div className="main-brand-sub">Hyper Performance Indicator</div>
       </div>
@@ -232,8 +236,8 @@ export default function MainSidebar() {
           <LogOut size={16} />
         </button>
         <div className="main-engine-status">
-          <Sparkles size={12} color="#0ea5e9" />
-          <span>v2.5 Sky</span>
+          <Sparkles size={12} color={activeTheme === 'monochrome' ? '#ffffff' : '#0ea5e9'} />
+          <span>v2.5 {activeTheme === 'monochrome' ? 'Mono' : activeTheme === 'dark' ? 'Night' : 'Sky'}</span>
         </div>
       </div>
 

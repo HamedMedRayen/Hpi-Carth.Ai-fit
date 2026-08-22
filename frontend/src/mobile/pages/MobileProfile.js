@@ -17,7 +17,7 @@ import {
   ArrowLeft, Camera, User, Settings, Shield, Bell, ChevronRight,
   TrendingUp, Scale, Star, LogOut, Check, Calendar, Activity, CheckCircle,
   Moon, Sun, Sparkles, Users, Trophy, Target, Dumbbell, HeartPulse,
-  Apple, Compass, Edit3, Save, XCircle, Zap, ShieldAlert, AlertCircle
+  Apple, Compass, Edit3, Save, XCircle, Zap, ShieldAlert, AlertCircle, Contrast
 } from "lucide-react";
 
 import "../styles/mobile.css";
@@ -28,6 +28,7 @@ const AVAILABLE_THEMES = [
   { id: 'dark', Icon: Moon, label: 'Dark Aura', gradient: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', accent: '#00f2fe' },
   { id: 'light', Icon: Sun, label: 'Clean Light', gradient: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)', accent: '#2563eb' },
   { id: 'queen', Icon: Sparkles, label: 'Queen Rose', gradient: 'linear-gradient(135deg, #ec4899 0%, #a855f7 100%)', accent: '#ec4899' },
+  { id: 'monochrome', Icon: Contrast, label: 'Monochrome', gradient: 'linear-gradient(135deg, #18181b 0%, #09090b 100%)', accent: '#ffffff' },
 ];
 
 const FARES_SYNTHETIC_ANSWERS = {

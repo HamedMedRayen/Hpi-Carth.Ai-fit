@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useTheme } from "../../utils/theme";
 import OrbThemeSwitcher from "./OrbThemeSwitcher";
 import { SUB_NAV } from "./IdentityPanel";
 import {
@@ -47,6 +48,9 @@ const SEARCH_DATABASE = [
 ];
 
 export default function MainHeader() {
+  const { theme, previewTheme } = useTheme();
+  const activeTheme = previewTheme || theme;
+  const iconColor = activeTheme === 'monochrome' ? '#ffffff' : activeTheme === 'dark' ? '#38bdf8' : '#0ea5e9';
   const location = useLocation();
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
@@ -106,7 +110,7 @@ export default function MainHeader() {
     <header className="main-header-bar">
       <div className="main-header-left">
         <div className="main-header-title-box">
-          <Compass size={18} color="#0ea5e9" />
+          <Compass size={18} color={iconColor} />
           <span className="main-header-title">
             {activeSectionKey === "command"
               ? "Command Center"
@@ -142,7 +146,7 @@ export default function MainHeader() {
         {/* Interactive Search Bar & Autocomplete Dropdown */}
         <div className="main-search-wrapper" ref={searchContainerRef}>
           <div className="main-search-pill">
-            <Search size={14} color="#0ea5e9" style={{ flexShrink: 0 }} />
+            <Search size={14} color={iconColor} style={{ flexShrink: 0 }} />
             <input
               type="text"
               placeholder="Search sections & apps..."
@@ -194,7 +198,7 @@ export default function MainHeader() {
                           onClick={() => handleSelectResult(item.path)}
                         >
                           <div className="main-search-item-icon">
-                            <item.Icon size={16} color="#0ea5e9" />
+                            <item.Icon size={16} color={iconColor} />
                           </div>
                           <div className="main-search-item-info">
                             <div className="main-search-item-label">{item.label}</div>

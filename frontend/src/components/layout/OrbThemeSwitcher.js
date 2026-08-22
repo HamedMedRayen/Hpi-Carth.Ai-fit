@@ -22,7 +22,7 @@ const THEMES = [
   { id: 'nature', color: '#4A7C59', Icon: Leaf, label: 'Nature' },
   { id: 'fire', color: '#ff0000', Icon: Flame, label: 'Fire' },
   { id: 'queen', color: '#ff718b', Icon: RoseIcon, label: 'Queen' },
-  { id: 'monochrome', color: '#e2e8f0', Icon: Contrast, label: 'Mono' },
+  { id: 'monochrome', color: '#ffffff', Icon: Contrast, label: 'Mono' },
   { id: 'cyberpunk', color: '#00ffcc', Icon: Zap, label: 'Cyber' },
 ];
 
@@ -125,7 +125,7 @@ export default function OrbThemeSwitcher() {
           transformOrigin: 'top right',
         }}
       >
-        {THEMES.filter(t => t.id === 'dark' || t.id === 'main').map((t, i) => {
+        {THEMES.filter(t => t.id === 'dark' || t.id === 'main' || t.id === 'monochrome').map((t, i) => {
           const isActive = t.id === activeTheme;
           return (
             <button

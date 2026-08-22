@@ -4,8 +4,8 @@ import { Capacitor } from "@capacitor/core";
 
 // Web themes
 const WEB_THEMES = ["dark", "light", "main", "nature", "fire", "queen", "monochrome", "cyberpunk"];
-// Mobile themes restricted to these three
-const MOBILE_THEMES = ["dark", "light", "queen"];
+// Mobile themes
+const MOBILE_THEMES = ["dark", "light", "queen", "monochrome"];
 
 // Apply saved theme immediately from localStorage as a fast sync fallback for web
 const savedTheme = typeof window !== "undefined"
@@ -73,7 +73,7 @@ export function useThemeProvider() {
   };
 
   const toggle = () => {
-    const nextTheme = theme === "dark" ? "main" : "dark";
+    const nextTheme = theme === "dark" ? "main" : theme === "main" ? "monochrome" : "dark";
     setTheme(nextTheme);
   };
 
